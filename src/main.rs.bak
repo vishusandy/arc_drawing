@@ -1,0 +1,119 @@
+fn main() {
+    full_quadrant_arc().unwrap();
+}
+
+const IMG_SIZE: u32 = 600;
+fn guidelines() -> image::RgbaImage {
+    let mut image =
+        image::RgbaImage::from_pixel(IMG_SIZE, IMG_SIZE, image::Rgba([255, 255, 255, 255]));
+    // Draw guide lines
+    imageproc::drawing::draw_line_segment_mut(
+        &mut image,
+        (IMG_SIZE as f32 / 2.0, 0.0),
+        (IMG_SIZE as f32 / 2.0, IMG_SIZE as f32),
+        image::Rgba([252, 190, 3, 255]),
+    );
+    imageproc::drawing::draw_line_segment_mut(
+        &mut image,
+        (0.0, IMG_SIZE as f32 / 2.0),
+        (IMG_SIZE as f32, IMG_SIZE as f32 / 2.0),
+        image::Rgba([252, 190, 3, 255]),
+    );
+    imageproc::drawing::draw_line_segment_mut(
+        &mut image,
+        (0.0, 0.0),
+        (IMG_SIZE as f32, IMG_SIZE as f32),
+        image::Rgba([255, 242, 206, 255]),
+    );
+    imageproc::drawing::draw_line_segment_mut(
+        &mut image,
+        (0.0, IMG_SIZE as f32),
+        (IMG_SIZE as f32, 0.0),
+        image::Rgba([255, 242, 206, 255]),
+    );
+    image
+}
+
+// oct radians
+const OR: f64 = std::f64::consts::PI / 4.0;
+
+fn markers(image: &mut image::RgbaImage, r: i32, c: (i32, i32)) {
+    let rads = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0];
+
+    for o in 0..8 {
+        let oa = o as f64 * OR;
+        for a in rads {
+            let rad = a * OR + oa;
+            plot_marker(image, r, rad, c, image::Rgba([0, 255, 0, 255]));
+        }
+    }
+}
+fn plot_marker(
+    image: &mut image::RgbaImage,
+    r: i32,
+    angle: f64,
+    c: (i32, i32),
+    color: image::Rgba<u8>,
+) {
+    let r = r as f64;
+    let x = ((r * angle.cos()).round() as i32 + c.0) as u32;
+    let y = ((r * angle.sin()).round() as i32 + c.1) as u32;
+    image.put_pixel(x, y, color);
+}
+
+fn full_quadrant_arc() -> Result<(), image::ImageError> {
+    let c: (i32, i32) = (IMG_SIZE as i32 / 2, IMG_SIZE as i32 / 2);
+    let r: i32 = 150;
+
+    let mut image: image::RgbaImage = guidelines();
+    imageproc::drawing::draw_hollow_circle_mut(&mut image, c, r, image::Rgba([0, 0, 255, 255]));
+    markers(&mut image, r, c);
+
+    // let mut oct: u8 = 0;
+    let r2 = r * r;
+    let mut i = 0;
+    let mut x: i32 = r;
+    let mut y: i32 = 0;
+    {
+        let mut x2 = x * x;
+        while x > -y && i < 999 {
+            let y2 = y * y;
+            let d = x2 + y2 - r2;
+            if (2 * d) + (4 * y + 2) + (1 - (2 * x)) > 0 {
+                x -= 1;
+                x2 = x * x;
+            }
+            image.put_pixel(
+                (x + c.0) as u32,
+                (y + c.1) as u32 + 1,
+                image::Rgba([0, 0, 0, 255]),
+            );
+            y -= 1;
+            i += 1;
+        }
+    }
+    {
+        i = 0;
+        let mut x2 = x * x;
+        while x != 0 && i < 70 {
+            image.put_pixel(
+                (x + c.0 - 2) as u32 + 1,
+                (y + c.1) as u32,
+                image::Rgba([255, 0, 0, 255]),
+            );
+            let y2 = y * y;
+            let d = x2 + y2 - r2;
+            y += 1;
+            println!("x={} y={} d={}", x, y, d);
+            if 2 * (1 - 2 * x) * (x2 + y2 - r2 + 2 * y + 1) + (1 - 2 * x).pow(2) >= 0 {
+                // if (2 * d) + (4 * y + 2) + (1 - (2 * x)) < 0 {
+                x += 1;
+                // y2 = y * y;
+                x2 = x * x;
+            }
+            i += 1;
+        }
+    }
+
+    image.save("arc_test.png")
+}
