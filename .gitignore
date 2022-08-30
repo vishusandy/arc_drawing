@@ -3,3 +3,4 @@ Cargo.lock
 full_quad_arc.png
 .gitignore
 arc_test.zip
+*.png

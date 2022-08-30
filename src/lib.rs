@@ -3,14 +3,14 @@ pub use arc::arc_midpoint;
 use criterion::black_box;
 
 pub const IMG_SIZE: u32 = 600;
-pub const R: i32 = 50;
+pub const RADIUS: i32 = 50;
 pub const CENTER: (i32, i32) = (300, 300);
 
 const OR: f64 = std::f64::consts::PI / 4.0;
 
 pub fn setup(r: i32) -> image::RgbaImage {
     let mut image = guidelines();
-    let center = (300, 300);
+    let center = CENTER;
     imageproc::drawing::draw_hollow_circle_mut(
         &mut image,
         center,
