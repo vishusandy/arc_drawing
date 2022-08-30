@@ -1,51 +1,84 @@
-pub fn arc_midpoint(mut image: image::RgbaImage, r: i32, c: (i32, i32)) -> image::RgbaImage {
+pub fn arc_midpoint(mut image: image::RgbaImage, radius: i32, c: (i32, i32)) -> image::RgbaImage {
+    let r = radius as f64;
+    let mut y;
+    let mut x;
     {
-        // octant 1
-        let mut y: f64 = 0.0;
-        let mut x2 = (r * r) as f64;
-        let mut x: f64 = r as f64;
-        while x > -y {
-            let x2n = x2 + 2.0 * y - 1.0; // next x2 value
-            x = x2n.sqrt();
-            image.put_pixel(
-                (x.round() as i32 + c.0) as u32,
-                (y.round() as i32 + c.1 - 1) as u32,
-                image::Rgba([255, 0, 0, 255]),
-            );
-            y -= 1.0;
-            x2 = x2n;
+        // Quadrant 1
+        {
+            // Octant 1
+            y = 0.0;
+            x = r as f64;
+            let mut x2 = (r * r) as f64;
+            while x > -y {
+                // println!("x={:.1} y={:.1}", x, y);
+                let x2n = x2 + 2.0 * y - 1.0; // next x2 value
+                x = x2n.sqrt();
+                image.put_pixel(
+                    (x.round() as i32 + c.0) as u32,
+                    (y.round() as i32 + c.1 - 1) as u32,
+                    image::Rgba([255, 0, 0, 255]),
+                );
+                y -= 1.0;
+                x2 = x2n;
+            }
         }
-        // octant 2 attempt
-        // let mut y2 = y * y;
-        // while x >= 0.0 {
-        //     let y2n = y2 + 2.0 * x - 1.0; // next y2 value
-        //     let y = -y2n.sqrt();
-        //     image.put_pixel(
-        //         (x.round() as i32 + c.0 - 1) as u32,
-        //         (y.round() as i32 + c.1) as u32,
-        //         image::Rgba([255, 0, 0, 255]),
-        //     );
-        //     x -= 1.0;
-        //     y2 = y2n;
-        // }
+        {
+            // Octant 2
+            x = 0.0;
+            y = -r;
+            let mut y2 = -(r * r);
+            println!("x={:.1} y={:.1}", x, y);
+            while x < -y {
+                println!("x={:.1} y={:.1}", x, y);
+                let y2n = y2 + 2.0 * x - 1.0;
+                y = -(-y2n).sqrt();
+                image.put_pixel(
+                    (x.round() as i32 + c.0) as u32,
+                    (y.round() as i32 + c.1) as u32,
+                    image::Rgba([255, 0, 0, 255]),
+                );
+                x += 1.0;
+                y2 = y2n;
+            }
+        }
     }
+    // Quadrant 2
     // {
-    //     // octant 8
-    //     let mut x2: f64 = (r * r) as f64;
-    //     let mut x: f64 = x2.sqrt();
-    //     let mut y: f64 = 0.0;
-    //     while x > y {
-    //         let xn = x2 - (2.0 * y) - 1.0;
-    //         x = x2.sqrt();
+    //     x = 0.0;
+    //     y = r as f64;
+    //     let mut y2 = y * y;
+    //     println!("x={:.1} y={:.1}", x, y);
+    //     while x < y {
+    //         let y2n = y2 + 2.0 * x - 1.0; // next y2 value
+    //         y = y2n.sqrt();
+    //         println!("x={:.1} y={:.1}", x, y);
     //         image.put_pixel(
-    //             (x.round() as i32 + c.0) as u32,
+    //             (x.round() as i32 + c.0 - 1) as u32,
     //             (y.round() as i32 + c.1) as u32,
     //             image::Rgba([255, 0, 0, 255]),
     //         );
-    //         y += 1.0;
-    //         x2 = xn;
+    //         x -= 1.0;
+    //         y2 = y2n;
     //     }
     // }
+
+    {
+        // octant 8
+        let mut x2: f64 = (r * r) as f64;
+        let mut x: f64 = x2.sqrt();
+        let mut y: f64 = 0.0;
+        while x > y {
+            let xn = x2 - (2.0 * y) - 1.0;
+            x = x2.sqrt();
+            image.put_pixel(
+                (x.round() as i32 + c.0) as u32,
+                (y.round() as i32 + c.1) as u32,
+                image::Rgba([255, 0, 0, 255]),
+            );
+            y += 1.0;
+            x2 = xn;
+        }
+    }
 
     image
 }
