@@ -27,9 +27,9 @@ pub fn arc_midpoint(mut image: image::RgbaImage, radius: i32, c: (i32, i32)) -> 
             x = 0.0;
             y = -r;
             let mut y2 = -(r * r);
-            println!("x={:.1} y={:.1}", x, y);
+            // println!("x={:.1} y={:.1}", x, y);
             while x < -y {
-                println!("x={:.1} y={:.1}", x, y);
+                // println!("x={:.1} y={:.1}", x, y);
                 let y2n = y2 + 2.0 * x - 1.0;
                 y = -(-y2n).sqrt();
                 image.put_pixel(
@@ -43,24 +43,25 @@ pub fn arc_midpoint(mut image: image::RgbaImage, radius: i32, c: (i32, i32)) -> 
         }
     }
     // Quadrant 2
-    // {
-    //     x = 0.0;
-    //     y = r as f64;
-    //     let mut y2 = y * y;
-    //     println!("x={:.1} y={:.1}", x, y);
-    //     while x < y {
-    //         let y2n = y2 + 2.0 * x - 1.0; // next y2 value
-    //         y = y2n.sqrt();
-    //         println!("x={:.1} y={:.1}", x, y);
-    //         image.put_pixel(
-    //             (x.round() as i32 + c.0 - 1) as u32,
-    //             (y.round() as i32 + c.1) as u32,
-    //             image::Rgba([255, 0, 0, 255]),
-    //         );
-    //         x -= 1.0;
-    //         y2 = y2n;
-    //     }
-    // }
+    {
+        // Octant 3
+        x = 0.0;
+        y = -r as f64;
+        let mut y2 = y * y;
+        println!("x={:.1} y={:.1}", x, y);
+        while x > y {
+            println!("x={:.1} y={:.1}", x, y);
+            let y2n = y2 + 2.0 * x - 1.0;
+            y = -(y2n).sqrt();
+            image.put_pixel(
+                (x.round() as i32 + c.0 - 1) as u32,
+                (y.round() as i32 + c.1) as u32,
+                image::Rgba([255, 0, 0, 255]),
+            );
+            x -= 1.0;
+            y2 = y2n;
+        }
+    }
 
     {
         // octant 8
