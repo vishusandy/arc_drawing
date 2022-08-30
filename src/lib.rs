@@ -3,7 +3,7 @@ pub use arc::arc_midpoint;
 use criterion::black_box;
 
 pub const IMG_SIZE: u32 = 600;
-pub const RADIUS: i32 = 50;
+pub const RADIUS: i32 = 200;
 pub const CENTER: (i32, i32) = (300, 300);
 
 const OR: f64 = std::f64::consts::PI / 4.0;

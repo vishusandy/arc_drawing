@@ -21,8 +21,8 @@ pub fn arc_midpoint(mut image: image::RgbaImage, r: i32, c: (i32, i32)) -> image
         let mut x2 = (r * r) as f64;
         let mut x: f64 = r as f64;
         while x > -y {
-            println!("x={:.1} y={:.1}", x, y);
-            let x2n = x2 + 2.0 * y - 1.0; // next x value
+            // println!("x={:.1} y={:.1}", x, y);
+            let x2n = x2 + 2.0 * y - 1.0; // next x2 value
             x = x2n.sqrt();
             image.put_pixel(
                 (x.round() as i32 + c.0) as u32,
@@ -31,6 +31,18 @@ pub fn arc_midpoint(mut image: image::RgbaImage, r: i32, c: (i32, i32)) -> image
             );
             y -= 1.0;
             x2 = x2n;
+        }
+        let mut y2 = y * y;
+        while x >= 0.0 {
+            let y2n = y2 + 2.0 * x - 1.0; // next y2 value
+            let y = -y2n.sqrt();
+            image.put_pixel(
+                (x.round() as i32 + c.0 - 1) as u32,
+                (y.round() as i32 + c.1) as u32,
+                image::Rgba([255, 0, 0, 255]),
+            );
+            x -= 1.0;
+            y2 = y2n;
         }
     }
     image
