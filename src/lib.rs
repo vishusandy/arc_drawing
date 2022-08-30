@@ -1,5 +1,5 @@
 mod arc;
-pub use arc::arc_midpoint;
+pub use arc::{arc_integer, arc_midpoint};
 use criterion::black_box;
 
 pub const IMG_SIZE: u32 = 600;

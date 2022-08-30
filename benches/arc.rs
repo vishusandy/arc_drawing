@@ -16,6 +16,15 @@ fn bench_arc_midpoint(c: &mut Criterion) {
         )
     });
 }
+fn bench_arc_integer(c: &mut Criterion) {
+    c.bench_function("arc_midpoint_fp", |b| {
+        b.iter_batched(
+            || arc_test::setup(arc_test::RADIUS),
+            |image| arc_test::arc_integer(image, arc_test::RADIUS, arc_test::CENTER),
+            BatchSize::SmallInput,
+        )
+    });
+}
 
-criterion_group!(benches, bench_arc_midpoint);
-criterion_main!(benches);
+criterion_group!(fp_benches, bench_arc_midpoint, bench_arc_integer);
+criterion_main!(fp_benches);
