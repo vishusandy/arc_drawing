@@ -2,5 +2,7 @@
 Cargo.lock
 full_quad_arc.png
 .gitignore
-arc_test.zip
+*.7z
+*.zip
 *.png
+arc_test/

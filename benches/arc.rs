@@ -17,7 +17,7 @@ fn bench_arc_midpoint(c: &mut Criterion) {
     });
 }
 fn bench_arc_integer(c: &mut Criterion) {
-    c.bench_function("arc_midpoint_fp", |b| {
+    c.bench_function("arc_integer", |b| {
         b.iter_batched(
             || arc_test::setup(arc_test::RADIUS),
             |image| arc_test::arc_integer(image, arc_test::RADIUS, arc_test::CENTER),

@@ -63,11 +63,9 @@ pub fn arc_integer(mut image: image::RgbaImage, r: i32, c: (i32, i32)) -> image:
         x += 1;
         if d <= 0 {
             d += 2 * x + 1;
-            // d = ((x + 1) * (x + 1)) + (y as f64 - 0.5).powi(2).round() as i32 - (r * r);
         } else {
             y -= 1;
             d += 2 * (x - y) + 1;
-            // d = ((x + 1) * (x + 1)) + (y as f64 - 0.5).powi(2).round() as i32 - (r * r);
         }
     }
     image
