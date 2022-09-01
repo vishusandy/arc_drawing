@@ -16,6 +16,7 @@ fn bench_arc_midpoint(c: &mut Criterion) {
         )
     });
 }
+
 fn bench_arc_integer(c: &mut Criterion) {
     c.bench_function("arc_integer", |b| {
         b.iter_batched(
@@ -26,5 +27,45 @@ fn bench_arc_integer(c: &mut Criterion) {
     });
 }
 
-criterion_group!(fp_benches, bench_arc_midpoint, bench_arc_integer);
+fn bench_arc_integer2_full(c: &mut Criterion) {
+    c.bench_function("arc_integer2_full", |b| {
+        b.iter_batched(
+            || arc_test::setup(arc_test::RADIUS),
+            |mut image| {
+                arc_test::full_circle(
+                    &mut image,
+                    arc_test::RADIUS,
+                    arc_test::CENTER,
+                    image::Rgba([255, 0, 0, 255]),
+                )
+            },
+            BatchSize::SmallInput,
+        )
+    });
+}
+fn bench_arc_integer2_single(c: &mut Criterion) {
+    c.bench_function("arc_integer2_single", |b| {
+        b.iter_batched(
+            || arc_test::setup(arc_test::RADIUS),
+            |mut image| {
+                arc_test::full_arc_oct(
+                    &mut image,
+                    arc_test::RADIUS,
+                    arc_test::CENTER,
+                    0,
+                    image::Rgba([255, 0, 0, 255]),
+                )
+            },
+            BatchSize::SmallInput,
+        )
+    });
+}
+
+criterion_group!(
+    fp_benches,
+    bench_arc_midpoint,
+    bench_arc_integer,
+    bench_arc_integer2_full,
+    bench_arc_integer2_single,
+);
 criterion_main!(fp_benches);

@@ -1,7 +1,9 @@
+// const RADS: f64 = std::f64::consts::PI / 4.0;
+
 pub fn arc_midpoint(mut image: image::RgbaImage, radius: i32, c: (i32, i32)) -> image::RgbaImage {
     let r = radius as f64;
-    let mut y;
-    let mut x;
+    let mut y: f64;
+    let mut x: f64;
     {
         // Quadrant 1
         {
@@ -84,6 +86,9 @@ pub fn arc_midpoint(mut image: image::RgbaImage, radius: i32, c: (i32, i32)) -> 
                 // println!("x={:.1} y={:.1}", x, y);
             }
         }
+    }
+    {
+        // Quadrant 3
     }
 
     {

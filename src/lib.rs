@@ -1,6 +1,9 @@
-mod arc;
-pub use arc::{arc_integer, arc_midpoint};
+mod bres;
+mod mp;
+
+pub use bres::{full_arc_oct, full_circle};
 use criterion::black_box;
+pub use mp::{arc_integer, arc_midpoint};
 
 pub const IMG_SIZE: u32 = 600;
 pub const RADIUS: i32 = 200;
