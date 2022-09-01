@@ -1,6 +1,10 @@
+#![allow(dead_code)]
+#![allow(unused_variables)]
 mod bres;
 mod mp;
+mod pt;
 
+pub use bres::octs::{draw_bres_circle, draw_bres_iter, Oct1, Oct2};
 pub use bres::{full_arc_oct, full_circle};
 use criterion::black_box;
 pub use mp::{arc_integer, arc_midpoint};

@@ -60,12 +60,44 @@ fn bench_arc_integer2_single(c: &mut Criterion) {
         )
     });
 }
+fn bench_bres_iter_o1(c: &mut Criterion) {
+    c.bench_function("bres_iter_o1", |b| {
+        b.iter_batched(
+            || arc_test::setup(arc_test::RADIUS),
+            |mut image| {
+                arc_test::draw_bres_iter(
+                    &mut image,
+                    arc_test::Oct1::new(arc_test::RADIUS, arc_test::CENTER),
+                    image::Rgba([255, 0, 0, 255]),
+                )
+            },
+            BatchSize::SmallInput,
+        )
+    });
+}
+fn bench_bres_all_octants(c: &mut Criterion) {
+    c.bench_function("bres_iter_circle", |b| {
+        b.iter_batched(
+            || arc_test::setup(arc_test::RADIUS),
+            |mut image| {
+                arc_test::draw_bres_circle(
+                    &mut image,
+                    arc_test::RADIUS,
+                    arc_test::CENTER,
+                    image::Rgba([255, 0, 0, 255]),
+                )
+            },
+            BatchSize::SmallInput,
+        )
+    });
+}
 
 criterion_group!(
-    fp_benches,
+    arc_benches,
     bench_arc_midpoint,
     bench_arc_integer,
     bench_arc_integer2_full,
     bench_arc_integer2_single,
 );
-criterion_main!(fp_benches);
+criterion_group!(bres_benches, bench_bres_iter_o1, bench_bres_all_octants);
+criterion_main!(arc_benches, bres_benches);

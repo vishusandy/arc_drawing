@@ -1,4 +1,4 @@
-mod octs;
+pub(crate) mod octs;
 
 pub fn full_circle(image: &mut image::RgbaImage, r: i32, c: (i32, i32), color: image::Rgba<u8>) {
     for i in 0..8 {
