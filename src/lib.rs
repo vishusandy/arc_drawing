@@ -1,19 +1,33 @@
 #![allow(dead_code)]
 #![allow(unused_variables)]
 mod bres;
-mod mp;
+mod fp;
 mod pt;
 
-pub use bres::octs::{draw_bres_circle, draw_bres_iter, Oct1, Oct2};
-pub use bres::{full_arc_oct, full_circle};
-use criterion::black_box;
-pub use mp::{arc_integer, arc_midpoint};
+pub use bres::octs::{Oct1, Oct2};
+pub use bres::{draw_bres_circle, full_arc_oct, full_circle};
+pub use fp::{arc_integer, arc_midpoint};
 
 pub const IMG_SIZE: u32 = 600;
-pub const RADIUS: i32 = 200;
+pub const RADIUS: i32 = 240;
 pub const CENTER: (i32, i32) = (300, 300);
 
 const OR: f64 = std::f64::consts::PI / 4.0;
+
+fn blank() -> image::RgbaImage {
+    image::RgbaImage::from_pixel(IMG_SIZE, IMG_SIZE, image::Rgba([255, 255, 255, 255]))
+}
+
+pub fn draw_iter<T: Iterator<Item = (i32, i32)>>(
+    image: &mut image::RgbaImage,
+    iter: T,
+    color: image::Rgba<u8>,
+) {
+    // let iter = Oct1::new(r, c);
+    for (x, y) in iter {
+        image.put_pixel(x as u32, y as u32, color);
+    }
+}
 
 pub fn setup(r: i32) -> image::RgbaImage {
     let mut image = guidelines();
@@ -29,11 +43,8 @@ pub fn setup(r: i32) -> image::RgbaImage {
 }
 
 fn guidelines() -> image::RgbaImage {
-    let mut image = black_box(image::RgbaImage::from_pixel(
-        IMG_SIZE,
-        IMG_SIZE,
-        image::Rgba([255, 255, 255, 255]),
-    ));
+    let mut image =
+        image::RgbaImage::from_pixel(IMG_SIZE, IMG_SIZE, image::Rgba([255, 255, 255, 255]));
     // Draw guide lines
     imageproc::drawing::draw_line_segment_mut(
         &mut image,
@@ -80,8 +91,6 @@ fn plot_marker(
     c: (i32, i32),
     color: image::Rgba<u8>,
 ) {
-    let r = r as f64;
-    let x = ((r * angle.cos()).round() as i32 + c.0) as u32;
-    let y = ((r * angle.sin()).round() as i32 + c.1) as u32;
-    image.put_pixel(x, y, color);
+    let pt::Pt { x, y }: pt::Pt<i32> = pt::Pt::from_radian(angle, r, c).into();
+    image.put_pixel(x as u32, y as u32, color);
 }

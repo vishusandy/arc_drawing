@@ -1,5 +1,21 @@
 pub(crate) mod octs;
 
+pub fn draw_bres_circle(
+    image: &mut image::RgbaImage,
+    r: i32,
+    c: (i32, i32),
+    color: image::Rgba<u8>,
+) {
+    crate::draw_iter(image, octs::Oct1::full(r, c), color);
+    crate::draw_iter(image, octs::Oct2::full(r, c), color);
+    crate::draw_iter(image, octs::Oct3::full(r, c), color);
+    crate::draw_iter(image, octs::Oct4::full(r, c), color);
+    crate::draw_iter(image, octs::Oct5::full(r, c), color);
+    crate::draw_iter(image, octs::Oct6::full(r, c), color);
+    crate::draw_iter(image, octs::Oct7::full(r, c), color);
+    crate::draw_iter(image, octs::Oct8::full(r, c), color);
+}
+
 pub fn full_circle(image: &mut image::RgbaImage, r: i32, c: (i32, i32), color: image::Rgba<u8>) {
     for i in 0..8 {
         full_arc_oct(image, r, c, i, color);

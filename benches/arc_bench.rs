@@ -65,9 +65,9 @@ fn bench_bres_iter_o1(c: &mut Criterion) {
         b.iter_batched(
             || arc_test::setup(arc_test::RADIUS),
             |mut image| {
-                arc_test::draw_bres_iter(
+                arc_test::draw_iter(
                     &mut image,
-                    arc_test::Oct1::new(arc_test::RADIUS, arc_test::CENTER),
+                    arc_test::Oct1::full(arc_test::RADIUS, arc_test::CENTER),
                     image::Rgba([255, 0, 0, 255]),
                 )
             },
