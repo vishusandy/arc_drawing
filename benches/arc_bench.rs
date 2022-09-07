@@ -118,4 +118,4 @@ criterion_group!(
 );
 criterion_group!(bres_benches, bench_bres_iter_o1, bench_bres_all_octants);
 criterion_group!(arc_circle_segment, bench_partial_arc);
-criterion_main!(arc_benches, bres_benches);
+criterion_main!(arc_benches, bres_benches, arc_circle_segment);

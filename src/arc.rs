@@ -60,10 +60,6 @@ impl Arc {
         } else {
             Self::calc_end_x(end, &loc, end_oct)
         };
-        println!(
-            "start_oct={} end_oct={} start_angle={} end_angle={} x={} y={} d={} ex={}",
-            start_oct, end_oct, start, end, x, y, d, ex,
-        );
         Self {
             loc,
             start_angle: start,
