@@ -70,6 +70,6 @@ mod tests {
             7,
             image::Rgba([255, 0, 0, 255]),
         );
-        image.save("bres_full_arc.png")
+        image.save("images/bres_full_arc.png")
     }
 }

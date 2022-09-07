@@ -9,23 +9,28 @@ pub struct Pt<T> {
     pub(crate) x: T,
     pub(crate) y: T,
 }
+
 impl<T> Copy for Pt<T> where T: Copy {}
+
 impl<T> Pt<T> {
     pub fn new(x: T, y: T) -> Self {
         Self { x, y }
     }
+
     pub fn x(&self) -> T
     where
         T: Copy,
     {
         self.x
     }
+
     pub fn y(&self) -> T
     where
         T: Copy,
     {
         self.y
     }
+
     /// Returns angle in radians from 0..2*PI
     pub(crate) fn angle(&self, c: Pt<T>) -> f64
     where
@@ -40,6 +45,7 @@ impl<T> Pt<T> {
             std::f64::consts::PI + std::f64::consts::PI - a
         }
     }
+
     pub(crate) fn radius(&self, c: Pt<T>) -> f64
     where
         T: Into<f64> + Copy + std::ops::Sub<Output = T>,
@@ -48,6 +54,7 @@ impl<T> Pt<T> {
         let (x, y): (f64, f64) = (x.into(), y.into());
         (x.powi(2) + y.powi(2)).sqrt()
     }
+
     pub(crate) fn polar(&self, c: Pt<T>) -> Polar<f64>
     where
         T: Into<f64> + Copy + std::ops::Sub<Output = T>,
@@ -57,6 +64,7 @@ impl<T> Pt<T> {
             angle: self.angle(c),
         }
     }
+
     pub(crate) fn octant(&self, c: Pt<T>) -> u8
     where
         T: Copy
@@ -95,7 +103,26 @@ impl<T> Pt<T> {
             return 6;
         }
     }
+    pub(crate) fn real_to_iter(mut self, oct: u8, c: Pt<T>) -> Pt<T>
+    where
+        T: Copy + std::ops::Neg<Output = T> + std::ops::SubAssign,
+    {
+        self.x -= c.x();
+        self.y -= c.y();
+        match oct {
+            1 => Pt::new(-self.y, self.x),
+            2 => Pt::new(self.x, -self.y),
+            3 => Pt::new(-self.x, -self.y),
+            4 => Pt::new(-self.y, -self.x),
+            5 => Pt::new(self.y, -self.x),
+            6 => Pt::new(-self.x, self.y),
+            7 => Pt::new(self.x, self.y),
+            8 => Pt::new(self.y, self.x),
+            _ => Pt::new(self.x, self.y),
+        }
+    }
 }
+
 impl Pt<f64> {
     pub(crate) fn from_radian<T>(angle: f64, radius: T, center: (T, T)) -> Self
     where
@@ -105,6 +132,46 @@ impl Pt<f64> {
         let y = center.1.into() - radius.into() * angle.sin();
 
         Self { x, y }
+    }
+    pub(crate) fn calc_error(&self, radius: i32, center: (i32, i32)) -> i32 {
+        ((self.x.round() - center.0 as f64 + 1.0).powi(2)
+            + (self.y.round() - center.1 as f64 - 0.5).powi(2)
+            - radius.pow(2) as f64)
+            .round() as i32
+    }
+    pub(crate) fn i32(&self) -> Pt<i32> {
+        Pt {
+            x: self.x.round() as i32,
+            y: self.y.round() as i32,
+        }
+    }
+}
+
+impl Pt<i32> {
+    pub(super) fn iter_to_real(self, oct: u8, c: Pt<i32>) -> Pt<i32> {
+        match oct {
+            1 => (self.y + c.x(), -self.x + c.y()).into(),
+            2 => (self.x + c.x(), -self.y + c.y()).into(),
+            3 => (-self.x + c.x(), -self.y + c.y()).into(),
+            4 => (-self.y + c.x(), -self.x + c.y()).into(),
+            5 => (-self.y + c.x(), self.x + c.y()).into(),
+            6 => (-self.x + c.x(), self.y + c.y()).into(),
+            7 => (self.x + c.x(), self.y + c.y()).into(),
+            8 => (self.y + c.x(), self.x + c.y()).into(),
+            _ => (self.x + c.x(), self.y + c.y()).into(),
+        }
+    }
+    pub(crate) fn f64(&self) -> Pt<f64> {
+        Pt {
+            x: self.x as f64,
+            y: self.y as f64,
+        }
+    }
+    pub(crate) fn u32(&self) -> Pt<u32> {
+        Pt {
+            x: self.x as u32,
+            y: self.y as u32,
+        }
     }
 }
 

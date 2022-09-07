@@ -1,5 +1,35 @@
 use crate::pt::Pt;
 
+const RAD: f64 = std::f64::consts::PI / 4.0;
+
+fn angle_octant(angle: f64) -> u8 {
+    if angle < RAD {
+        return 1;
+    }
+    if angle < RAD * 2.0 {
+        return 2;
+    }
+    if angle < RAD * 3.0 {
+        return 3;
+    }
+    if angle < RAD * 4.0 {
+        return 4;
+    }
+    if angle < RAD * 5.0 {
+        return 5;
+    }
+    if angle < RAD * 6.0 {
+        return 6;
+    }
+    if angle < RAD * 7.0 {
+        return 7;
+    }
+    if angle < RAD * 8.0 {
+        return 8;
+    }
+    angle_octant(angle % (RAD * 8.0))
+}
+
 /// Converts coordinates from the iterator to actual coordinates
 pub(super) mod bres_to {
     use std::ops::Neg;
@@ -57,8 +87,6 @@ mod bres_from {
     }
 }
 
-const RAD: f64 = std::f64::consts::PI / 4.0;
-
 /// First define the name of the struct, pass an identifier for x and y, then pass how to translate and reverse translate the coordinates.
 macro_rules! bres_oct {
     ( $o:ident, $oct:literal, $x:ident, $y:ident, ( $ex:expr, $ey:expr ), ( $rx:expr, $ry:expr )) => {
@@ -72,6 +100,23 @@ macro_rules! bres_oct {
         }
         impl $o {
             const OCT: u8 = $oct;
+
+            /// Iterator over a a partial or whole octant (depending on parameters)
+            pub fn arc(
+                start: Option<f64>,
+                end: Option<f64>,
+                radius: i32,
+                center: (i32, i32),
+            ) -> Self {
+                match (start, end) {
+                    (Some(s), Some(e)) => Self::segment(s, e, radius, center),
+                    (None, Some(e)) => Self::until(e, radius, center),
+                    (Some(s), None) => Self::at(s, radius, center),
+                    _ => Self::full(radius, center),
+                }
+            }
+
+            /// Iterator over the entire octet
             pub fn full(radius: i32, center: (i32, i32)) -> Self {
                 Self {
                     x: 0,
@@ -81,25 +126,18 @@ macro_rules! bres_oct {
                     c: center,
                 }
             }
-            pub fn arc(
-                start: Option<f64>,
-                end: Option<f64>,
-                radius: i32,
-                center: (i32, i32),
-            ) -> Self {
-                todo!()
-            }
+
+            /// Iterator over partial octant
             pub fn segment(start: f64, end: f64, radius: i32, center: (i32, i32)) -> Self {
                 let c = center;
-                let st = start % RAD + RAD * 6.0;
-                let et = end % RAD + RAD * 6.0;
-                // if Self::OCT % 2 == 0 {
-                //     std::mem::swap(&mut st, &mut et);
-                // }
+                let mut st = start % RAD + RAD * 6.0;
+                let mut et = end % RAD + RAD * 6.0;
+                if Self::OCT % 2 == 0 {
+                    std::mem::swap(&mut st, &mut et);
+                    println!("original end={:.4}", et);
+                    et = RAD * 7.0 - et + RAD * 6.0; // remember the iterator is in octet 7
+                }
                 println!("start={:.4} end={:.4}", st, et);
-                // if end > start {
-                //     std::mem::swap(&mut st, &mut et);
-                // }
                 let Pt { x: x1, y: y1 } = Pt::from_radian(st, radius, c);
                 let Pt { x: x2, y: y2 } = Pt::from_radian(et, radius, c);
                 let (x, y) = (x1.round() as i32 - c.0, y1.round() as i32 - c.1);
@@ -108,18 +146,33 @@ macro_rules! bres_oct {
                     + (y1.round() - c.1 as f64 - 0.5).powi(2)
                     - radius.pow(2) as f64)
                     .round() as i32;
-                // let d = 1 - radius;
                 let e = if x2 == 0 {
                     None
                 } else {
                     unsafe { Some(std::num::NonZeroI32::new_unchecked(x2.abs())) }
                 };
-                // println!("start={:.4} end={:.4}", st, et);
-                let rst = Self { x, y, d, e, c };
-                println!("segment: {:?}", rst);
                 Self { x, y, d, e, c }
             }
+
+            /// Iterator starting at a specified angle and going through the rest of the octant
             pub fn at(start_theta: f64, radius: i32, center: (i32, i32)) -> Self {
+                if Self::OCT % 2 == 0 {
+                    Self::until_local(start_theta, radius, center)
+                } else {
+                    Self::at_local(start_theta, radius, center)
+                }
+            }
+
+            /// Iterator starting at the beginning of the octant and stopping at a specified angle
+            pub fn until(end_theta: f64, radius: i32, center: (i32, i32)) -> Self {
+                if Self::OCT % 2 == 0 {
+                    Self::at_local(end_theta, radius, center)
+                } else {
+                    Self::until_local(end_theta, radius, center)
+                }
+            }
+
+            fn at_local(start_theta: f64, radius: i32, center: (i32, i32)) -> Self {
                 let theta = start_theta % RAD + RAD * 6.0;
                 let Pt { x: x1, y: y1 } = Pt::from_radian(theta, radius, center);
                 let d: i32 = ((x1.round() - center.0 as f64 + 1.0).powi(2)
@@ -135,7 +188,8 @@ macro_rules! bres_oct {
                     c: center,
                 }
             }
-            pub fn until(end_theta: f64, radius: i32, center: (i32, i32)) -> Self {
+
+            fn until_local(end_theta: f64, radius: i32, center: (i32, i32)) -> Self {
                 let theta = end_theta % RAD + RAD * 6.0;
                 let pt = Pt::from_radian(theta, radius, center);
                 let ox = pt.x().round() as i32;
@@ -173,8 +227,10 @@ macro_rules! bres_oct {
                 Pt::new($ex + c.0, $ey + c.1)
             }
         }
+
         impl Iterator for $o {
             type Item = (i32, i32);
+
             fn next(&mut self) -> Option<Self::Item> {
                 if self.x > self.y {
                     return None;
@@ -182,9 +238,7 @@ macro_rules! bres_oct {
                 let $x = self.x;
                 let $y = self.y;
                 if let Some(e) = self.e {
-                    // println!("self.x={} e={}", self.x, e.get());
                     if self.x + self.c.0 == e.get() {
-                        println!("found end");
                         return None;
                     }
                 }
@@ -222,7 +276,7 @@ mod tests {
             Oct1::full(crate::RADIUS, crate::CENTER),
             image::Rgba([255, 0, 0, 255]),
         );
-        image.save("bres_macro_octant.png")
+        image.save("images/bres_macro_octant.png")
     }
     #[test]
     fn bres_macro_circle() -> Result<(), image::ImageError> {
@@ -233,7 +287,7 @@ mod tests {
             crate::CENTER,
             image::Rgba([255, 0, 0, 255]),
         );
-        image.save("bres_iter_circle.png")
+        image.save("images/bres_iter_circle.png")
     }
 
     #[test]
@@ -320,7 +374,7 @@ mod tests {
             ly = y;
         }
 
-        image.save("pixel_test.png")
+        image.save("images/pixel_test.png")
     }
     #[test]
     fn angle_info() -> Result<(), image::ImageError> {
@@ -333,7 +387,7 @@ mod tests {
             println!("x={} y={} pt=({}, {}) angle={:.5}", x, y, pt.x(), pt.y(), a,);
             image.put_pixel(x as u32, y as u32, color);
         }
-        image.save("angle_test.png")
+        image.save("images/angle_test.png")
     }
     #[test]
     fn iter_until() -> Result<(), image::ImageError> {
@@ -346,21 +400,24 @@ mod tests {
             println!("x={} y={}", x, y);
             image.put_pixel(x as u32, y as u32, color);
         }
-        image.save("iter_until.png")
+        image.save("images/iter_until.png")
     }
     #[test]
     fn iter_segment() -> Result<(), image::ImageError> {
         let mut image = crate::setup(crate::RADIUS);
         let color = image::Rgba([255, 0, 0, 255]);
-        // let mut iter = Oct8::new(crate::RADIUS, crate::CENTER);
         let start_theta = std::f64::consts::PI * 2.0 / 8.0 * 6.25;
         let end_theta = std::f64::consts::PI * 2.0 / 8.0 * 6.5;
-        let mut iter = Oct5::segment(start_theta, end_theta, crate::RADIUS, crate::CENTER);
-        // let mut iter = Oct4::at(start_theta, crate::RADIUS, crate::CENTER);
+        // let mut iter = Oct4::segment(start_theta, end_theta, crate::RADIUS, crate::CENTER);
+        let mut iter = Oct5::arc(
+            Some(start_theta),
+            Some(end_theta),
+            crate::RADIUS,
+            crate::CENTER,
+        );
         for (x, y) in &mut iter {
-            // println!("x={} y={}", x, y);
             image.put_pixel(x as u32, y as u32, color);
         }
-        image.save("iter_segment.png")
+        image.save("images/iter_segment.png")
     }
 }

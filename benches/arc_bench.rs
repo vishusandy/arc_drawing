@@ -92,6 +92,23 @@ fn bench_bres_all_octants(c: &mut Criterion) {
     });
 }
 
+fn bench_partial_arc(c: &mut Criterion) {
+    const RADS: f64 = std::f64::consts::PI / 4.0;
+    const START: f64 = RADS * 0.1;
+    const END: f64 = RADS * 0.75;
+    c.bench_function("partial_arc", |b| {
+        b.iter_batched(
+            || arc_test::setup(arc_test::RADIUS),
+            |mut image| {
+                let mut arc =
+                    arc_test::Arc::new(START, END, arc_test::RADIUS, arc_test::CENTER.into());
+                arc.draw(&mut image, image::Rgba([255, 0, 0, 255]));
+            },
+            BatchSize::SmallInput,
+        )
+    });
+}
+
 criterion_group!(
     arc_benches,
     bench_arc_midpoint,
@@ -100,4 +117,5 @@ criterion_group!(
     bench_arc_integer2_single,
 );
 criterion_group!(bres_benches, bench_bres_iter_o1, bench_bres_all_octants);
+criterion_group!(arc_circle_segment, bench_partial_arc);
 criterion_main!(arc_benches, bres_benches);
