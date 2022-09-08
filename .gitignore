@@ -8,3 +8,4 @@ full_quad_arc.png
 arc_test/
 perf.data
 perf.data.old
+flamegraph.svg
