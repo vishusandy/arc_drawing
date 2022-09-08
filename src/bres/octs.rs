@@ -87,6 +87,53 @@ mod bres_from {
     }
 }
 
+#[derive(Clone, Debug)]
+struct OctRev {
+    x: i32,
+    y: i32,
+    d: i32,
+    c: Pt<i32>,
+}
+impl OctRev {
+    fn new(r: i32, c: Pt<i32>) -> Self {
+        let start = std::f64::consts::PI / 4.0 * 7.0;
+        let pt = Pt::from_radian(start, r, c.into()).real_to_iter(8, c.into());
+        let d: i32 = ((pt.x().round() as f64 + 1.0).powi(2) + (pt.y().round() as f64 - 0.5).powi(2)
+            - r.pow(2) as f64)
+            .round() as i32;
+        let Pt { x, y } = pt.i32();
+        println!(
+            "Start: start={:.4} x={} y={} d={} c={:?}",
+            start, x, y, d, c
+        );
+        Self {
+            x: x - 1,
+            y: y - 0,
+            d,
+            c,
+        }
+    }
+}
+impl Iterator for OctRev {
+    type Item = (i32, i32);
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.y == 0 || self.x == 0 || self.x >= self.c.x() - 10 {
+            return None;
+        }
+        let (x, y) = (self.x, self.y);
+        println!(" d={}\tx={}\ty={}", self.d, x, y);
+        println!("\t\tx+c={}\ty+c={}", x + self.c.x(), y + self.c.y());
+        self.y -= 1;
+        if self.d > 0 {
+            self.x += 1;
+            self.d += 2 * (self.y - self.x) - 1;
+        } else {
+            self.d += 2 * self.y + 1;
+        }
+        Some((x + self.c.x(), y + self.c.y()))
+    }
+}
+
 /// First define the name of the struct, pass an identifier for x and y, then pass how to translate and reverse translate the coordinates.
 macro_rules! bres_oct {
     ( $o:ident, $oct:literal, $x:ident, $y:ident, ( $ex:expr, $ey:expr ), ( $rx:expr, $ry:expr )) => {
@@ -419,5 +466,12 @@ mod tests {
             image.put_pixel(x as u32, y as u32, color);
         }
         image.save("images/iter_segment.png")
+    }
+    #[test]
+    fn rev_oct() -> Result<(), image::ImageError> {
+        let mut image = crate::setup(crate::RADIUS);
+        let iter = OctRev::new(crate::RADIUS, crate::CENTER.into());
+        crate::draw_iter(&mut image, iter, image::Rgba([255, 0, 0, 255]));
+        image.save("images/rev_oct.png")
     }
 }
