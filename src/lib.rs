@@ -1,5 +1,6 @@
 #![allow(dead_code)]
 #![allow(unused_variables)]
+mod annulus;
 mod arc;
 mod bres;
 mod fp;
