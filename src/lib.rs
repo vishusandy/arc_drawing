@@ -5,6 +5,10 @@ mod bres;
 mod fp;
 mod pt;
 
+// STATUS
+//  arc::Arc is the full implementation of partial circular arc drawing, however it could use some
+//  performance improvements and optimizations :\
+
 pub use arc::Arc;
 pub use bres::octs::{Oct1, Oct2};
 pub use bres::{draw_bres_circle, full_arc_oct, full_circle};

@@ -1,2 +1,17 @@
+
+# On Fedora I had to install clang and lld
+#   dnf install clang lld
 [target.x86_64-unknown-linux-gnu]
+linker = "/usr/bin/clang"
+rustflags = [
+    "-Ctarget-cpu=native",
+    "-Clink-arg=-fuse-ld=lld",
+    "-Clink-arg=-Wl,--no-rosegment",
+]
+
+
+[target.x86_64-pc-windows-msvc]
+rustflags = ["-Ctarget-cpu=native"]
+
+[target.x86_64-pc-windows-gnu]
 rustflags = ["-Ctarget-cpu=native"]

@@ -91,9 +91,6 @@ impl Arc {
             .i32()
     }
 
-    // Only account for cases where start and end are in different octants.
-    // cases where start_oct == end_oct should be handled by the new function
-    // `ex` should be calculated in new as well
     fn next_octant(&mut self) {
         self.cur_oct += 1;
         if self.cur_oct == self.end_oct && self.cur_oct % 2 == 0 {
