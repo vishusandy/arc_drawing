@@ -92,7 +92,7 @@ impl Pos {
 }
 
 #[derive(Clone, Debug)]
-struct Annulus {
+pub struct Annulus {
     start: Edge,
     end: Edge,
     oct: u8,
@@ -102,7 +102,7 @@ struct Annulus {
     c: Pt<i32>,
 }
 impl Annulus {
-    fn new(mut start: f64, mut end: f64, mut ri: i32, mut ro: i32, c: Pt<i32>) -> Self {
+    pub fn new(mut start: f64, mut end: f64, mut ri: i32, mut ro: i32, c: Pt<i32>) -> Self {
         Self::check_angles(&mut start, &mut end);
         Self::check_radii(&mut ri, &mut ro);
         let mut start = Edge::new(start);
@@ -147,7 +147,6 @@ impl Annulus {
     }
 
     fn end(&self) -> bool {
-        // if self.x > self.inr.y && self.x > self.otr.y {
         if self.x >= self.inr.ex && self.x >= self.otr.ex {
             true
         } else {
@@ -235,7 +234,6 @@ impl Annulus {
             //     self.x, self.inr.x, self.otr.x, self.inr.y, self.otr.y
             // );
             let (x, y1, y2) = self.step();
-            // self.put_line(self.x, self.inr.y.max(self.x), y2, image, color);
             println!("\tstep => x={} y1={} y2={}", x, y1, y2);
             self.put_line(x, y1, y2, image, color);
             imageproc::drawing::draw_hollow_circle_mut(
