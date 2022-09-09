@@ -22,6 +22,9 @@ impl Edge {
         self.slope = calc_slope(x1, y1, x2, y2);
         self.int = (self.slope * (-x1 as f64) + y1 as f64).round() as i32;
     }
+    fn line(&self) -> (f64, i32) {
+        (self.slope, self.int)
+    }
 }
 
 fn calc_slope(x1: i32, y1: i32, x2: i32, y2: i32) -> f64 {
@@ -34,6 +37,7 @@ struct Pos {
     y: i32,
     d: i32,  // decision parameter
     ex: i32, // ending x coordinate
+    ey: i32, // ending y coordinate
     r: i32,
 }
 impl Pos {
@@ -46,7 +50,15 @@ impl Pos {
             + (start.y().round() as f64 - 0.5).powi(2)
             - r.pow(2) as f64)
             .round() as i32;
-        Self { x, y, d, ex, r }
+        Self { x, y, d, ex, ey, r }
+    }
+
+    fn get_y(&self, x: i32) -> Option<i32> {
+        if x == self.x {
+            Some(self.y)
+        } else {
+            None
+        }
     }
 
     fn y(&self, x: i32, slope: f64, int: i32) -> i32 {
@@ -64,6 +76,9 @@ impl Pos {
     }
 
     fn inc(&mut self) {
+        if self.x > self.ex {
+            return;
+        }
         self.x += 1;
         if self.d > 0 {
             self.y -= 1;
@@ -95,6 +110,7 @@ impl Annulus {
         let inr = Pos::new(start.angle, end.angle, start.oct, ri, c);
         let otr = Pos::new(start.angle, end.angle, start.oct, ro, c);
         start.set_slope(inr.x, inr.y, otr.x, otr.y);
+        end.set_slope(inr.ex, inr.ey, otr.ex, otr.ey);
         Self {
             x: inr.x.min(otr.x),
             inr,
@@ -102,46 +118,6 @@ impl Annulus {
             oct: start.oct,
             start,
             end,
-            c,
-        }
-    }
-
-    fn test_blank(ri: i32, ro: i32, c: Pt<i32>) -> Self {
-        let start = Edge {
-            angle: 0.0,
-            oct: 7,
-            slope: 0.0,
-            int: 0,
-        };
-        let end = Edge {
-            angle: 0.0,
-            oct: 7,
-            slope: 0.0,
-            int: 0,
-        };
-        let oct = 7;
-        let inr = Pos {
-            x: 0,
-            y: ri,
-            d: 1 - ri,
-            ex: 0,
-            r: ri,
-        };
-        let otr = Pos {
-            x: 0,
-            y: ro,
-            d: 1 - ro,
-            ex: 0,
-            r: ro,
-        };
-        let x = 0;
-        Self {
-            start,
-            end,
-            oct,
-            inr,
-            otr,
-            x,
             c,
         }
     }
@@ -171,7 +147,8 @@ impl Annulus {
     }
 
     fn end(&self) -> bool {
-        if self.x > self.inr.y && self.x > self.otr.y {
+        // if self.x > self.inr.y && self.x > self.otr.y {
+        if self.x >= self.inr.ex && self.x >= self.otr.ex {
             true
         } else {
             false
@@ -186,19 +163,62 @@ impl Annulus {
         image: &mut image::RgbaImage,
         color: image::Rgba<u8>,
     ) {
-        println!("\tx={} y=({}..{})", x, yo.min(yi), yo.max(yi));
+        println!(
+            "\tDraw: x={} yi={} yo={} drawing y=({}..={})",
+            x,
+            yi,
+            yo,
+            yo.min(yi),
+            yo.max(yi)
+        );
         for y in yo.min(yi)..=yo.max(yi) {
             let Pt { x, y } = translate::iter_to_real(x, y, self.oct, self.c);
             image.put_pixel(x as u32, y as u32, color);
         }
     }
 
-    fn step(&mut self) {
-        if self.x == self.inr.x {
-            self.inr.inc();
-        }
-        if self.x == self.otr.x {
-            self.otr.inc();
+    fn step(&mut self) -> (i32, i32, i32) {
+        let x = self.x;
+        self.x += 1;
+        match (self.inr.get_y(x), self.otr.get_y(x)) {
+            (Some(inr), Some(otr)) => {
+                self.inr.inc();
+                self.otr.inc();
+                (x, inr, otr)
+            }
+            (None, None) => {
+                panic!("(None, None) returned");
+            }
+            (inr, otr) => {
+                let (slope, int) = if x <= self.inr.ex && x <= self.otr.ex {
+                    println!("Edge = start");
+                    println!("step x={}", x);
+                    self.start.line()
+                } else {
+                    println!("Edge = end");
+                    self.end.line()
+                };
+
+                let inr = inr.unwrap_or_else(|| {
+                    self.otr.inc();
+                    println!(
+                        "\tinr=None -> y={}",
+                        ((x) as f64 * slope).round() as i32 + int
+                    );
+                    ((x) as f64 * slope).round() as i32 + int
+                });
+
+                let otr = otr.unwrap_or_else(|| {
+                    self.inr.inc();
+                    println!(
+                        "\totr=None -> y={}",
+                        ((x) as f64 * slope).round() as i32 + int
+                    );
+                    ((x) as f64 * slope).round() as i32 + int
+                });
+
+                (x, inr, otr)
+            }
         }
     }
 
@@ -210,26 +230,20 @@ impl Annulus {
             if self.next_octant() {
                 continue;
             }
-            println!(
-                "x={} xi={} xo={} yi={} yo{}",
-                self.x, self.inr.x, self.otr.x, self.inr.y, self.otr.y
+            // println!(
+            //     "\nx={} xi={} xo={} yi={} yo={}",
+            //     self.x, self.inr.x, self.otr.x, self.inr.y, self.otr.y
+            // );
+            let (x, y1, y2) = self.step();
+            // self.put_line(self.x, self.inr.y.max(self.x), y2, image, color);
+            println!("\tstep => x={} y1={} y2={}", x, y1, y2);
+            self.put_line(x, y1, y2, image, color);
+            imageproc::drawing::draw_hollow_circle_mut(
+                image,
+                self.c.into(),
+                self.otr.r,
+                image::Rgba([0, 0, 255, 255]),
             );
-            if self.inr.x == self.otr.x {
-                self.put_line(self.x, self.inr.y.max(self.x), self.otr.y, image, color);
-                self.inr.inc();
-                self.otr.inc();
-            } else if self.inr.x < self.otr.x {
-                println!("inr.x < otr.x");
-                let yo = self.otr.y(self.x, self.start.slope, self.start.int);
-                self.put_line(self.x, self.inr.y.max(self.x), yo, image, color);
-                self.inr.inc();
-            } else {
-                println!("inr.x > otr.x");
-                let y = self.inr.y(self.x, self.end.slope, self.end.int);
-                self.otr.inc();
-            }
-            self.step();
-            self.x += 1;
         }
     }
 }
@@ -243,8 +257,8 @@ mod tests {
         // let mut an = Annulus::test_blank(crate::RADIUS - 20, crate::RADIUS, crate::CENTER.into());
         let mut an = Annulus::new(
             RADS * 6.2,
-            RADS * 6.99,
-            crate::RADIUS - 20,
+            RADS * 6.8,
+            crate::RADIUS - 10,
             crate::RADIUS,
             crate::CENTER.into(),
         );
