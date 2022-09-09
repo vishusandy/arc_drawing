@@ -53,15 +53,24 @@ struct Pos {
 }
 impl Pos {
     fn new(start: f64, end: f64, oct: u8, r: i32, c: Pt<i32>) -> Self {
-        let start = Pt::from_radian(start, r, c.into()).real_to_iter(oct, c.into());
-        let end = Pt::from_radian(end, r, c.into()).real_to_iter(oct, c.into());
-        let Pt { x, y } = start.i32();
-        let Pt { x: ex, y: ey } = end.i32();
+        let mut start = Pt::from_radian(start, r, c.into()).real_to_iter(oct, c.into());
+        let mut end = Pt::from_radian(end, r, c.into()).real_to_iter(oct, c.into());
+        let Pt { mut x, mut y } = start.i32();
+        let Pt {
+            x: mut ex,
+            y: mut ey,
+        } = end.i32();
+        if oct % 2 == 0 {
+            std::mem::swap(&mut start, &mut end);
+            std::mem::swap(&mut x, &mut ex);
+            std::mem::swap(&mut y, &mut ey);
+        }
         let d: i32 = ((start.x().round() as f64 + 1.0).powi(2)
             + (start.y().round() as f64 - 0.5).powi(2)
             - r.pow(2) as f64)
             .round() as i32;
         Self { x, y, d, ex, ey, r }
+        // Self { x, y, d, ex, ey, r }
     }
 
     fn get_y(&self, x: i32) -> Option<i32> {
@@ -77,7 +86,6 @@ impl Pos {
             self.y
         } else {
             let s = self.slope(x, slope, int);
-            // println!("y={}", s);
             s
         }
     }
@@ -131,6 +139,22 @@ impl Annulus {
             end,
             c,
         }
+    }
+
+    pub fn inner_end(&self) -> Pt<i32> {
+        Pt::new(self.inr.ex, self.inr.ey)
+    }
+
+    pub fn outer_end(&self) -> Pt<i32> {
+        Pt::new(self.otr.ex, self.otr.ey)
+    }
+
+    pub fn inner_start(&self) -> Pt<i32> {
+        Pt::new(self.inr.x, self.inr.y)
+    }
+
+    pub fn outer_start(&self) -> Pt<i32> {
+        Pt::new(self.otr.x, self.otr.y)
     }
 
     fn check_angles(start: &mut f64, end: &mut f64) {
@@ -220,7 +244,8 @@ impl Annulus {
     }
 
     fn end(&self) -> bool {
-        if self.x > self.inr.ex && self.x > self.otr.ex {
+        if self.x >= self.inr.ex && self.x >= self.otr.ex {
+            info!("End");
             true
         } else {
             false
@@ -235,26 +260,14 @@ impl Annulus {
             if self.next_octant() {
                 continue;
             }
-            // println!(
-            //     "\nx={} xi={} xo={} yi={} yo={}",
-            //     self.x, self.inr.x, self.otr.x, self.inr.y, self.otr.y
-            // );
+            info!(
+                "\nx={} xi={} xo={} yi={} yo={}",
+                self.x, self.inr.x, self.otr.x, self.inr.y, self.otr.y
+            );
             let (x, y1, y2) = self.step();
             // println!("\tstep => x={} y1={} y2={}", x, y1, y2);
-            self.put_line(x, y1, y2, image, color);
+            self.put_line(x, y1.max(x), y2.max(x), image, color);
         }
-    }
-    pub fn inner_end(&self) -> Pt<i32> {
-        Pt::new(self.inr.ex, self.inr.ey)
-    }
-    pub fn outer_end(&self) -> Pt<i32> {
-        Pt::new(self.otr.ex, self.otr.ey)
-    }
-    pub fn inner_start(&self) -> Pt<i32> {
-        Pt::new(self.inr.x, self.inr.y)
-    }
-    pub fn outer_start(&self) -> Pt<i32> {
-        Pt::new(self.otr.x, self.otr.y)
     }
 }
 
@@ -265,41 +278,55 @@ mod tests {
     fn annulus() -> Result<(), image::ImageError> {
         crate::logger();
         let mut image = crate::setup(crate::RADIUS);
-        let ri = 10;
+
+        let ri = crate::RADIUS - 10;
         let ro = crate::RADIUS;
-        let start = RADS * 6.8;
-        let end = RADS * 6.99;
+        let start = RADS * 6.00;
+        let end = RADS * 7.0 - std::f64::EPSILON;
+
+        imageproc::drawing::draw_hollow_circle_mut(
+            &mut image,
+            crate::CENTER.into(),
+            ri,
+            image::Rgba([0, 0, 255, 255]),
+        );
+
+        let oct = translate::angle_octant(start);
         let mut an = Annulus::new(start, end, ri, ro, crate::CENTER.into());
         info!("Annulus: {:#?}", an);
-        let is = an.inner_start().iter_to_real(7, crate::CENTER.into());
-        let os = an.outer_start().iter_to_real(7, crate::CENTER.into());
+
+        let is = an.inner_start().iter_to_real(oct, crate::CENTER.into());
+        let os = an.outer_start().iter_to_real(oct, crate::CENTER.into());
+
+        an.draw(&mut image, image::Rgba([255, 0, 0, 255]));
+
         // image.put_pixel(
-        //     is.x() as u32 - 1,
+        //     is.x() as u32 + 1,
         //     is.y() as u32,
         //     image::Rgba([0, 255, 0, 255]),
         // );
         // image.put_pixel(
-        //     os.x() as u32 - 1,
+        //     os.x() as u32 + 1,
         //     os.y() as u32,
         //     image::Rgba([0, 255, 0, 255]),
         // );
-        an.draw(&mut image, image::Rgba([255, 0, 0, 255]));
-        let ie = an.inner_end().iter_to_real(7, crate::CENTER.into());
-        let oe = an.outer_end().iter_to_real(7, crate::CENTER.into());
+        // let ie = an.inner_end().iter_to_real(oct, crate::CENTER.into());
+        // let oe = an.outer_end().iter_to_real(oct, crate::CENTER.into());
         // image.put_pixel(
-        //     ie.x() as u32 + 1,
+        //     ie.x() as u32 - 1,
         //     ie.y() as u32,
         //     image::Rgba([0, 255, 0, 255]),
         // );
         // image.put_pixel(
-        //     oe.x() as u32 + 1,
+        //     oe.x() as u32 - 1,
         //     oe.y() as u32,
         //     image::Rgba([0, 255, 0, 255]),
         // );
+
         // imageproc::drawing::draw_hollow_circle_mut(
         //     &mut image,
         //     crate::CENTER.into(),
-        //     ro,
+        //     ri,
         //     image::Rgba([0, 0, 255, 255]),
         // );
         image.save("images/annulus.png")

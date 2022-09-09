@@ -169,7 +169,7 @@ criterion_group!(imageproc, bench_imageproc_circle); // circle drawing from imag
 criterion_group!(arc_circle_segment, bench_partial_arc);
 
 // These should be benchmarked by default
-criterion_group!(arc_benches, bench_arc_integer); // somehow improves performance
+criterion_group!(bench_warmup, bench_arc_integer); // somehow improves performance
 criterion_group!(annulus, bench_partial_annulus);
 
-criterion_main!(arc_benches, annulus);
+criterion_main!(bench_warmup, annulus);
