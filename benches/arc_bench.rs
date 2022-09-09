@@ -7,7 +7,6 @@ fn test_arc_midpoint() -> Result<(), image::ImageError> {
     setup(arc_test::RADIUS).save("arc_midpoint.png")
 }
 
-#[allow(dead_code)]
 fn bench_arc_midpoint(c: &mut Criterion) {
     c.bench_function("arc_midpoint_fp", |b| {
         b.iter_batched(
@@ -62,7 +61,6 @@ fn bench_arc_integer2_single(c: &mut Criterion) {
     });
 }
 
-#[allow(dead_code)]
 fn bench_bres_iter_o1(c: &mut Criterion) {
     c.bench_function("bres_iter_o1", |b| {
         b.iter_batched(
@@ -143,8 +141,8 @@ criterion_group!(
     bench_arc_integer2_full,
     bench_arc_integer2_single,
 );
-// criterion_group!(bres_benches, bench_bres_iter_o1, bench_bres_all_octants);
+criterion_group!(bres_benches, bench_bres_iter_o1, bench_bres_all_octants);
 criterion_group!(arc_circle_segment, bench_partial_arc);
 criterion_group!(annulus, bench_partial_annulus);
 // criterion_main!(arc_benches, bres_benches, arc_circle_segment, annulus);
-criterion_main!(arc_benches, arc_circle_segment, annulus);
+criterion_main!(arc_benches, annulus);
