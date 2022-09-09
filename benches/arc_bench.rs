@@ -109,13 +109,37 @@ fn bench_partial_arc(c: &mut Criterion) {
     });
 }
 
+fn bench_partial_annulus(c: &mut Criterion) {
+    const RADS: f64 = std::f64::consts::PI / 4.0;
+    const START: f64 = RADS * 0.1;
+    const END: f64 = RADS * 0.75;
+    c.bench_function("partial_annulus", |b| {
+        b.iter_batched(
+            || arc_test::setup(arc_test::RADIUS),
+            |mut image| {
+                let mut arc = arc_test::Annulus::new(
+                    START,
+                    END,
+                    arc_test::RADIUS - 10,
+                    arc_test::RADIUS,
+                    arc_test::CENTER.into(),
+                );
+                arc.draw(&mut image, image::Rgba([255, 0, 0, 255]));
+            },
+            BatchSize::SmallInput,
+        )
+    });
+}
+
 criterion_group!(
     arc_benches,
-    bench_arc_midpoint,
+    // bench_arc_midpoint,
     bench_arc_integer,
     bench_arc_integer2_full,
     bench_arc_integer2_single,
 );
-criterion_group!(bres_benches, bench_bres_iter_o1, bench_bres_all_octants);
+// criterion_group!(bres_benches, bench_bres_iter_o1, bench_bres_all_octants);
 criterion_group!(arc_circle_segment, bench_partial_arc);
-criterion_main!(arc_benches, bres_benches, arc_circle_segment);
+criterion_group!(annulus, bench_partial_annulus);
+// criterion_main!(arc_benches, bres_benches, arc_circle_segment, annulus);
+criterion_main!(arc_benches, arc_circle_segment, annulus);
