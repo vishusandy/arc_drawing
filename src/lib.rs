@@ -34,7 +34,7 @@ fn logger() {
         .init();
 }
 
-fn blank() -> image::RgbaImage {
+pub fn blank() -> image::RgbaImage {
     image::RgbaImage::from_pixel(IMG_SIZE, IMG_SIZE, image::Rgba([255, 255, 255, 255]))
 }
 

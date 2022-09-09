@@ -7,6 +7,23 @@ fn test_arc_midpoint() -> Result<(), image::ImageError> {
     setup(arc_test::RADIUS).save("arc_midpoint.png")
 }
 
+fn bench_imageproc_circle(c: &mut Criterion) {
+    c.bench_function("imageproc_circle", |b| {
+        b.iter_batched(
+            || arc_test::blank(),
+            |mut image| {
+                imageproc::drawing::draw_hollow_circle_mut(
+                    &mut image,
+                    arc_test::CENTER,
+                    arc_test::RADIUS,
+                    image::Rgba([255, 0, 0, 255]),
+                )
+            },
+            BatchSize::SmallInput,
+        )
+    });
+}
+
 fn bench_arc_midpoint(c: &mut Criterion) {
     c.bench_function("arc_midpoint_fp", |b| {
         b.iter_batched(
@@ -134,15 +151,25 @@ fn bench_partial_annulus(c: &mut Criterion) {
     });
 }
 
+// Old
 criterion_group!(
-    arc_benches,
-    // bench_arc_midpoint,
+    bres_iterators,
+    bench_arc_midpoint,
     bench_arc_integer,
-    bench_arc_integer2_full,
     bench_arc_integer2_single,
+    bench_bres_iter_o1,
+    bench_bres_all_octants,
+    bench_arc_integer2_full
 );
-criterion_group!(bres_benches, bench_bres_iter_o1, bench_bres_all_octants);
+
+// For comparison
+criterion_group!(imageproc, bench_imageproc_circle); // circle drawing from imageproc crate
+
+// Current but don't benchmark by default
 criterion_group!(arc_circle_segment, bench_partial_arc);
+
+// These should be benchmarked by default
+criterion_group!(arc_benches, bench_arc_integer); // somehow improves performance
 criterion_group!(annulus, bench_partial_annulus);
-// criterion_main!(arc_benches, bres_benches, arc_circle_segment, annulus);
+
 criterion_main!(arc_benches, annulus);
