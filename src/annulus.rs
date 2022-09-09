@@ -1,13 +1,18 @@
-use crate::pt::Pt;
-const RADS: f64 = std::f64::consts::PI / 4.0; // range of a single octant
 mod translate;
+use crate::pt::Pt;
+use crate::RADS;
+use log::info;
+
+fn calc_line(slope: f64, int: i32, x: i32) -> i32 {
+    (x as f64 * slope).round() as i32 + int
+}
 
 #[derive(Clone, Debug)]
 struct Edge {
     angle: f64,
     oct: u8,
     slope: f64,
-    int: i32,
+    int: i32, // intercept
 }
 impl Edge {
     fn new(angle: f64) -> Self {
@@ -24,6 +29,12 @@ impl Edge {
     }
     fn line(&self) -> (f64, i32) {
         (self.slope, self.int)
+    }
+    fn slope(&self) -> f64 {
+        self.slope
+    }
+    fn int(&self) -> i32 {
+        self.int
     }
 }
 
@@ -66,7 +77,7 @@ impl Pos {
             self.y
         } else {
             let s = self.slope(x, slope, int);
-            println!("y={}", s);
+            // println!("y={}", s);
             s
         }
     }
@@ -76,7 +87,7 @@ impl Pos {
     }
 
     fn inc(&mut self) {
-        if self.x > self.ex {
+        if self.x >= self.ex {
             return;
         }
         self.x += 1;
@@ -146,14 +157,6 @@ impl Annulus {
         false
     }
 
-    fn end(&self) -> bool {
-        if self.x >= self.inr.ex && self.x >= self.otr.ex {
-            true
-        } else {
-            false
-        }
-    }
-
     fn put_line(
         &self,
         x: i32,
@@ -162,7 +165,7 @@ impl Annulus {
         image: &mut image::RgbaImage,
         color: image::Rgba<u8>,
     ) {
-        println!(
+        info!(
             "\tDraw: x={} yi={} yo={} drawing y=({}..={})",
             x,
             yi,
@@ -185,39 +188,42 @@ impl Annulus {
                 self.otr.inc();
                 (x, inr, otr)
             }
-            (None, None) => {
-                panic!("(None, None) returned");
-            }
+            (None, None) => (
+                x,
+                calc_line(self.start.slope(), self.start.int(), x),
+                calc_line(self.end.slope(), self.end.int(), x),
+            ),
             (inr, otr) => {
                 let (slope, int) = if x <= self.inr.ex && x <= self.otr.ex {
-                    println!("Edge = start");
-                    println!("step x={}", x);
+                    info!("Edge = start");
                     self.start.line()
                 } else {
-                    println!("Edge = end");
+                    info!("Edge = end");
                     self.end.line()
                 };
 
                 let inr = inr.unwrap_or_else(|| {
                     self.otr.inc();
-                    println!(
-                        "\tinr=None -> y={}",
-                        ((x) as f64 * slope).round() as i32 + int
-                    );
-                    ((x) as f64 * slope).round() as i32 + int
+                    info!("\tinr=None -> y={}", calc_line(slope, int, x));
+                    calc_line(slope, int, x)
                 });
 
                 let otr = otr.unwrap_or_else(|| {
                     self.inr.inc();
-                    println!(
-                        "\totr=None -> y={}",
-                        ((x) as f64 * slope).round() as i32 + int
-                    );
-                    ((x) as f64 * slope).round() as i32 + int
+                    info!("\totr=None -> y={}", calc_line(slope, int, x));
+                    calc_line(slope, int, x)
                 });
 
                 (x, inr, otr)
             }
+        }
+    }
+
+    fn end(&self) -> bool {
+        if self.x > self.inr.ex && self.x > self.otr.ex {
+            true
+        } else {
+            false
         }
     }
 
@@ -234,15 +240,21 @@ impl Annulus {
             //     self.x, self.inr.x, self.otr.x, self.inr.y, self.otr.y
             // );
             let (x, y1, y2) = self.step();
-            println!("\tstep => x={} y1={} y2={}", x, y1, y2);
+            // println!("\tstep => x={} y1={} y2={}", x, y1, y2);
             self.put_line(x, y1, y2, image, color);
-            imageproc::drawing::draw_hollow_circle_mut(
-                image,
-                self.c.into(),
-                self.otr.r,
-                image::Rgba([0, 0, 255, 255]),
-            );
         }
+    }
+    pub fn inner_end(&self) -> Pt<i32> {
+        Pt::new(self.inr.ex, self.inr.ey)
+    }
+    pub fn outer_end(&self) -> Pt<i32> {
+        Pt::new(self.otr.ex, self.otr.ey)
+    }
+    pub fn inner_start(&self) -> Pt<i32> {
+        Pt::new(self.inr.x, self.inr.y)
+    }
+    pub fn outer_start(&self) -> Pt<i32> {
+        Pt::new(self.otr.x, self.otr.y)
     }
 }
 
@@ -251,17 +263,45 @@ mod tests {
     use super::*;
     #[test]
     fn annulus() -> Result<(), image::ImageError> {
+        crate::logger();
         let mut image = crate::setup(crate::RADIUS);
-        // let mut an = Annulus::test_blank(crate::RADIUS - 20, crate::RADIUS, crate::CENTER.into());
-        let mut an = Annulus::new(
-            RADS * 6.2,
-            RADS * 6.8,
-            crate::RADIUS - 10,
-            crate::RADIUS,
-            crate::CENTER.into(),
-        );
-        println!("Annulus: {:#?}", an);
+        let ri = 10;
+        let ro = crate::RADIUS;
+        let start = RADS * 6.8;
+        let end = RADS * 6.99;
+        let mut an = Annulus::new(start, end, ri, ro, crate::CENTER.into());
+        info!("Annulus: {:#?}", an);
+        let is = an.inner_start().iter_to_real(7, crate::CENTER.into());
+        let os = an.outer_start().iter_to_real(7, crate::CENTER.into());
+        // image.put_pixel(
+        //     is.x() as u32 - 1,
+        //     is.y() as u32,
+        //     image::Rgba([0, 255, 0, 255]),
+        // );
+        // image.put_pixel(
+        //     os.x() as u32 - 1,
+        //     os.y() as u32,
+        //     image::Rgba([0, 255, 0, 255]),
+        // );
         an.draw(&mut image, image::Rgba([255, 0, 0, 255]));
+        let ie = an.inner_end().iter_to_real(7, crate::CENTER.into());
+        let oe = an.outer_end().iter_to_real(7, crate::CENTER.into());
+        // image.put_pixel(
+        //     ie.x() as u32 + 1,
+        //     ie.y() as u32,
+        //     image::Rgba([0, 255, 0, 255]),
+        // );
+        // image.put_pixel(
+        //     oe.x() as u32 + 1,
+        //     oe.y() as u32,
+        //     image::Rgba([0, 255, 0, 255]),
+        // );
+        // imageproc::drawing::draw_hollow_circle_mut(
+        //     &mut image,
+        //     crate::CENTER.into(),
+        //     ro,
+        //     image::Rgba([0, 0, 255, 255]),
+        // );
         image.save("images/annulus.png")
     }
 }

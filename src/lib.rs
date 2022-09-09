@@ -22,6 +22,17 @@ pub const CENTER: (i32, i32) = (300, 300);
 const SHOW_MARKERS: bool = false;
 
 const OR: f64 = std::f64::consts::PI / 4.0;
+const RADS: f64 = std::f64::consts::PI / 4.0; // range of a single octant
+
+fn logger() {
+    env_logger::Builder::new()
+        .filter_level(log::LevelFilter::Info)
+        .format_module_path(false)
+        .format_target(false)
+        .format_timestamp(None)
+        .format_level(false)
+        .init();
+}
 
 fn blank() -> image::RgbaImage {
     image::RgbaImage::from_pixel(IMG_SIZE, IMG_SIZE, image::Rgba([255, 255, 255, 255]))
