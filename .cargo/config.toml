@@ -1,6 +1,7 @@
 
-# On Fedora I had to install clang and lld
-#   dnf install clang lld
+# These are supposed to be used on linux for perf with dwarf format
+#   On Fedora I had to install clang and lld:
+#       dnf install clang lld
 [target.x86_64-unknown-linux-gnu]
 linker = "/usr/bin/clang"
 rustflags = [
