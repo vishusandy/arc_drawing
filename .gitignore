@@ -2,6 +2,7 @@
 Cargo.lock
 full_quad_arc.png
 .gitignore
+*.svg
 *.7z
 *.zip
 *.png
