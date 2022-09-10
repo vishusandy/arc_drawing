@@ -139,11 +139,11 @@ mod tests {
     #[test]
     fn test_arc_midpoint() -> Result<(), image::ImageError> {
         let image = crate::setup(crate::RADIUS);
-        arc_midpoint(image, crate::RADIUS, crate::CENTER).save("arc_midpoint.png")
+        arc_midpoint(image, crate::RADIUS, crate::CENTER).save("images/arc_midpoint.png")
     }
     #[test]
     fn test_arc_integer() -> Result<(), image::ImageError> {
         let image = crate::setup(crate::RADIUS);
-        arc_integer(image, crate::RADIUS, crate::CENTER).save("arc_integer.png")
+        arc_integer(image, crate::RADIUS, crate::CENTER).save("images/arc_integer.png")
     }
 }
