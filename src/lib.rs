@@ -24,9 +24,9 @@ const SHOW_MARKERS: bool = false;
 const OR: f64 = std::f64::consts::PI / 4.0;
 const RADS: f64 = std::f64::consts::PI / 4.0; // range of a single octant
 
-fn logger() {
+fn logger(level: log::LevelFilter) {
     env_logger::Builder::new()
-        .filter_level(log::LevelFilter::Info)
+        .filter_level(level)
         .format_module_path(false)
         .format_target(false)
         .format_timestamp(None)
