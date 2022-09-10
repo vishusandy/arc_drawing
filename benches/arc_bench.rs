@@ -140,8 +140,8 @@ fn bench_partial_arc(c: &mut Criterion) {
 
 fn bench_partial_annulus(c: &mut Criterion) {
     const RADS: f64 = std::f64::consts::PI / 4.0;
-    const START: f64 = RADS * 0.1;
-    const END: f64 = RADS * 0.75;
+    const START: f64 = RADS * 0.2;
+    const END: f64 = RADS * 7.75;
     c.bench_function("partial_annulus", |b| {
         b.iter_batched(
             || arc_test::setup(arc_test::RADIUS),

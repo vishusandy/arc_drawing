@@ -105,19 +105,27 @@ pub struct Annulus {
     c: Pt<i32>,
 }
 impl Annulus {
+    fn is_last(&self) -> bool {
+        todo!()
+    }
+
     pub fn new(mut start_angle: f64, mut end_angle: f64, ri: i32, ro: i32, c: Pt<i32>) -> Self {
         debug!("New: start={:.2} end={:.2}", start_angle, end_angle);
+        let initial_end = end_angle;
         Self::check_angles(&mut start_angle, &mut end_angle);
+
         let end_oct = translate::angle_to_octant(end_angle);
         let start_oct = translate::angle_to_octant(start_angle);
         if start_oct == end_oct && start_angle > end_angle {
-            debug!("swapping initial start and end angles");
-            std::mem::swap(&mut start_angle, &mut end_angle);
+            end_angle = translate::octant_end_angle(start_oct);
         }
-        Self::annulus(start_angle, end_angle, ri, ro, c)
+
+        let mut a = Self::annulus(start_angle, end_angle, ri, ro, c);
+        a.end = Edge::blank(initial_end);
+        a
     }
+
     fn annulus(start_angle: f64, end_angle: f64, mut ri: i32, mut ro: i32, c: Pt<i32>) -> Self {
-        // Self::check_angles(&mut start_angle, &mut end_angle);
         Self::check_radii(&mut ri, &mut ro);
         let end_oct = translate::angle_to_octant(end_angle);
         let start_oct = translate::angle_to_octant(start_angle);
@@ -132,6 +140,8 @@ impl Annulus {
             debug!("start_oct!=end_oct: changing ea");
             translate::octant_end_angle(start_oct)
         };
+        let mut cur_end = Edge::blank(ea);
+
         debug!(
             "start_oct={} end_oct={} start_angle={} new_end_angle={}\n",
             translate::angle_to_octant(start_angle),
@@ -139,12 +149,13 @@ impl Annulus {
             start_angle,
             ea
         );
-        let mut cur_end = Edge::blank(ea);
 
         let inr = Pos::new(cur_start.angle, cur_end.angle, cur_start.oct, ri, c);
         let otr = Pos::new(cur_start.angle, cur_end.angle, cur_start.oct, ro, c);
+
         cur_start.set_slope(inr.x, inr.y, otr.x, otr.y);
         cur_end.set_slope(inr.ex, inr.ey, otr.ex, otr.ey);
+
         Self {
             end,
             x: inr.x.min(otr.x),
@@ -215,8 +226,12 @@ impl Annulus {
 
     fn end(&self) -> bool {
         if self.oct == self.end.oct && self.x >= self.inr.ex && self.x >= self.otr.ex {
-            info!("End");
-            true
+            if self.cur_start.angle > self.end.angle {
+                false
+            } else {
+                info!("End");
+                true
+            }
         } else {
             false
         }
@@ -307,8 +322,8 @@ mod tests {
 
         let ri = crate::RADIUS - 10;
         let ro = crate::RADIUS;
-        let start = RADS * 2.75;
-        let end = RADS * 2.2 - std::f64::EPSILON;
+        let start = RADS * 0.4;
+        let end = RADS * 0.2 - std::f64::EPSILON;
 
         imageproc::drawing::draw_hollow_circle_mut(
             &mut image,

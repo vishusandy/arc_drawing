@@ -64,5 +64,6 @@ pub(super) fn octant_start_angle(oct: u8) -> f64 {
     (oct - 1) as f64 * RADS
 }
 pub(super) fn octant_end_angle(oct: u8) -> f64 {
-    oct as f64 * RADS
+    // subtract a *very* tiny amount to prevent moving into the next octant
+    oct as f64 * RADS - std::f64::EPSILON * 2.0
 }
