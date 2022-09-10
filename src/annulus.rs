@@ -109,10 +109,17 @@ impl Annulus {
         todo!()
     }
 
-    pub fn new(mut start_angle: f64, mut end_angle: f64, ri: i32, ro: i32, c: Pt<i32>) -> Self {
+    pub fn new(
+        mut start_angle: f64,
+        mut end_angle: f64,
+        mut ri: i32,
+        mut ro: i32,
+        c: Pt<i32>,
+    ) -> Self {
         debug!("New: start={:.2} end={:.2}", start_angle, end_angle);
-        let initial_end = end_angle;
         Self::check_angles(&mut start_angle, &mut end_angle);
+        Self::check_radii(&mut ri, &mut ro);
+        let initial_end = end_angle;
 
         let end_oct = translate::angle_to_octant(end_angle);
         let start_oct = translate::angle_to_octant(start_angle);
@@ -125,8 +132,7 @@ impl Annulus {
         a
     }
 
-    fn annulus(start_angle: f64, end_angle: f64, mut ri: i32, mut ro: i32, c: Pt<i32>) -> Self {
-        Self::check_radii(&mut ri, &mut ro);
+    fn annulus(start_angle: f64, end_angle: f64, ri: i32, ro: i32, c: Pt<i32>) -> Self {
         let end_oct = translate::angle_to_octant(end_angle);
         let start_oct = translate::angle_to_octant(start_angle);
 
@@ -185,14 +191,14 @@ impl Annulus {
     }
 
     fn check_angles(start: &mut f64, end: &mut f64) {
-        // if start > end {
-        //     std::mem::swap(start, end);
-        // }
-        if *start < 0.0 {
-            *start = 0.0;
+        use crate::RADS;
+        if *start < 0.0 || *start > RADS * 8.0 {
+            panic!("Invalid start angle '{:.2}': angle must equal to or greater than 0 and less than 2*pi", start);
+            // *start = RADS * 8.0 - (*start);
         }
-        if *end >= 8.0 {
-            *end = 8.0 - std::f64::EPSILON;
+        if *end < 0.0 || *end >= RADS * 8.0 {
+            panic!("Invalid end angle '{:.2}': angle must equal to or greater than 0 and less than 2*pi",end);
+            // *end = *end % RADS * 8.0;
         }
     }
 
@@ -322,8 +328,8 @@ mod tests {
 
         let ri = crate::RADIUS - 10;
         let ro = crate::RADIUS;
-        let start = RADS * 0.4;
-        let end = RADS * 0.2 - std::f64::EPSILON;
+        let start = RADS * 7.4;
+        let end = RADS * 4.2 - std::f64::EPSILON;
 
         imageproc::drawing::draw_hollow_circle_mut(
             &mut image,
@@ -332,8 +338,8 @@ mod tests {
             image::Rgba([0, 0, 255, 255]),
         );
 
-        let oct = translate::angle_to_octant(start);
         let mut an = Annulus::new(start, end, ri, ro, crate::CENTER.into());
+        let oct = an.cur_start.oct;
         info!("Annulus: {:#?}", an);
 
         let is = an.inner_start().iter_to_real(oct, crate::CENTER.into());
