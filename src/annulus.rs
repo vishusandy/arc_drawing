@@ -230,6 +230,18 @@ impl Annulus {
         }
     }
 
+    fn next_octant(&mut self) -> bool {
+        if self.x >= self.inr.ex && self.x >= self.otr.ex {
+            self.oct = self.oct % 8 + 1; // Increment octant.  Wraps around to 1 if oct == 8
+            let start = translate::octant_start_angle(self.oct);
+            *self = Self::annulus(start, self.end.angle, self.inr.r, self.otr.r, self.c);
+            info!("Next octant:\n{:#?}", self);
+            true
+        } else {
+            false
+        }
+    }
+
     fn end(&self) -> bool {
         if self.oct == self.end.oct && self.x >= self.inr.ex && self.x >= self.otr.ex {
             if self.cur_start.angle > self.end.angle {
@@ -238,18 +250,6 @@ impl Annulus {
                 info!("End");
                 true
             }
-        } else {
-            false
-        }
-    }
-
-    fn next_octant(&mut self) -> bool {
-        if self.x >= self.inr.ex && self.x >= self.otr.ex {
-            self.oct = self.oct % 8 + 1; // Increment octant.  Wraps around to 1 if oct == 8
-            let start = translate::octant_start_angle(self.oct);
-            *self = Self::annulus(start, self.end.angle, self.inr.r, self.otr.r, self.c);
-            info!("Next octant:\n{:#?}", self);
-            true
         } else {
             false
         }
