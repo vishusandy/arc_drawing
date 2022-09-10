@@ -1,7 +1,6 @@
 mod translate;
 use crate::pt::Pt;
-use crate::RADS;
-use log::info;
+use log::{debug, info};
 
 fn calc_line(slope: f64, int: i32, x: i32) -> i32 {
     (x as f64 * slope).round() as i32 + int
@@ -15,10 +14,10 @@ struct Edge {
     int: i32, // intercept
 }
 impl Edge {
-    fn new(angle: f64) -> Self {
+    fn blank(angle: f64) -> Self {
         Self {
             angle,
-            oct: translate::angle_octant(angle),
+            oct: translate::angle_to_octant(angle),
             slope: 0.0,
             int: 0,
         }
@@ -70,7 +69,6 @@ impl Pos {
             - r.pow(2) as f64)
             .round() as i32;
         Self { x, y, d, ex, ey, r }
-        // Self { x, y, d, ex, ey, r }
     }
 
     fn get_y(&self, x: i32) -> Option<i32> {
@@ -79,19 +77,6 @@ impl Pos {
         } else {
             None
         }
-    }
-
-    fn y(&self, x: i32, slope: f64, int: i32) -> i32 {
-        if x == self.x {
-            self.y
-        } else {
-            let s = self.slope(x, slope, int);
-            s
-        }
-    }
-
-    fn slope(&self, x: i32, slope: f64, int: i32) -> i32 {
-        (x as f64 * slope).round() as i32 + int
     }
 
     fn inc(&mut self) {
@@ -106,14 +91,13 @@ impl Pos {
             self.d += 2 * self.x + 1;
         }
     }
-
-    fn next_octant(&mut self) {}
 }
 
 #[derive(Clone, Debug)]
 pub struct Annulus {
-    start: Edge,
     end: Edge,
+    cur_start: Edge,
+    cur_end: Edge,
     oct: u8,
     inr: Pos, // inner arc
     otr: Pos, // outer arc
@@ -121,22 +105,35 @@ pub struct Annulus {
     c: Pt<i32>,
 }
 impl Annulus {
-    pub fn new(mut start: f64, mut end: f64, mut ri: i32, mut ro: i32, c: Pt<i32>) -> Self {
-        Self::check_angles(&mut start, &mut end);
+    pub fn new(
+        mut start_angle: f64,
+        mut end_angle: f64,
+        mut ri: i32,
+        mut ro: i32,
+        c: Pt<i32>,
+    ) -> Self {
+        Self::check_angles(&mut start_angle, &mut end_angle);
         Self::check_radii(&mut ri, &mut ro);
-        let mut start = Edge::new(start);
-        let mut end = Edge::new(end);
-        let inr = Pos::new(start.angle, end.angle, start.oct, ri, c);
-        let otr = Pos::new(start.angle, end.angle, start.oct, ro, c);
-        start.set_slope(inr.x, inr.y, otr.x, otr.y);
-        end.set_slope(inr.ex, inr.ey, otr.ex, otr.ey);
+
+        let start = Edge::blank(start_angle);
+        let end = Edge::blank(end_angle);
+
+        let mut start_oct = Edge::blank(start_angle);
+        let ea = translate::octant_end_angle(start_oct.oct).min(end_angle);
+        let mut end_oct = Edge::blank(ea);
+
+        let inr = Pos::new(start_oct.angle, end_oct.angle, start_oct.oct, ri, c);
+        let otr = Pos::new(start_oct.angle, end_oct.angle, start_oct.oct, ro, c);
+        start_oct.set_slope(inr.x, inr.y, otr.x, otr.y);
+        end_oct.set_slope(inr.ex, inr.ey, otr.ex, otr.ey);
         Self {
+            end,
             x: inr.x.min(otr.x),
             inr,
             otr,
-            oct: start.oct,
-            start,
-            end,
+            oct: start_oct.oct,
+            cur_start: start_oct,
+            cur_end: end_oct,
             c,
         }
     }
@@ -158,9 +155,9 @@ impl Annulus {
     }
 
     fn check_angles(start: &mut f64, end: &mut f64) {
-        if start > end {
-            std::mem::swap(start, end);
-        }
+        // if start > end {
+        //     std::mem::swap(start, end);
+        // }
         if *start < 0.0 {
             *start = 0.0;
         }
@@ -175,12 +172,6 @@ impl Annulus {
         }
     }
 
-    fn next_octant(&mut self) -> bool {
-        // self.inr.next_octant();
-        // self.otr.next_octant();
-        false
-    }
-
     fn put_line(
         &self,
         x: i32,
@@ -189,7 +180,7 @@ impl Annulus {
         image: &mut image::RgbaImage,
         color: image::Rgba<u8>,
     ) {
-        info!(
+        debug!(
             "\tDraw: x={} yi={} yo={} drawing y=({}..={})",
             x,
             yi,
@@ -200,6 +191,40 @@ impl Annulus {
         for y in yo.min(yi)..=yo.max(yi) {
             let Pt { x, y } = translate::iter_to_real(x, y, self.oct, self.c);
             image.put_pixel(x as u32, y as u32, color);
+        }
+    }
+
+    fn end(&self) -> bool {
+        if self.oct == self.cur_end.oct && self.x >= self.inr.ex && self.x >= self.otr.ex {
+            info!("End");
+            true
+        } else {
+            false
+        }
+    }
+
+    fn next_octant(&mut self) -> bool {
+        if self.x >= self.inr.ex && self.x >= self.otr.ex {
+            self.oct = self.oct % 8 + 1; // Increment octant.  Wraps around to 1 if oct == 8
+            let start = translate::octant_start_angle(self.oct);
+            *self = Self::new(start, self.end.angle, self.inr.r, self.otr.r, self.c);
+            info!("Next octant:\n{:#?}", self);
+            true
+        } else {
+            false
+        }
+    }
+
+    pub fn draw(&mut self, image: &mut image::RgbaImage, color: image::Rgba<u8>) {
+        loop {
+            if self.end() {
+                return;
+            }
+            if self.next_octant() {
+                continue;
+            }
+            let (x, y1, y2) = self.step();
+            self.put_line(x, y1.max(x), y2.max(x), image, color);
         }
     }
 
@@ -214,16 +239,16 @@ impl Annulus {
             }
             (None, None) => (
                 x,
-                calc_line(self.start.slope(), self.start.int(), x),
-                calc_line(self.end.slope(), self.end.int(), x),
+                calc_line(self.cur_start.slope(), self.cur_start.int(), x),
+                calc_line(self.cur_end.slope(), self.cur_end.int(), x),
             ),
             (inr, otr) => {
                 let (slope, int) = if x <= self.inr.ex && x <= self.otr.ex {
                     info!("Edge = start");
-                    self.start.line()
+                    self.cur_start.line()
                 } else {
                     info!("Edge = end");
-                    self.end.line()
+                    self.cur_end.line()
                 };
 
                 let inr = inr.unwrap_or_else(|| {
@@ -242,38 +267,12 @@ impl Annulus {
             }
         }
     }
-
-    fn end(&self) -> bool {
-        if self.x >= self.inr.ex && self.x >= self.otr.ex {
-            info!("End");
-            true
-        } else {
-            false
-        }
-    }
-
-    pub fn draw(&mut self, image: &mut image::RgbaImage, color: image::Rgba<u8>) {
-        loop {
-            if self.end() {
-                return;
-            }
-            if self.next_octant() {
-                continue;
-            }
-            info!(
-                "\nx={} xi={} xo={} yi={} yo={}",
-                self.x, self.inr.x, self.otr.x, self.inr.y, self.otr.y
-            );
-            let (x, y1, y2) = self.step();
-            // println!("\tstep => x={} y1={} y2={}", x, y1, y2);
-            self.put_line(x, y1.max(x), y2.max(x), image, color);
-        }
-    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::RADS;
     #[test]
     fn annulus() -> Result<(), image::ImageError> {
         crate::logger();
@@ -281,8 +280,8 @@ mod tests {
 
         let ri = crate::RADIUS - 10;
         let ro = crate::RADIUS;
-        let start = RADS * 6.00;
-        let end = RADS * 7.0 - std::f64::EPSILON;
+        let start = RADS * 7.0;
+        let end = RADS * 1.0 - std::f64::EPSILON;
 
         imageproc::drawing::draw_hollow_circle_mut(
             &mut image,
@@ -291,7 +290,7 @@ mod tests {
             image::Rgba([0, 0, 255, 255]),
         );
 
-        let oct = translate::angle_octant(start);
+        let oct = translate::angle_to_octant(start);
         let mut an = Annulus::new(start, end, ri, ro, crate::CENTER.into());
         info!("Annulus: {:#?}", an);
 
@@ -299,36 +298,42 @@ mod tests {
         let os = an.outer_start().iter_to_real(oct, crate::CENTER.into());
 
         an.draw(&mut image, image::Rgba([255, 0, 0, 255]));
+        debug!("{:#?}", an);
 
-        // image.put_pixel(
-        //     is.x() as u32 + 1,
-        //     is.y() as u32,
-        //     image::Rgba([0, 255, 0, 255]),
-        // );
-        // image.put_pixel(
-        //     os.x() as u32 + 1,
-        //     os.y() as u32,
-        //     image::Rgba([0, 255, 0, 255]),
-        // );
-        // let ie = an.inner_end().iter_to_real(oct, crate::CENTER.into());
-        // let oe = an.outer_end().iter_to_real(oct, crate::CENTER.into());
-        // image.put_pixel(
-        //     ie.x() as u32 - 1,
-        //     ie.y() as u32,
-        //     image::Rgba([0, 255, 0, 255]),
-        // );
-        // image.put_pixel(
-        //     oe.x() as u32 - 1,
-        //     oe.y() as u32,
-        //     image::Rgba([0, 255, 0, 255]),
-        // );
+        if log::log_enabled!(log::Level::Trace) {
+            imageproc::drawing::draw_hollow_circle_mut(
+                &mut image,
+                crate::CENTER.into(),
+                ri,
+                image::Rgba([0, 0, 255, 255]),
+            );
+        }
 
-        // imageproc::drawing::draw_hollow_circle_mut(
-        //     &mut image,
-        //     crate::CENTER.into(),
-        //     ri,
-        //     image::Rgba([0, 0, 255, 255]),
-        // );
+        if log::log_enabled!(log::Level::Trace) {
+            image.put_pixel(
+                is.x() as u32 + 1,
+                is.y() as u32,
+                image::Rgba([0, 255, 0, 255]),
+            );
+            image.put_pixel(
+                os.x() as u32 + 1,
+                os.y() as u32,
+                image::Rgba([0, 255, 0, 255]),
+            );
+            let ie = an.inner_end().iter_to_real(oct, crate::CENTER.into());
+            let oe = an.outer_end().iter_to_real(oct, crate::CENTER.into());
+            image.put_pixel(
+                ie.x() as u32 - 1,
+                ie.y() as u32,
+                image::Rgba([0, 255, 0, 255]),
+            );
+            image.put_pixel(
+                oe.x() as u32 - 1,
+                oe.y() as u32,
+                image::Rgba([0, 255, 0, 255]),
+            );
+        }
+
         image.save("images/annulus.png")
     }
 }
