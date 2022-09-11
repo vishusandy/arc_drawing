@@ -19,36 +19,39 @@ where
     (degrees.f64()).to_radians()
 }
 
-pub(crate) trait Angle {
-    fn f64(self) -> f64;
+pub trait Angle {
+    fn f64(&self) -> f64;
+    fn radians(&self) -> f64 {
+        self.f64().to_radians()
+    }
 }
 
 impl Angle for f64 {
-    fn f64(self) -> f64 {
-        self
+    fn f64(&self) -> f64 {
+        *self
     }
 }
 
 impl Angle for u16 {
-    fn f64(self) -> f64 {
+    fn f64(&self) -> f64 {
         (self % 360) as f64
     }
 }
 
 impl Angle for u32 {
-    fn f64(self) -> f64 {
+    fn f64(&self) -> f64 {
         (self % 360) as f64
     }
 }
 
 impl Angle for usize {
-    fn f64(self) -> f64 {
+    fn f64(&self) -> f64 {
         (self % 360) as f64
     }
 }
 
 impl Angle for u64 {
-    fn f64(self) -> f64 {
+    fn f64(&self) -> f64 {
         (self % 360) as f64
     }
 }

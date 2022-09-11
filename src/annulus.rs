@@ -1,5 +1,6 @@
 mod translate;
 use crate::angle;
+use crate::angle::Angle;
 use crate::Pt;
 use log::{debug, info, trace};
 
@@ -52,12 +53,9 @@ struct Pos {
     r: i32,
 }
 impl Pos {
-    fn new<T>(start: T, end: T, oct: u8, r: i32, c: Pt<i32>) -> Self
-    where
-        T: crate::Angle,
-    {
-        let mut start = Pt::from_radian(start.f64(), r, c.into()).real_to_iter(oct, c.into());
-        let mut end = Pt::from_radian(end.f64(), r, c.into()).real_to_iter(oct, c.into());
+    fn new(start: f64, end: f64, oct: u8, r: i32, c: Pt<i32>) -> Self {
+        let mut start = Pt::from_radian(start, r, c.into()).real_to_iter(oct, c.into());
+        let mut end = Pt::from_radian(end, r, c.into()).real_to_iter(oct, c.into());
         let Pt { mut x, mut y } = start.i32();
         let Pt {
             x: mut ex,
@@ -113,13 +111,12 @@ impl Annulus {
         todo!()
     }
 
-    pub fn new(
-        mut start_angle: f64,
-        mut end_angle: f64,
-        mut ri: i32,
-        mut ro: i32,
-        c: Pt<i32>,
-    ) -> Self {
+    pub fn new<T>(start_angle: T, end_angle: T, mut ri: i32, mut ro: i32, c: Pt<i32>) -> Self
+    where
+        T: crate::Angle,
+    {
+        let mut start_angle = start_angle.radians();
+        let mut end_angle = end_angle.radians();
         debug!("New: start={:.2} end={:.2}", start_angle, end_angle);
         Self::check_angles(&mut start_angle, &mut end_angle);
         Self::check_radii(&mut ri, &mut ro);
@@ -198,39 +195,15 @@ impl Annulus {
         use crate::RADS;
         if *start < 0.0 || *start > RADS * 8.0 {
             panic!("Invalid start angle '{:.2}': angle must equal to or greater than 0 and less than 2*pi", start);
-            // *start = RADS * 8.0 - (*start);
         }
         if *end < 0.0 || *end >= RADS * 8.0 {
             panic!("Invalid end angle '{:.2}': angle must equal to or greater than 0 and less than 2*pi",end);
-            // *end = *end % RADS * 8.0;
         }
     }
 
     fn check_radii(a: &mut i32, b: &mut i32) {
         if a > b {
             std::mem::swap(a, b);
-        }
-    }
-
-    fn put_line(
-        &self,
-        x: i32,
-        yi: i32,
-        yo: i32,
-        image: &mut image::RgbaImage,
-        color: image::Rgba<u8>,
-    ) {
-        trace!(
-            "\tDraw: x={} yi={} yo={} drawing y=({}..={})",
-            x,
-            yi,
-            yo,
-            yo.min(yi),
-            yo.max(yi)
-        );
-        for y in yo.min(yi)..=yo.max(yi) {
-            let Pt { x, y } = translate::iter_to_real(x, y, self.oct, self.c);
-            image.put_pixel(x as u32, y as u32, color);
         }
     }
 
@@ -259,6 +232,27 @@ impl Annulus {
         }
     }
 
+    fn put_line(
+        &self,
+        x: i32,
+        yi: i32,
+        yo: i32,
+        image: &mut image::RgbaImage,
+        color: image::Rgba<u8>,
+    ) {
+        trace!(
+            "\tDraw: x={} yi={} yo={} drawing y=({}..={})",
+            x,
+            yi,
+            yo,
+            yo.min(yi),
+            yo.max(yi)
+        );
+        for y in yo.min(yi)..=yo.max(yi) {
+            let Pt { x, y } = translate::iter_to_real(x, y, self.oct, self.c);
+            image.put_pixel(x as u32, y as u32, color);
+        }
+    }
     pub fn draw(&mut self, image: &mut image::RgbaImage, color: image::Rgba<u8>) {
         loop {
             if self.end() {
@@ -342,7 +336,7 @@ mod tests {
             image::Rgba([0, 0, 255, 255]),
         );
 
-        let mut an = Annulus::new(start, end, ri, ro, crate::CENTER.into());
+        let mut an: Annulus = Annulus::new(start, end, ri, ro, crate::CENTER.into());
         let oct = an.cur_start.oct;
         info!("Annulus: {:#?}", an);
 
