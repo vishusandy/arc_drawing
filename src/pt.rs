@@ -121,6 +121,42 @@ impl<T> Pt<T> {
             _ => Pt::new(self.x, self.y),
         }
     }
+
+    pub(crate) fn to_real(&self, oct: u8, c: Pt<T>) -> Self
+    where
+        T: Copy + std::ops::Add<Output = T> + std::ops::Neg<Output = T>,
+    {
+        match oct {
+            1 => (self.y + c.x(), -self.x + c.y()).into(),
+            2 => (self.x + c.x(), -self.y + c.y()).into(),
+            3 => (-self.x + c.x(), -self.y + c.y()).into(),
+            4 => (-self.y + c.x(), -self.x + c.y()).into(),
+            5 => (-self.y + c.x(), self.x + c.y()).into(),
+            6 => (-self.x + c.x(), self.y + c.y()).into(),
+            7 => (self.x + c.x(), self.y + c.y()).into(),
+            8 => (self.y + c.x(), self.x + c.y()).into(),
+            _ => (self.x + c.x(), self.y + c.y()).into(),
+        }
+    }
+
+    pub(crate) fn to_iter(&self, oct: u8, c: Pt<T>) -> Self
+    where
+        T: Copy + std::ops::Sub<Output = T> + std::ops::Neg<Output = T>,
+    {
+        let x = self.x - c.x();
+        let y = self.y - c.y();
+        match oct {
+            1 => Pt::new(-y, x),
+            2 => Pt::new(x, -y),
+            3 => Pt::new(-x, -y),
+            4 => Pt::new(-y, -x),
+            5 => Pt::new(y, -x),
+            6 => Pt::new(-x, y),
+            7 => Pt::new(x, y),
+            8 => Pt::new(y, x),
+            _ => Pt::new(x, y),
+        }
+    }
 }
 
 impl Pt<f64> {
@@ -143,6 +179,12 @@ impl Pt<f64> {
         Pt {
             x: self.x.round() as i32,
             y: self.y.round() as i32,
+        }
+    }
+    pub(crate) fn u32(&self) -> Pt<u32> {
+        Pt {
+            x: self.x.abs().round() as u32,
+            y: self.y.abs().round() as u32,
         }
     }
 }
