@@ -1,5 +1,6 @@
 #![allow(dead_code)]
 #![allow(unused_variables)]
+mod angle;
 mod annulus;
 mod arc;
 mod bres;
@@ -15,6 +16,9 @@ pub use arc::Arc;
 pub use bres::octs::{Oct1, Oct2};
 pub use bres::{draw_bres_circle, full_arc_oct, full_circle};
 pub use fp::{arc_integer, arc_midpoint};
+
+pub(crate) use angle::Angle;
+pub(crate) use pt::Pt;
 
 pub const IMG_SIZE: u32 = 600;
 pub const RADIUS: i32 = 240;

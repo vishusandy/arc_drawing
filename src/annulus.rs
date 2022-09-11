@@ -1,5 +1,6 @@
 mod translate;
-use crate::pt::Pt;
+use crate::angle;
+use crate::Pt;
 use log::{debug, info, trace};
 
 fn calc_line(slope: f64, int: i32, x: i32) -> i32 {
@@ -17,7 +18,7 @@ impl Edge {
     fn blank(angle: f64) -> Self {
         Self {
             angle,
-            oct: translate::angle_to_octant(angle),
+            oct: angle::angle_to_octant(angle),
             slope: 0.0,
             int: 0,
         }
@@ -51,9 +52,12 @@ struct Pos {
     r: i32,
 }
 impl Pos {
-    fn new(start: f64, end: f64, oct: u8, r: i32, c: Pt<i32>) -> Self {
-        let mut start = Pt::from_radian(start, r, c.into()).real_to_iter(oct, c.into());
-        let mut end = Pt::from_radian(end, r, c.into()).real_to_iter(oct, c.into());
+    fn new<T>(start: T, end: T, oct: u8, r: i32, c: Pt<i32>) -> Self
+    where
+        T: crate::Angle,
+    {
+        let mut start = Pt::from_radian(start.f64(), r, c.into()).real_to_iter(oct, c.into());
+        let mut end = Pt::from_radian(end.f64(), r, c.into()).real_to_iter(oct, c.into());
         let Pt { mut x, mut y } = start.i32();
         let Pt {
             x: mut ex,
@@ -121,10 +125,10 @@ impl Annulus {
         Self::check_radii(&mut ri, &mut ro);
         let initial_end = end_angle;
 
-        let end_oct = translate::angle_to_octant(end_angle);
-        let start_oct = translate::angle_to_octant(start_angle);
+        let end_oct = angle::angle_to_octant(end_angle);
+        let start_oct = angle::angle_to_octant(start_angle);
         if start_oct == end_oct && start_angle > end_angle {
-            end_angle = translate::octant_end_angle(start_oct);
+            end_angle = angle::octant_end_angle(start_oct);
         }
 
         let mut a = Self::annulus(start_angle, end_angle, ri, ro, c);
@@ -133,8 +137,8 @@ impl Annulus {
     }
 
     fn annulus(start_angle: f64, end_angle: f64, ri: i32, ro: i32, c: Pt<i32>) -> Self {
-        let end_oct = translate::angle_to_octant(end_angle);
-        let start_oct = translate::angle_to_octant(start_angle);
+        let end_oct = angle::angle_to_octant(end_angle);
+        let start_oct = angle::angle_to_octant(start_angle);
 
         let start = Edge::blank(start_angle);
         let end = Edge::blank(end_angle);
@@ -144,13 +148,13 @@ impl Annulus {
             end_angle
         } else {
             debug!("start_oct!=end_oct: changing ea");
-            translate::octant_end_angle(start_oct)
+            angle::octant_end_angle(start_oct)
         };
         let mut cur_end = Edge::blank(ea);
 
         debug!(
             "start_oct={} end_oct={} start_angle={} new_end_angle={}\n",
-            translate::angle_to_octant(start_angle),
+            angle::angle_to_octant(start_angle),
             end_oct,
             start_angle,
             ea
@@ -233,7 +237,7 @@ impl Annulus {
     fn next_octant(&mut self) -> bool {
         if self.x >= self.inr.ex && self.x >= self.otr.ex {
             self.oct = self.oct % 8 + 1; // Increment octant.  Wraps around to 1 if oct == 8
-            let start = translate::octant_start_angle(self.oct);
+            let start = angle::octant_start_angle(self.oct);
             *self = Self::annulus(start, self.end.angle, self.inr.r, self.otr.r, self.c);
             info!("Next octant:\n{:#?}", self);
             true

@@ -1,5 +1,4 @@
 use crate::pt::Pt;
-use crate::RADS;
 
 pub(super) fn iter_to_real(x: i32, y: i32, oct: u8, c: Pt<i32>) -> Pt<i32> {
     match oct {
@@ -31,39 +30,4 @@ where
         8 => Pt::new(y, x),
         _ => Pt::new(x, y),
     }
-}
-pub(super) fn angle_to_octant(angle: f64) -> u8 {
-    if angle < RADS {
-        return 1;
-    }
-    if angle < RADS * 2.0 {
-        return 2;
-    }
-    if angle < RADS * 3.0 {
-        return 3;
-    }
-    if angle < RADS * 4.0 {
-        return 4;
-    }
-    if angle < RADS * 5.0 {
-        return 5;
-    }
-    if angle < RADS * 6.0 {
-        return 6;
-    }
-    if angle < RADS * 7.0 {
-        return 7;
-    }
-    if angle <= RADS * 8.0 {
-        return 8;
-    }
-    panic!("Invalid angle {:.4}", angle);
-}
-
-pub(super) fn octant_start_angle(oct: u8) -> f64 {
-    (oct - 1) as f64 * RADS
-}
-pub(super) fn octant_end_angle(oct: u8) -> f64 {
-    // subtract a *very* tiny amount to prevent moving into the next octant
-    oct as f64 * RADS - std::f64::EPSILON * 2.0
 }
