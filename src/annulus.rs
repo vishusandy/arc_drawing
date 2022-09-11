@@ -1,6 +1,5 @@
 mod translate;
 use crate::angle;
-use crate::angle::Angle;
 use crate::Pt;
 use log::{debug, info, trace};
 
@@ -232,48 +231,6 @@ impl Annulus {
         }
     }
 
-    fn put_line(
-        &self,
-        x: i32,
-        yi: i32,
-        yo: i32,
-        image: &mut image::RgbaImage,
-        color: image::Rgba<u8>,
-    ) {
-        trace!(
-            "\tDraw: x={} yi={} yo={} drawing y=({}..={})",
-            x,
-            yi,
-            yo,
-            yo.min(yi),
-            yo.max(yi)
-        );
-        for y in yo.min(yi)..=yo.max(yi) {
-            let Pt { x, y } = translate::iter_to_real(x, y, self.oct, self.c);
-            image.put_pixel(x as u32, y as u32, color);
-        }
-    }
-    pub fn draw(&mut self, image: &mut image::RgbaImage, color: image::Rgba<u8>) {
-        loop {
-            if self.end() {
-                return;
-            }
-            if self.next_octant() {
-                continue;
-            }
-            let (x, y1, y2) = self.step();
-            trace!(
-                "    Put: x={} y1={}->{} y2={}->{}",
-                x,
-                y1,
-                y1.max(x),
-                y2,
-                y2.max(x)
-            );
-            self.put_line(x, y1.max(x), y2.max(x), image, color);
-        }
-    }
-
     fn step(&mut self) -> (i32, i32, i32) {
         let x = self.x;
         self.x += 1;
@@ -311,6 +268,91 @@ impl Annulus {
 
                 (x, inr, otr)
             }
+        }
+    }
+
+    fn put_line(
+        &self,
+        x: i32,
+        yi: i32,
+        yo: i32,
+        image: &mut image::RgbaImage,
+        color: image::Rgba<u8>,
+    ) {
+        trace!(
+            "\tDraw: x={} yi={} yo={} drawing y=({}..={})",
+            x,
+            yi,
+            yo,
+            yo.min(yi),
+            yo.max(yi)
+        );
+        for y in yo.min(yi)..=yo.max(yi) {
+            let Pt { x, y } = translate::iter_to_real(x, y, self.oct, self.c);
+            image.put_pixel(x as u32, y as u32, color);
+        }
+    }
+
+    pub fn draw(&mut self, image: &mut image::RgbaImage, color: image::Rgba<u8>) {
+        loop {
+            if self.end() {
+                return;
+            }
+            if self.next_octant() {
+                continue;
+            }
+            let (x, y1, y2) = self.step();
+            trace!(
+                "    Put: x={} y1={}->{} y2={}->{}",
+                x,
+                y1,
+                y1.max(x),
+                y2,
+                y2.max(x)
+            );
+            self.put_line(x, y1.max(x), y2.max(x), image, color);
+        }
+    }
+
+    fn put_aa_line(
+        &self,
+        x: i32,
+        yi: i32,
+        yo: i32,
+        image: &mut image::RgbaImage,
+        color: image::Rgba<u8>,
+    ) {
+        trace!(
+            "\tDraw: x={} yi={} yo={} drawing y=({}..={})",
+            x,
+            yi,
+            yo,
+            yo.min(yi),
+            yo.max(yi)
+        );
+        for y in yo.min(yi)..=yo.max(yi) {
+            let Pt { x, y } = translate::iter_to_real(x, y, self.oct, self.c);
+            image.put_pixel(x as u32, y as u32, color);
+        }
+    }
+    pub fn draw_aa(&mut self, image: &mut image::RgbaImage, color: image::Rgba<u8>) {
+        loop {
+            if self.end() {
+                return;
+            }
+            if self.next_octant() {
+                continue;
+            }
+            let (x, y1, y2) = self.step();
+            trace!(
+                "    Put: x={} y1={}->{} y2={}->{}",
+                x,
+                y1,
+                y1.max(x),
+                y2,
+                y2.max(x)
+            );
+            self.put_aa_line(x, y1.max(x), y2.max(x), image, color);
         }
     }
 }

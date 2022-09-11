@@ -1,5 +1,6 @@
 #![allow(dead_code)]
 #![allow(unused_variables)]
+mod aa_arc;
 mod angle;
 mod annulus;
 mod arc;

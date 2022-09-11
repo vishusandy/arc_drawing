@@ -117,6 +117,11 @@ impl Arc {
         self.d = 1 - self.loc.r;
     }
 
+    fn put_pixel(&self, image: &mut image::RgbaImage, color: image::Rgba<u8>) {
+        let pt = translate::iter_to_real(self.x, self.y, self.cur_oct, self.loc.c);
+        image.put_pixel(pt.x as u32, pt.y as u32, color);
+    }
+
     pub fn draw(&mut self, image: &mut image::RgbaImage, color: image::Rgba<u8>) {
         loop {
             if self.x > self.y {
@@ -149,16 +154,12 @@ impl Arc {
             }
         }
     }
-
-    fn put_pixel(&self, image: &mut image::RgbaImage, color: image::Rgba<u8>) {
-        let pt = translate::iter_to_real(self.x, self.y, self.cur_oct, self.loc.c);
-        image.put_pixel(pt.x as u32, pt.y as u32, color);
-    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
     #[test]
     fn partial_arc() -> Result<(), image::ImageError> {
         let mut image = crate::setup(crate::RADIUS);
