@@ -16,7 +16,7 @@ impl FpArc {
         Self {
             x: 0.0,
             y: r as f64,
-            d: 1.0 - r,
+            d: 0.0,
             r,
             r2: r * r,
             c: c.f64(),
@@ -36,21 +36,19 @@ impl Iterator for FpArc {
             return None;
         }
         let a = Pt::new(self.x, self.y);
-        let b = Pt::new(self.x, self.y + 1.0);
-        let d: u8;
+        let b = Pt::new(self.x, self.y - 1.0);
+
+        // let o = (self.y.fract() * 255.0).round() as u8;
+        let o = 0;
+        println!("x={:.0} y={:.0} o={}", self.x, self.y, o);
+
         self.x += 1.0;
-        if self.d < 0.0 {
-            self.d += 2.0 * self.x + 1.0;
-            d = 127;
-        } else {
-            self.y -= 1.0;
-            self.d += 2.0 * (self.x - self.y) + 1.0;
-            d = 127;
-        }
+        self.y = (self.r2 - self.x * self.x).sqrt();
+
         Some((
             a.to_real(self.oct, self.c).u32(),
             b.to_real(self.oct, self.c).u32(),
-            d,
+            o,
         ))
     }
 }
@@ -63,10 +61,10 @@ mod tests {
         use image::Pixel;
         let c: image::Rgba<u8> = image::Rgba([255, 0, 0, 255]);
         let mut image = crate::setup(crate::RADIUS);
+        // let mut image = crate::guidelines();
         for (a, b, o) in FpArc::full(crate::RADIUS, crate::CENTER.into(), 7) {
-            let c1 = image::Rgba([c[0], c[1], c[2], o]);
-            let c2 = image::Rgba([c[0], c[1], c[2], 255 - o]);
-            println!("a={:?} b={:?}", a, b);
+            let c1 = image::Rgba([c[0], c[1], c[2], 255 - o]);
+            let c2 = image::Rgba([c[0], c[1], c[2], o]);
             image.get_pixel_mut(a.x(), a.y()).blend(&c1);
             image.get_pixel_mut(b.x(), b.y()).blend(&c2);
         }
