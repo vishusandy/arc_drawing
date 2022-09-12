@@ -35,11 +35,12 @@ impl Iterator for FpArc {
         if self.x > self.y {
             return None;
         }
-        let a = Pt::new(self.x, self.y);
-        let b = Pt::new(self.x, self.y - 1.0);
 
-        // let o = (self.y.fract() * 255.0).round() as u8;
-        let o = 0;
+        use std::ops::Rem;
+        let o = (self.y.fract() * 255.0).round().rem(255.0) as u8;
+        let a = Pt::new(self.x, self.y.floor());
+        let b = Pt::new(self.x, self.y.floor() + 1.0);
+        // let o = 0;
         println!("x={:.0} y={:.0} o={}", self.x, self.y, o);
 
         self.x += 1.0;
@@ -53,6 +54,8 @@ impl Iterator for FpArc {
     }
 }
 
+
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -60,8 +63,8 @@ mod tests {
     fn fp_arc_iter() -> Result<(), image::ImageError> {
         use image::Pixel;
         let c: image::Rgba<u8> = image::Rgba([255, 0, 0, 255]);
-        let mut image = crate::setup(crate::RADIUS);
-        // let mut image = crate::guidelines();
+        // let mut image = crate::setup(crate::RADIUS);
+        let mut image = crate::guidelines();
         for (a, b, o) in FpArc::full(crate::RADIUS, crate::CENTER.into(), 7) {
             let c1 = image::Rgba([c[0], c[1], c[2], 255 - o]);
             let c2 = image::Rgba([c[0], c[1], c[2], o]);
