@@ -4,15 +4,69 @@ pub(crate) mod aa_quad {
     use crate::Pt;
     use log::{debug, trace};
 
+    pub struct AAPt<T> {
+        a: Pt<T>,
+        b: Pt<T>,
+        da: f64, // distance to a (decimal of range: 0..=1.0)
+        db: f64,
+    }
+    impl<T> AAPt<T> {
+        fn new(a: Pt<T>, b: Pt<T>, da: f64) -> Self {
+            Self {
+                a,
+                b,
+                da,
+                db: 1.0 - da,
+            }
+        }
+        fn reduce_opac_a(self, i: f64) -> Self {
+            Self {
+                a: self.a,
+                b: self.b,
+                da: self.da * i,
+                db: self.db,
+            }
+        }
+    }
+
+    enum End {
+        X(f64),
+        Y(f64),
+    }
+    impl End {
+        fn new(p: Pt<f64>) -> Self {
+            if p.x() <= p.y() {
+                Self::X(p.x())
+            } else {
+                Self::Y(p.y())
+            }
+        }
+
+        fn match_x(&self, p: f64) -> bool {
+            match self {
+                Self::X(x) => (x - p).abs() <= std::f64::EPSILON,
+                _ => false,
+            }
+        }
+
+        fn match_y(&self, p: f64) -> bool {
+            match self {
+                Self::Y(y) => (y - p).abs() <= std::f64::EPSILON,
+                _ => false,
+            }
+        }
+    }
+
     #[derive(Clone, Debug)]
     pub struct AAArc {
         x: f64,
         y: f64,
         r: f64,
         r2: f64,
-        // stop: f64,
-        quad: u8, // current quadrant
-        end: u8,  // end quadrant
+        quad: u8,     // current quadrant
+        end_quad: u8, // end quadrant
+        inc_x: bool,  // whether to increment x (true) or increment y (false)
+        // end: End,
         c: Pt<f64>,
     }
     impl AAArc {
@@ -25,19 +79,9 @@ pub(crate) mod aa_quad {
                 r2: r * r,
                 // stop: (r / std::f64::consts::SQRT_2).round(),
                 quad: 1,
-                end: 4,
+                end_quad: 4,
+                inc_x: true,
                 c: c.f64(),
-            }
-        }
-
-        fn next_quad(&mut self) -> bool {
-            if self.y <= 0.0 {
-                self.x = 0.0;
-                self.y = self.r;
-                self.quad = self.quad % 4 + 1;
-                true
-            } else {
-                false
             }
         }
 
@@ -54,40 +98,69 @@ pub(crate) mod aa_quad {
             (a, b, o)
         }
 
-        fn step(&mut self) -> Option<(Pt<u32>, Pt<u32>, f64)> {
+        fn step_x(&mut self) -> AAPt<u32> {
             let (x, y) = (self.x, self.y);
-            let rst;
-            if self.x <= self.y {
-                let (a, b, o) = Self::calc_fract(self.y);
-                debug!("Oct7 x={} ya={} yb={} o={:.2}", self.x, a, b, o);
-                rst = (
-                    Pt::new(x, a).quad_to_iter(self.quad, self.c).u32(),
-                    Pt::new(x, b).quad_to_iter(self.quad, self.c).u32(),
-                    o,
-                );
-                self.x += 1.0;
-                self.y = self.calc_slow(self.x);
-            } else {
-                let (a, b, o) = Self::calc_fract(self.x);
-                debug!("Oct8 y={} xa={} xb={} o={:.2}", self.y, a, b, o);
-                rst = (
-                    Pt::new(a, y).quad_to_iter(self.quad, self.c).u32(),
-                    Pt::new(b, y).quad_to_iter(self.quad, self.c).u32(),
-                    o,
-                );
-                self.y -= 1.0;
-                self.x = self.calc_slow(self.y);
-            }
-            trace!("    {:?}", rst);
-            Some(rst)
+            let (ya, yb, da) = Self::calc_fract(self.y);
+            let rst = AAPt::new(
+                Pt::new(x, ya).iter_to_quad(self.quad, self.c).u32(),
+                Pt::new(x, yb).iter_to_quad(self.quad, self.c).u32(),
+                da,
+            );
+            self.x += 1.0;
+            self.y = self.calc_slow(self.x);
+            rst
         }
+
+        fn step_y(&mut self) -> AAPt<u32> {
+            let (x, y) = (self.x, self.y);
+            let (xa, xb, da) = Self::calc_fract(self.x);
+            let rst = AAPt::new(
+                Pt::new(xa, y).iter_to_quad(self.quad, self.c).u32(),
+                Pt::new(xb, y).iter_to_quad(self.quad, self.c).u32(),
+                da,
+            );
+            self.y -= 1.0;
+            self.x = self.calc_slow(self.y);
+            rst
+        }
+
+        fn step(&mut self) -> AAPt<u32> {
+            let (x, y) = (self.x, self.y);
+            if self.x <= self.y {
+                self.step_x()
+            } else {
+                if self.inc_x {
+                    // This is to handle the forty-five degree edge case
+                    self.inc_x = false;
+                    self.y = self.y.ceil();
+                    debug!("switching");
+                    self.step_y().reduce_opac_a(0.0)
+                } else {
+                    self.step_y()
+                }
+            }
+        }
+
+        fn next_quad(&mut self) -> bool {
+            if self.y < 0.0 {
+                self.x = 0.0;
+                self.y = self.r;
+                self.inc_x = true;
+                self.quad = self.quad % 4 + 1;
+                true
+            } else {
+                false
+            }
+        }
+
         fn end(&self) -> bool {
-            self.quad == self.end && self.y <= 0.0
+            self.quad == self.end_quad && self.y <= 0.0
         }
     }
 
     impl Iterator for AAArc {
-        type Item = (Pt<u32>, Pt<u32>, f64);
+        // type Item = (Pt<u32>, Pt<u32>, f64);
+        type Item = AAPt<u32>;
         fn next(&mut self) -> Option<Self::Item> {
             if self.end() {
                 return None;
@@ -95,7 +168,7 @@ pub(crate) mod aa_quad {
             if self.next_quad() {
                 return self.next();
             }
-            self.step()
+            Some(self.step())
         }
     }
 
@@ -113,8 +186,8 @@ pub(crate) mod aa_quad {
     }
 
     pub fn draw(image: &mut image::RgbaImage, iter: AAArc, color: image::Rgba<u8>) {
-        for (a, b, d) in iter {
-            let o = opac(d);
+        for AAPt { a, b, da, db } in iter {
+            let o = opac(da);
             plot_aa(image, a, b, o, color);
             trace!("    plot: o={} a={:?} b={:?}", o, a, b);
         }

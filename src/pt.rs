@@ -158,7 +158,7 @@ impl<T> Pt<T> {
         }
     }
 
-    pub(crate) fn quad_to_iter(&self, quad: u8, c: Pt<T>) -> Self
+    pub(crate) fn iter_to_quad(&self, quad: u8, c: Pt<T>) -> Self
     where
         T: Copy + std::ops::Add<Output = T> + std::ops::Neg<Output = T>,
     {
