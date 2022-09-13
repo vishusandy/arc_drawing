@@ -12,6 +12,7 @@ mod pt;
 //  arc::Arc is the full implementation of partial circular arc drawing, however it could use some
 //  performance improvements and optimizations :\
 
+pub use aa_arc::aa_quad::{draw, AAArc};
 pub use annulus::Annulus;
 pub use arc::Arc;
 pub use bres::octs::{Oct1, Oct2};
