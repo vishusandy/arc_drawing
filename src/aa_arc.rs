@@ -1,76 +1,71 @@
-use crate::Pt;
+mod aa_oct;
 
-struct FpArc {
-    x: f64,
-    y: f64,
-    d: f64,
-    r: f64,
-    r2: f64,
-    c: Pt<f64>,
-    oct: u8,
-}
+mod aa_quad {
+    use crate::Pt;
 
-impl FpArc {
-    fn full(r: i32, c: Pt<i32>, oct: u8) -> Self {
-        let r = r as f64;
-        Self {
-            x: 0.0,
-            y: r as f64,
-            d: 0.0,
-            r,
-            r2: r * r,
-            c: c.f64(),
-            oct,
-        }
+    struct Iter {
+        fast: f64,
+        r2: f64,
+        stop: f64,
+        oct: u8, // needed to test for correct end point
+        c: Pt<u32>,
     }
-    pub fn new(x: i32, r: i32, c: Pt<i32>) -> Self {
-        todo!()
-    }
-}
-
-impl Iterator for FpArc {
-    type Item = (Pt<u32>, Pt<u32>, u8);
-
-    fn next(&mut self) -> Option<Self::Item> {
-        if self.x > self.y {
-            return None;
+    impl Iter {
+        fn start(r: i32, c: Pt<i32>) -> Self {
+            let r = r as f64;
+            Self {
+                fast: 0.0,
+                r2: r * r,
+                stop: (r / std::f64::consts::SQRT_2).round(),
+                oct: 7,
+                c: c.u32(),
+            }
         }
 
-        use std::ops::Rem;
-        let o = (self.y.fract() * 255.0).round().rem(255.0) as u8;
-        let a = Pt::new(self.x, self.y.floor());
-        let b = Pt::new(self.x, self.y.floor() + 1.0);
-        // let o = 0;
-        println!("x={:.0} y={:.0} o={}", self.x, self.y, o);
-
-        self.x += 1.0;
-        self.y = (self.r2 - self.x * self.x).sqrt();
-
-        Some((
-            a.to_real(self.oct, self.c).u32(),
-            b.to_real(self.oct, self.c).u32(),
-            o,
-        ))
+        fn coords(&self) -> (Pt<u32>, Pt<u32>, u8) {
+            use std::ops::Rem;
+            let slow = (self.r2 - self.fast * self.fast).sqrt();
+            let o = (slow.fract() * 255.0).round().rem(255.0) as u8;
+            let a = slow.floor() as u32;
+            let b = a as u32 + 1;
+            let f = self.fast as u32;
+            match self.oct {
+                7 => (Pt::new(f, a) + self.c, Pt::new(f, b) + self.c, o),
+                _ => todo!("Need to add other octants"),
+            }
+        }
     }
-}
 
+    impl Iterator for Iter {
+        type Item = (Pt<u32>, Pt<u32>, u8);
+        fn next(&mut self) -> Option<Self::Item> {
+            if self.fast >= self.stop {
+                return None;
+            }
+            let rst = self.coords();
+            self.fast += 1.0;
+            Some(rst)
+        }
+    }
 
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    #[test]
-    fn fp_arc_iter() -> Result<(), image::ImageError> {
+    fn plot_aa(image: &mut image::RgbaImage, a: Pt<u32>, b: Pt<u32>, o: u8, c: image::Rgba<u8>) {
         use image::Pixel;
-        let c: image::Rgba<u8> = image::Rgba([255, 0, 0, 255]);
-        // let mut image = crate::setup(crate::RADIUS);
-        let mut image = crate::guidelines();
-        for (a, b, o) in FpArc::full(crate::RADIUS, crate::CENTER.into(), 7) {
-            let c1 = image::Rgba([c[0], c[1], c[2], 255 - o]);
-            let c2 = image::Rgba([c[0], c[1], c[2], o]);
-            image.get_pixel_mut(a.x(), a.y()).blend(&c1);
-            image.get_pixel_mut(b.x(), b.y()).blend(&c2);
+        let c1 = image::Rgba([c[0], c[1], c[2], 255 - o]);
+        let c2 = image::Rgba([c[0], c[1], c[2], o]);
+        image.get_pixel_mut(a.x(), a.y()).blend(&c1);
+        image.get_pixel_mut(b.x(), b.y()).blend(&c2);
+    }
+
+    #[cfg(test)]
+    mod tests {
+        use super::*;
+        #[test]
+        fn aa_iter() -> Result<(), image::ImageError> {
+            let mut image = crate::guidelines();
+            for (a, b, o) in Iter::start(crate::RADIUS, crate::CENTER.into()) {
+                plot_aa(&mut image, a, b, o, image::Rgba([255, 0, 0, 255]));
+            }
+            image.save("images/aa_iter.png")
         }
-        image.save("images/fp_arc_iter.png")
     }
 }
