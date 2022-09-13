@@ -107,6 +107,26 @@ mod aa_quad {
         (d * 255.0).round().rem(256.0) as u8
     }
 
+    fn draw(image: &mut image::RgbaImage, iter: Iter, color: image::Rgba<u8>) {
+        // let mut switch = false;
+        for (a, b, d) in iter {
+            let o = opac(d);
+            plot_aa(image, a, b, o, color);
+            // if (!switch && a.x + 1 > a.y) {
+            //     println!("about to switch at {:?}", a);
+            //     image.put_pixel(a.x(), a.y() - 1, image::Rgba([0, 0, 255, 255]));
+            //     image.put_pixel(b.x(), b.y() + 1, image::Rgba([0, 0, 255, 255]));
+            // }
+            // if (!switch && a.x > a.y) {
+            //     println!("switched at {:?}", a);
+            //     switch = true;
+            //     image.put_pixel(a.x() - 1, a.y(), image::Rgba([0, 255, 0, 255]));
+            //     image.put_pixel(b.x() + 1, b.y(), image::Rgba([0, 255, 0, 255]));
+            // }
+            println!("    plot: o={} a={:?} b={:?}", o, a, b);
+        }
+    }
+
     #[cfg(test)]
     mod tests {
         use super::*;
@@ -114,11 +134,9 @@ mod aa_quad {
         fn aa_iter() -> Result<(), image::ImageError> {
             // let mut image = crate::setup(crate::RADIUS);
             let mut image = crate::guidelines();
-            for (a, b, d) in Iter::start(crate::RADIUS, crate::CENTER.into()) {
-                let o = opac(d);
-                plot_aa(&mut image, a, b, o, image::Rgba([255, 0, 0, 255]));
-                println!("    plot: o={} a={:?} b={:?}", o, a, b);
-            }
+            let iter = Iter::start(crate::RADIUS, crate::CENTER.into());
+            let color = image::Rgba([255, 0, 0, 255]);
+            draw(&mut image, iter, color);
             image.save("images/aa_iter.png")
         }
     }
