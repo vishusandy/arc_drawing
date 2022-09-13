@@ -7,10 +7,12 @@ mod aa_quad {
     struct Iter {
         x: f64,
         y: f64,
+        r: f64,
         r2: f64,
         // stop: f64,
-        quad: u8, // needed to test for correct end point
-        c: Pt<u32>,
+        quad: u8, // current quadrant
+        end: u8,  // end quadrant
+        c: Pt<f64>,
     }
     impl Iter {
         fn start(r: i32, c: Pt<i32>) -> Self {
@@ -18,76 +20,79 @@ mod aa_quad {
             Self {
                 x: 0.0,
                 y: r,
+                r,
                 r2: r * r,
                 // stop: (r / std::f64::consts::SQRT_2).round(),
-                quad: 4,
-                c: c.u32(),
+                quad: 1,
+                end: 4,
+                c: c.f64(),
             }
         }
 
-        // fn coords(&self) -> (Pt<u32>, Pt<u32>, u8) {
-        //     use std::ops::Rem;
-        //     let slow = (self.r2 - self.x * self.x).sqrt();
-        //     let o = (slow.fract() * 255.0).round().rem(255.0) as u8;
-        //     let a = slow.floor() as i32;
-        //     let b = a as i32 + 1;
-        //     let f = self.x as i32;
-        //     match self.quad {
-        //         4 => (
-        //             (Pt::new(f, a) + self.c).u32(),
-        //             (Pt::new(f, b) + self.c).u32(),
-        //             o,
-        //         ),
-        //         1 => (
-        //             (Pt::new(a, -f) + self.c).u32(),
-        //             (Pt::new(b, -f) + self.c).u32(),
-        //             o,
-        //         ),
-        //         _ => todo!("Need to add other octants"),
-        //     }
-        // }
+        fn next_quad(&mut self) -> bool {
+            if self.y <= 0.0 {
+                self.x = 0.0;
+                self.y = self.r;
+                self.quad = self.quad % 4 + 1;
+                true
+            } else {
+                false
+            }
+        }
 
         /// Calculate the slow coordinate from the fast coordinate
         fn calc_slow(&self, fast: f64) -> f64 {
             (self.r2 - fast * fast).sqrt()
         }
 
-        /// Returns the two slow coordinates to antialias and the alpha value to use
-        fn calc_fract(slow: f64) -> (u32, u32, f64) {
-            // use std::ops::Rem;
-            // let o = (slow.fract() * 255.0).round().rem(255.0) as u8;
+        /// Returns the two slow coordinates to antialias and the distance between a and the actual arc (to be used for antialiasing)
+        fn calc_fract(slow: f64) -> (f64, f64, f64) {
             let o = slow.fract();
-            let a = slow.floor().abs() as u32;
-            let b = a + 1;
+            let a = slow.floor().abs();
+            let b = a + 1.0;
             (a, b, o)
         }
 
         fn step(&mut self) -> (Pt<u32>, Pt<u32>, f64) {
-            let (x, y) = (self.x as u32, self.y as u32);
+            let (x, y) = (self.x, self.y);
             let rst;
             if self.x <= self.y {
                 let (a, b, o) = Self::calc_fract(self.y);
                 println!("Oct7 x={} ya={} yb={} o={:.2}", self.x, a, b, o);
-                rst = (Pt::new(x, a) + self.c, Pt::new(x, b) + self.c, o);
+                rst = (
+                    Pt::new(x, a).quad_to_iter(self.quad, self.c).u32(),
+                    Pt::new(x, b).quad_to_iter(self.quad, self.c).u32(),
+                    o,
+                );
                 self.x += 1.0;
                 self.y = self.calc_slow(self.x);
             } else {
                 let (a, b, o) = Self::calc_fract(self.x);
                 println!("Oct8 y={} xa={} xb={} o={:.2}", self.y, a, b, o);
-                rst = (Pt::new(a, y) + self.c, Pt::new(b, y) + self.c, o);
+                rst = (
+                    Pt::new(a, y).quad_to_iter(self.quad, self.c).u32(),
+                    Pt::new(b, y).quad_to_iter(self.quad, self.c).u32(),
+                    o,
+                );
                 self.y -= 1.0;
                 self.x = self.calc_slow(self.y);
             }
             println!("    {:?}", rst);
             rst
         }
+        fn end(&self) -> bool {
+            self.quad == self.end && self.y <= 0.0
+        }
     }
 
     impl Iterator for Iter {
         type Item = (Pt<u32>, Pt<u32>, f64);
         fn next(&mut self) -> Option<Self::Item> {
-            if self.y <= 0.0 {
+            if self.end() {
                 return None;
+            }
+            if self.next_quad() {
+                return self.next();
             }
             let rst = self.step();
             Some(rst)
@@ -132,7 +137,6 @@ mod aa_quad {
         use super::*;
         #[test]
         fn aa_iter() -> Result<(), image::ImageError> {
-            // let mut image = crate::setup(crate::RADIUS);
             let mut image = crate::guidelines();
             let iter = Iter::start(crate::RADIUS, crate::CENTER.into());
             let color = image::Rgba([255, 0, 0, 255]);
