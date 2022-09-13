@@ -157,6 +157,19 @@ impl<T> Pt<T> {
             _ => Pt::new(x, y),
         }
     }
+
+    pub(crate) fn quad_to_iter(&self, quad: u8, c: Pt<T>) -> Self
+    where
+        T: Copy + std::ops::Add<Output = T> + std::ops::Neg<Output = T>,
+    {
+        match quad {
+            1 => Pt::new(self.y + c.x(), -self.x + c.y()),
+            2 => Pt::new(-self.x + c.x(), -self.y + c.y()),
+            3 => Pt::new(-self.x + c.x(), self.y + c.y()),
+            4 => Pt::new(self.x + c.x(), self.y + c.y()),
+            _ => panic!("invalid quadrant"),
+        }
+    }
 }
 
 impl Pt<f64> {
