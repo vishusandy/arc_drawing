@@ -1,5 +1,4 @@
 use arc_test::{CENTER, RADIUS};
-const RADS: f64 = std::f64::consts::PI / 4.0;
 
 fn main() -> Result<(), image::ImageError> {
     use criterion::black_box;
@@ -12,12 +11,17 @@ fn main() -> Result<(), image::ImageError> {
     // arc.draw(&mut image, image::Rgba([255, 0, 0, 255]));
 
     // DRAW PARTIAL ANNULUS
-    let ri = crate::RADIUS - 10;
-    let ro = crate::RADIUS;
-    let start = RADS * 6.00;
-    let end = RADS * 7.0 - std::f64::EPSILON;
-    let mut an = arc_test::Annulus::new(start, end, ri, ro, crate::CENTER.into());
-    an.draw(&mut image, image::Rgba([255, 0, 0, 255]));
+    // const RADS: f64 = std::f64::consts::PI / 4.0;
+    // let ri = crate::RADIUS - 10;
+    // let ro = crate::RADIUS;
+    // let start = RADS * 6.00;
+    // let end = RADS * 7.0 - std::f64::EPSILON;
+    // let mut an = arc_test::Annulus::new(start, end, ri, ro, crate::CENTER.into());
+    // an.draw(&mut image, image::Rgba([255, 0, 0, 255]));
+
+    // DRAW ANTIALIASED CIRCLE
+    let aa_arc = arc_test::AAArc::start(RADIUS, CENTER.into());
+    aa_arc.draw(&mut image, image::Rgba([255, 0, 0, 255]));
 
     let _b = black_box(image);
     if _b.height() > 0 {
