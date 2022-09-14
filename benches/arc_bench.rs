@@ -160,73 +160,30 @@ fn bench_partial_annulus(c: &mut Criterion) {
     });
 }
 
-fn bench_aa_circle_iter(c: &mut Criterion) {
-    c.bench_function("aa_circle_iter", |b| {
-        b.iter_batched(
-            || arc_test::setup(arc_test::RADIUS),
-            |mut image| {
-                let arc = arc_test::AAArc::start(arc_test::RADIUS, arc_test::CENTER.into());
-                arc_test::draw(&mut image, arc, image::Rgba([255, 0, 0, 255]));
-            },
-            BatchSize::SmallInput,
-        )
-    });
-}
-
-fn bench_aa_circle_draw(c: &mut Criterion) {
-    c.bench_function("aa_circle_draw", |b| {
-        b.iter_batched(
-            || arc_test::setup(arc_test::RADIUS),
-            |mut image| {
-                let arc = arc_test::AAArc::start(arc_test::RADIUS, arc_test::CENTER.into());
-                arc.draw(&mut image, image::Rgba([255, 0, 0, 255]));
-            },
-            BatchSize::SmallInput,
-        )
-    });
-}
-
 fn bench_aa_partial_arc_iter(c: &mut Criterion) {
     const RADS: f64 = std::f64::consts::PI / 4.0;
     const START: f64 = RADS * 0.2;
     const END: f64 = RADS * 7.75;
     c.bench_function("aa_partial_arc_iter", |b| {
         b.iter_batched(
-            || arc_test::setup(arc_test::RADIUS),
-            |mut image| {
-                let arc = arc_test::AAArc::arc(
-                    START,
-                    END,
-                    arc_test::RADIUS_F as f64,
-                    arc_test::CENTER_F.into(),
-                );
-                arc_test::draw(&mut image, arc, image::Rgba([255, 0, 0, 255]));
+            || {
+                (
+                    arc_test::setup(arc_test::RADIUS),
+                    arc_test::AAArc::arc(
+                        START,
+                        END,
+                        arc_test::RADIUS_F as f64,
+                        arc_test::CENTER_F.into(),
+                    ),
+                )
+            },
+            |(mut image, arc)| {
+                arc.draw(&mut image, image::Rgba([255, 0, 0, 255]));
             },
             BatchSize::SmallInput,
         )
     });
 }
-
-// fn bench_aa_partial_arc_draw(c: &mut Criterion) {
-//     const RADS: f64 = std::f64::consts::PI / 4.0;
-//     const START: f64 = RADS * 0.2;
-//     const END: f64 = RADS * 7.75;
-//     c.bench_function("aa_partial_arc_draw", |b| {
-//         b.iter_batched(
-//             || arc_test::setup(arc_test::RADIUS),
-//             |mut image| {
-//                 let arc = arc_test::AAArc::arc(
-//                     START,
-//                     END,
-//                     arc_test::RADIUS_F as f64,
-//                     arc_test::CENTER_F.into(),
-//                 );
-//                 arc.draw(&mut image, image::Rgba([255, 0, 0, 255]));
-//             },
-//             BatchSize::SmallInput,
-//         )
-//     });
-// }
 
 // Old
 criterion_group!(fp, bench_arc_midpoint);
@@ -248,13 +205,7 @@ criterion_group!(arc_circle_segment, bench_partial_arc);
 // These should be benchmarked by default
 criterion_group!(warmup, bench_warmup); // somehow improves performance
 criterion_group!(annulus, bench_partial_annulus);
-criterion_group!(
-    antialias,
-    bench_aa_circle_iter,
-    bench_aa_circle_draw,
-    bench_aa_partial_arc_iter,
-    // bench_aa_partial_arc_draw
-);
+criterion_group!(antialias, bench_aa_partial_arc_iter,);
 
 // criterion_main!(warmup, stock, fp, arc_circle_segment, annulus);
 // criterion_main!(arc_circle_segment, annulus, antialias);

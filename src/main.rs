@@ -1,12 +1,13 @@
-use arc_test::{CENTER, RADIUS};
+use arc_test::{CENTER_F, RADIUS, RADIUS_F};
+const RADS: f64 = std::f64::consts::PI / 4.0; // range of a single octant
 
 fn main() -> Result<(), image::ImageError> {
     use criterion::black_box;
     let mut image = arc_test::setup(RADIUS);
 
     // DRAW PARTIAL ARC
-    // const START: f64 = RADS * 0.1;
-    // const END: f64 = RADS * 7.75;
+    const START: f64 = RADS * 0.1;
+    const END: f64 = RADS * 7.75;
     // let mut arc = arc_test::Arc::new(START, END, RADIUS, CENTER.into());
     // arc.draw(&mut image, image::Rgba([255, 0, 0, 255]));
 
@@ -20,7 +21,7 @@ fn main() -> Result<(), image::ImageError> {
     // an.draw(&mut image, image::Rgba([255, 0, 0, 255]));
 
     // DRAW ANTIALIASED CIRCLE
-    let aa_arc = arc_test::AAArc::start(RADIUS, CENTER.into());
+    let aa_arc = arc_test::AAArc::new(START, END, RADIUS_F, CENTER_F.into());
     aa_arc.draw(&mut image, image::Rgba([255, 0, 0, 255]));
 
     let _b = black_box(image);

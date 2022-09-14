@@ -1,0 +1,269 @@
+use super::{angle_to_quad, AAPt};
+use crate::Pt;
+use log::debug;
+
+#[derive(Clone, Debug)]
+pub struct AAArc {
+    /// Current local x coordinate (not the same as the final pixel coordinates)
+    x: f64,
+    /// Current local y coordinate (not the same as the final pixel coordinates)
+    y: f64,
+    /// Radius
+    r: f64,
+    /// Radius squared
+    r2: f64,
+    /// Current quadrant
+    quad: u8,
+    /// End quadrant
+    end_quad: u8,
+    /// Whether to increment x (true) or y (false) every iteration.  Only used to make forty-five degree edges look nicer
+    fast_x: bool,
+    /// Used when start_angle > end_angle and start_quad == end_quad.  This allows it to  loop back around the circle
+    skip: bool,
+    /// Where to stop
+    end: End,
+    /// Center coordinates
+    c: Pt<f64>,
+}
+impl AAArc {
+    pub fn new<T>(start: T, end: T, r: f64, c: Pt<f64>) -> Self
+    where
+        T: crate::Angle,
+    {
+        let start = start.radians() % std::f64::consts::PI * 2.0;
+        let end = end.radians() % std::f64::consts::PI * 2.0;
+        Self::arc(start, end, r, c)
+    }
+
+    pub fn arc<T>(start_angle: T, end_angle: T, r: f64, c: Pt<f64>) -> Self
+    where
+        T: crate::Angle + std::fmt::Display,
+    {
+        let start_angle = start_angle.radians();
+        let end_angle = end_angle.radians();
+        let quad = angle_to_quad(start_angle);
+        let end_quad = angle_to_quad(end_angle);
+        debug!("start_quad={} end_quad={}", quad, end_quad);
+        let mut start = Pt::from_radian(start_angle, r, c.into()).quad_to_iter(quad, c);
+        let end = Pt::from_radian(end_angle, r, c.into()).quad_to_iter(end_quad, c);
+        let inc_x = if start.x() < start.y() {
+            start.x = start.x;
+            start.y = start.y;
+            true
+        } else {
+            start.y = start.y.ceil();
+            false
+        };
+
+        Self {
+            x: start.x,
+            y: start.y,
+            r: r,
+            r2: r * r,
+            quad,
+            end_quad,
+            skip: start_angle > end_angle && quad == end_quad,
+            fast_x: inc_x,
+            end: End::new(end),
+            c,
+        }
+    }
+
+    fn step_x(&mut self) -> Option<AAPt<u32>> {
+        if self.end_quad == self.quad && self.end.match_x(self.x) {
+            return None;
+        }
+        let (x, y) = (self.x, self.y);
+        let (ya, yb, da) = Self::calc_fract(self.y);
+        let rst = AAPt::new(
+            Pt::new(x, ya).iter_to_quad(self.quad, self.c).u32(),
+            Pt::new(x, yb).iter_to_quad(self.quad, self.c).u32(),
+            da,
+        );
+        self.x += 1.0;
+        self.y = self.calc_slow(self.x);
+        Some(rst)
+    }
+
+    fn step_y(&mut self) -> Option<AAPt<u32>> {
+        if self.end_quad == self.quad && self.end.match_y(self.y) {
+            return None;
+        }
+        let (x, y) = (self.x, self.y);
+        let (xa, xb, da) = Self::calc_fract(self.x);
+        let rst = AAPt::new(
+            Pt::new(xa, y).iter_to_quad(self.quad, self.c).u32(),
+            Pt::new(xb, y).iter_to_quad(self.quad, self.c).u32(),
+            da,
+        );
+        self.y -= 1.0;
+        self.x = self.calc_slow(self.y);
+        Some(rst)
+    }
+
+    /// Advance iteration or end
+    fn step(&mut self) -> Option<AAPt<u32>> {
+        let (x, y) = (self.x, self.y);
+        if self.x <= self.y {
+            self.step_x()
+        } else {
+            if self.fast_x {
+                // This is to handle the forty-five degree edge case
+                self.fast_x = false;
+                self.y = self.y.ceil();
+                debug!("switching x={} y={}", self.x, self.y);
+                self.step_y().map(|o| o.reduce_opac_b(0.5))
+            } else {
+                self.step_y()
+            }
+        }
+    }
+
+    /// Check if iteration should move to next quadrant
+    fn next_quad(&mut self) -> bool {
+        if self.y < 0.0 {
+            self.reset();
+            debug!("Q={}", self.quad);
+            true
+        } else {
+            false
+        }
+    }
+
+    /// Check if iteration should end
+    fn end(&mut self) -> bool {
+        let last = self.quad == self.end_quad && self.y <= 0.0;
+        if self.skip && last {
+            self.skip = false;
+            self.reset();
+            false
+        } else {
+            last
+        }
+    }
+
+    /// Reset to beginning of next quadrant
+    fn reset(&mut self) {
+        self.x = 0.0;
+        self.y = self.r;
+        self.fast_x = true;
+        self.quad = self.quad % 4 + 1;
+    }
+
+    /// Draw by iterating over the arc
+    pub fn draw(self, image: &mut image::RgbaImage, color: image::Rgba<u8>) {
+        draw(image, self, color);
+    }
+
+    /// Calculate the slow coordinate from the fast coordinate
+    fn calc_slow(&self, fast: f64) -> f64 {
+        (self.r2 - fast * fast).sqrt()
+    }
+
+    /// Returns the two slow coordinates to antialias and the distance between a and the actual arc (to be used for antialiasing)
+    fn calc_fract(slow: f64) -> (f64, f64, f64) {
+        let o = slow.fract();
+        let a = slow.floor().abs();
+        let b = a + 1.0;
+        (a, b, o)
+    }
+}
+
+impl Iterator for AAArc {
+    type Item = AAPt<u32>;
+
+    /// Iterate over points in an arc, returning the two corresponding points and their opacities
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.end() {
+            return None;
+        }
+        if self.next_quad() {
+            return self.next();
+        }
+        log::trace!("x={:.2} y={:.2}", self.x, self.y);
+        self.step()
+    }
+}
+
+#[derive(Copy, Clone, Debug)]
+enum End {
+    X(f64),
+    Y(f64),
+}
+impl End {
+    fn new(p: Pt<f64>) -> Self {
+        if p.x() <= p.y() {
+            Self::X(p.x())
+        } else {
+            Self::Y(p.y())
+        }
+    }
+
+    /// Check if the end point has been reached
+    fn r#match(&self, p: Pt<f64>) -> bool {
+        match self {
+            Self::X(x) => *x <= p.x,
+            Self::Y(y) => *y >= p.y,
+        }
+    }
+
+    /// Check if an X end point has been reached
+    fn match_x(&self, p: f64) -> bool {
+        match self {
+            Self::X(x) => *x <= p,
+            _ => false,
+        }
+    }
+
+    /// Check if an Y end point has been reached
+    fn match_y(&self, p: f64) -> bool {
+        match self {
+            Self::Y(y) => *y >= p,
+            _ => false,
+        }
+    }
+}
+
+/// Draw an arc by plotting each iteration on an image
+fn draw(image: &mut image::RgbaImage, iter: AAArc, color: image::Rgba<u8>) {
+    for pt in iter {
+        pt.draw(image, color);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn aa_partial_iter() -> Result<(), image::ImageError> {
+        use crate::RADS;
+        crate::logger(log::LevelFilter::Debug);
+        let mut image = crate::guidelines();
+        let start = RADS * 5.8;
+        let end = RADS * 7.4;
+        let r = crate::RADIUS as f64;
+        let c = (crate::CENTER.0 as f64, crate::CENTER.1 as f64);
+        let arc = AAArc::arc(start, end, r, c.into());
+        debug!("ARC: {:#?}", arc);
+        let color = image::Rgba([255, 0, 0, 255]);
+        draw(&mut image, arc, color);
+        image.save("images/aa_partial.png")
+    }
+
+    #[test]
+    fn aa_partial_draw() -> Result<(), image::ImageError> {
+        use crate::RADS;
+        crate::logger(log::LevelFilter::Debug);
+        let mut image = crate::guidelines();
+        let start = RADS * 1.5;
+        let end = RADS * 0.5;
+        let r = crate::RADIUS as f64;
+        let c = (crate::CENTER.0 as f64, crate::CENTER.1 as f64);
+        debug!("FFD={:.2}", r / std::f64::consts::SQRT_2);
+        let arc = AAArc::arc(start, end, r, c.into());
+        debug!("ARC: {:#?}", arc);
+        let color = image::Rgba([255, 0, 0, 255]);
+        arc.draw(&mut image, color);
+        image.save("images/aa_partial_draw.png")
+    }
+}
