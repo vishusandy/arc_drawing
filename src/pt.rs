@@ -13,18 +13,18 @@ pub struct Pt<T> {
 impl<T> Copy for Pt<T> where T: Copy {}
 
 impl<T> Pt<T> {
-    pub fn new(x: T, y: T) -> Self {
+    pub const fn new(x: T, y: T) -> Self {
         Self { x, y }
     }
 
-    pub fn x(&self) -> T
+    pub const fn x(&self) -> T
     where
         T: Copy,
     {
         self.x
     }
 
-    pub fn y(&self) -> T
+    pub const fn y(&self) -> T
     where
         T: Copy,
     {
@@ -219,26 +219,26 @@ impl Pt<f64> {
 }
 
 impl Pt<i32> {
-    pub(super) fn iter_to_real(self, oct: u8, c: Pt<i32>) -> Pt<i32> {
+    pub(super) const fn iter_to_real(self, oct: u8, c: Pt<i32>) -> Pt<i32> {
         match oct {
-            1 => (self.y + c.x(), -self.x + c.y()).into(),
-            2 => (self.x + c.x(), -self.y + c.y()).into(),
-            3 => (-self.x + c.x(), -self.y + c.y()).into(),
-            4 => (-self.y + c.x(), -self.x + c.y()).into(),
-            5 => (-self.y + c.x(), self.x + c.y()).into(),
-            6 => (-self.x + c.x(), self.y + c.y()).into(),
-            7 => (self.x + c.x(), self.y + c.y()).into(),
-            8 => (self.y + c.x(), self.x + c.y()).into(),
-            _ => (self.x + c.x(), self.y + c.y()).into(),
+            1 => Pt::new(self.y + c.x(), -self.x + c.y()),
+            2 => Pt::new(self.x + c.x(), -self.y + c.y()),
+            3 => Pt::new(-self.x + c.x(), -self.y + c.y()),
+            4 => Pt::new(-self.y + c.x(), -self.x + c.y()),
+            5 => Pt::new(-self.y + c.x(), self.x + c.y()),
+            6 => Pt::new(-self.x + c.x(), self.y + c.y()),
+            7 => Pt::new(self.x + c.x(), self.y + c.y()),
+            8 => Pt::new(self.y + c.x(), self.x + c.y()),
+            _ => Pt::new(self.x + c.x(), self.y + c.y()),
         }
     }
-    pub(crate) fn f64(&self) -> Pt<f64> {
+    pub(crate) const fn f64(&self) -> Pt<f64> {
         Pt {
             x: self.x as f64,
             y: self.y as f64,
         }
     }
-    pub(crate) fn u32(&self) -> Pt<u32> {
+    pub(crate) const fn u32(&self) -> Pt<u32> {
         Pt {
             x: self.x as u32,
             y: self.y as u32,
