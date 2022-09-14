@@ -54,10 +54,16 @@ pub(crate) mod aa_quad {
             }
         }
 
+        fn r#match(&self, p: Pt<f64>) -> bool {
+            match self {
+                Self::X(x) => *x <= p.x,
+                Self::Y(y) => *y >= p.y,
+            }
+        }
+
         fn match_x(&self, p: f64) -> bool {
             match self {
                 Self::X(x) => *x <= p,
-                // Self::X(x) => (x - p).abs() <= std::f64::EPSILON,
                 _ => false,
             }
         }
@@ -65,7 +71,6 @@ pub(crate) mod aa_quad {
         fn match_y(&self, p: f64) -> bool {
             match self {
                 Self::Y(y) => *y >= p,
-                // Self::Y(y) => (y - p).abs() <= std::f64::EPSILON,
                 _ => false,
             }
         }
@@ -248,7 +253,6 @@ pub(crate) mod aa_quad {
     }
 
     impl Iterator for AAArc {
-        // type Item = (Pt<u32>, Pt<u32>, f64);
         type Item = AAPt<u32>;
         fn next(&mut self) -> Option<Self::Item> {
             if self.end() {
