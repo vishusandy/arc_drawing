@@ -30,6 +30,9 @@ impl Angle for f64 {
     fn f64(&self) -> f64 {
         *self
     }
+    fn radians(&self) -> f64 {
+        *self
+    }
 }
 
 impl Angle for u16 {

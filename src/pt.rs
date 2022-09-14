@@ -170,6 +170,21 @@ impl<T> Pt<T> {
             _ => panic!("invalid quadrant"),
         }
     }
+    pub(crate) fn quad_to_iter(&self, quad: u8, c: Pt<T>) -> Self
+    where
+        T: Copy + std::ops::Sub<Output = T> + std::ops::Neg<Output = T> + std::fmt::Debug,
+    {
+        log::debug!("Quad to iter: {:?}", self);
+        let x = self.x - c.x();
+        let y = self.y - c.y();
+        match quad {
+            1 => Pt::new(-y, x),
+            2 => Pt::new(-x, -y),
+            3 => Pt::new(-x, y),
+            4 => Pt::new(x, y),
+            _ => panic!("invalid quadrant"),
+        }
+    }
 }
 
 impl Pt<f64> {

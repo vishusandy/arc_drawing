@@ -39,6 +39,8 @@ pub(crate) mod aa_quad {
             image.get_pixel_mut(self.b.x(), self.b.y()).blend(&c1);
         }
     }
+
+    #[derive(Copy, Clone, Debug)]
     enum End {
         X(f64),
         Y(f64),
@@ -76,10 +78,43 @@ pub(crate) mod aa_quad {
         quad: u8,     // current quadrant
         end_quad: u8, // end quadrant
         inc_x: bool,  // whether to increment x (true) or increment y (false)
-        // end: End,
+        end: End,
         c: Pt<f64>,
     }
     impl AAArc {
+        pub fn arc<T>(start_angle: T, end_angle: T, r: f64, c: Pt<f64>) -> Self
+        where
+            T: crate::Angle + std::fmt::Display,
+        {
+            let start_angle = start_angle.radians();
+            let end_angle = end_angle.radians();
+            let quad = angle_to_quad(start_angle);
+            let end_quad = angle_to_quad(end_angle);
+            debug!("start_quad={} end_quad={}", quad, end_quad);
+            let mut start = Pt::from_radian(start_angle, r, c.into()).quad_to_iter(quad, c);
+            let end = Pt::from_radian(end_angle, r, c.into()).quad_to_iter(quad, c);
+            let inc_x = if start.x() < start.y() {
+                start.x = start.x;
+                start.y = start.y;
+                true
+            } else {
+                start.y = start.y.ceil();
+                false
+            };
+
+            Self {
+                x: start.x,
+                y: start.y,
+                r: r,
+                r2: r * r,
+                quad,
+                end_quad,
+                inc_x,
+                end: End::new(end),
+                c,
+            }
+        }
+
         pub fn start(r: i32, c: Pt<i32>) -> Self {
             let r = r as f64;
             Self {
@@ -91,6 +126,7 @@ pub(crate) mod aa_quad {
                 quad: 1,
                 end_quad: 4,
                 inc_x: true,
+                end: End::Y(0.0),
                 c: c.f64(),
             }
         }
@@ -144,7 +180,6 @@ pub(crate) mod aa_quad {
                     self.inc_x = false;
                     self.y = self.y.ceil();
                     debug!("switching");
-                    // self.step_y().reduce_opac_a(0.0)
                     self.step_y().reduce_opac_b(0.5)
                 } else {
                     self.step_y()
@@ -203,6 +238,7 @@ pub(crate) mod aa_quad {
             if self.next_quad() {
                 return self.next();
             }
+            log::trace!("x={:.2} y={:.2}", self.x, self.y);
             Some(self.step())
         }
     }
@@ -219,6 +255,17 @@ pub(crate) mod aa_quad {
     pub fn draw(image: &mut image::RgbaImage, iter: AAArc, color: image::Rgba<u8>) {
         for pt in iter {
             pt.draw(image, color);
+        }
+    }
+
+    fn angle_to_quad(angle: f64) -> u8 {
+        use crate::RADS;
+        match angle {
+            a if a < RADS * 2.0 => 1,
+            a if a < RADS * 4.0 => 2,
+            a if a < RADS * 6.0 => 3,
+            a if a < RADS * 8.0 => 4,
+            _ => panic!("invalid angle"),
         }
     }
 
@@ -240,9 +287,25 @@ pub(crate) mod aa_quad {
             crate::logger(log::LevelFilter::Debug);
             let mut image = crate::guidelines();
             let color = image::Rgba([255, 0, 0, 255]);
-            let iter = AAArc::start(crate::RADIUS, crate::CENTER.into());
-            iter.draw(&mut image, color);
+            let arc = AAArc::start(crate::RADIUS, crate::CENTER.into());
+            arc.draw(&mut image, color);
             image.save("images/aa_draw.png")
+        }
+
+        #[test]
+        fn aa_partial() -> Result<(), image::ImageError> {
+            use crate::RADS;
+            crate::logger(log::LevelFilter::Debug);
+            let mut image = crate::guidelines();
+            let start = RADS * 7.8;
+            let end = RADS * 1.9;
+            let r = crate::RADIUS as f64;
+            let c = (crate::CENTER.0 as f64, crate::CENTER.1 as f64);
+            let arc = AAArc::arc(start, end, r, c.into());
+            debug!("ARC: {:#?}", arc);
+            let color = image::Rgba([255, 0, 0, 255]);
+            draw(&mut image, arc, color);
+            image.save("images/aa_partial.png")
         }
     }
 }
