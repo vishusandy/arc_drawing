@@ -123,8 +123,8 @@ fn bench_bres_all_octants(c: &mut Criterion) {
 
 fn bench_partial_arc(c: &mut Criterion) {
     const RADS: f64 = std::f64::consts::PI / 4.0;
-    const START: f64 = RADS * 0.1;
-    const END: f64 = RADS * 0.75;
+    const START: f64 = RADS * 0.2;
+    const END: f64 = RADS * 7.75;
     c.bench_function("partial_arc", |b| {
         b.iter_batched(
             || arc_test::setup(arc_test::RADIUS),
@@ -141,7 +141,7 @@ fn bench_partial_arc(c: &mut Criterion) {
 fn bench_partial_annulus(c: &mut Criterion) {
     const RADS: f64 = std::f64::consts::PI / 4.0;
     const START: f64 = RADS * 0.2;
-    const END: f64 = RADS * 4.75;
+    const END: f64 = RADS * 7.75;
     c.bench_function("partial_annulus", |b| {
         b.iter_batched(
             || arc_test::setup(arc_test::RADIUS),
@@ -209,4 +209,5 @@ criterion_group!(annulus, bench_partial_annulus);
 criterion_group!(antialias, bench_aa_circle_iter, bench_aa_circle_draw);
 
 // criterion_main!(warmup, stock, fp, arc_circle_segment, annulus);
-criterion_main!(warmup, annulus, antialias);
+// criterion_main!(arc_circle_segment, annulus, antialias);
+criterion_main!(warmup, antialias);
