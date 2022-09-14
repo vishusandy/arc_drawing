@@ -4,6 +4,7 @@ pub(crate) mod aa_quad {
     use crate::Pt;
     use log::debug;
 
+    #[derive(Clone, Debug)]
     pub struct AAPt<T> {
         a: Pt<T>,
         b: Pt<T>,
@@ -78,17 +79,37 @@ pub(crate) mod aa_quad {
 
     #[derive(Clone, Debug)]
     pub struct AAArc {
+        /// Current local x coordinate (not the same as the final pixel coordinates)
         x: f64,
+        /// Current local y coordinate (not the same as the final pixel coordinates)
         y: f64,
+        /// Radius
         r: f64,
+        /// Radius squared
         r2: f64,
-        quad: u8,     // current quadrant
-        end_quad: u8, // end quadrant
-        inc_x: bool,  // whether to increment x (true) or increment y (false)
+        /// Current quadrant
+        quad: u8,
+        /// End quadrant
+        end_quad: u8,
+        /// Whether to increment x (true) or y (false) every iteration.  Only used to make forty-five degree edges look nicer
+        fast_x: bool,
+        /// Used when start_angle > end_angle and start_quad == end_quad.  This allows it to  loop back around the circle
+        skip: bool,
+        /// Where to stop
         end: End,
+        /// Center coordinates
         c: Pt<f64>,
     }
     impl AAArc {
+        pub fn new<T>(start: T, end: T, r: f64, c: Pt<f64>) -> Self
+        where
+            T: crate::Angle,
+        {
+            let start = start.radians() % std::f64::consts::PI * 2.0;
+            let end = end.radians() % std::f64::consts::PI * 2.0;
+            Self::arc(start, end, r, c)
+        }
+
         pub fn arc<T>(start_angle: T, end_angle: T, r: f64, c: Pt<f64>) -> Self
         where
             T: crate::Angle + std::fmt::Display,
@@ -116,10 +137,15 @@ pub(crate) mod aa_quad {
                 r2: r * r,
                 quad,
                 end_quad,
-                inc_x,
+                skip: start_angle > end_angle && quad == end_quad,
+                fast_x: inc_x,
                 end: End::new(end),
                 c,
             }
+        }
+
+        pub fn draw(self, image: &mut image::RgbaImage, color: image::Rgba<u8>) {
+            draw(image, self, color);
         }
 
         pub fn start(r: i32, c: Pt<i32>) -> Self {
@@ -132,7 +158,8 @@ pub(crate) mod aa_quad {
                 // stop: (r / std::f64::consts::SQRT_2).round(),
                 quad: 1,
                 end_quad: 4,
-                inc_x: true,
+                skip: false,
+                fast_x: true,
                 end: End::Y(0.0),
                 c: c.f64(),
             }
@@ -188,11 +215,11 @@ pub(crate) mod aa_quad {
             if self.x <= self.y {
                 self.step_x()
             } else {
-                if self.inc_x {
+                if self.fast_x {
                     // This is to handle the forty-five degree edge case
-                    self.inc_x = false;
+                    self.fast_x = false;
                     self.y = self.y.ceil();
-                    debug!("switching");
+                    debug!("switching x={} y={}", self.x, self.y);
                     self.step_y().map(|o| o.reduce_opac_b(0.5))
                 } else {
                     self.step_y()
@@ -203,51 +230,28 @@ pub(crate) mod aa_quad {
         fn reset(&mut self) {
             self.x = 0.0;
             self.y = self.r;
-            self.inc_x = true;
+            self.fast_x = true;
             self.quad = self.quad % 4 + 1;
         }
 
         fn next_quad(&mut self) -> bool {
             if self.y < 0.0 {
                 self.reset();
+                debug!("Q={}", self.quad);
                 true
             } else {
                 false
             }
         }
 
-        fn end(&self) -> bool {
-            self.quad == self.end_quad && (self.y <= 0.0)
-        }
-
-        pub fn draw(mut self, image: &mut image::RgbaImage, color: image::Rgba<u8>) {
-            let ffd = (self.r / std::f64::consts::SQRT_2).round() as u32; //forty-five degree point
-            loop {
-                for _ in 0..ffd {
-                    match self.step_x() {
-                        Some(pt) => pt.draw(image, color),
-                        None => break,
-                    }
-                }
-
-                self.y = self.y.ceil();
-                match self.step_y() {
-                    //special case for forty-five degree point - reduce opacity for a better look
-                    Some(pt) => pt.reduce_opac_b(0.5).draw(image, color),
-                    None => break,
-                }
-
-                for _ in 1..ffd {
-                    match self.step_y() {
-                        Some(pt) => pt.draw(image, color),
-                        None => break,
-                    }
-                }
-
-                if self.end() {
-                    break;
-                }
+        fn end(&mut self) -> bool {
+            let last = self.quad == self.end_quad && self.y <= 0.0;
+            if self.skip && last {
+                self.skip = false;
                 self.reset();
+                false
+            } else {
+                last
             }
         }
     }
@@ -316,7 +320,7 @@ pub(crate) mod aa_quad {
         }
 
         #[test]
-        fn aa_partial() -> Result<(), image::ImageError> {
+        fn aa_partial_iter() -> Result<(), image::ImageError> {
             use crate::RADS;
             crate::logger(log::LevelFilter::Debug);
             let mut image = crate::guidelines();
@@ -329,6 +333,23 @@ pub(crate) mod aa_quad {
             let color = image::Rgba([255, 0, 0, 255]);
             draw(&mut image, arc, color);
             image.save("images/aa_partial.png")
+        }
+
+        #[test]
+        fn aa_partial_draw() -> Result<(), image::ImageError> {
+            use crate::RADS;
+            crate::logger(log::LevelFilter::Debug);
+            let mut image = crate::guidelines();
+            let start = RADS * 1.5;
+            let end = RADS * 0.5;
+            let r = crate::RADIUS as f64;
+            let c = (crate::CENTER.0 as f64, crate::CENTER.1 as f64);
+            debug!("FFD={:.2}", r / std::f64::consts::SQRT_2);
+            let arc = AAArc::arc(start, end, r, c.into());
+            debug!("ARC: {:#?}", arc);
+            let color = image::Rgba([255, 0, 0, 255]);
+            arc.draw(&mut image, color);
+            image.save("images/aa_partial_draw.png")
         }
     }
 }
