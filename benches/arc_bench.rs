@@ -1,5 +1,8 @@
 #![cfg(test)]
 
+#[cfg(test)]
+mod consts;
+
 use criterion::{criterion_group, criterion_main, BatchSize, Criterion};
 
 #[test]
@@ -185,6 +188,27 @@ fn bench_aa_partial_arc_iter(c: &mut Criterion) {
     });
 }
 
+fn bench_aa_multiple_arcs(c: &mut Criterion) {
+    use arc_test::{CENTER_F, IMG_SIZE};
+    use consts::*;
+    let base = image::RgbaImage::from_pixel(IMG_SIZE, IMG_SIZE, image::Rgba([255, 255, 255, 255]));
+    let arcs: Vec<arc_test::AAArc> = (0..50)
+        .map(|i| arc_test::AAArc::new(STARTS[i], ENDS[i], RADII[i], CENTER_F.into()))
+        .collect();
+
+    c.bench_function("aa_multiple_arcs", |b| {
+        b.iter_batched(
+            || (base.clone(), arcs.clone()),
+            |(mut image, arcs)| {
+                for arc in arcs {
+                    arc.draw(&mut image, image::Rgba([255, 0, 0, 255]));
+                }
+            },
+            BatchSize::SmallInput,
+        )
+    });
+}
+
 // Old
 criterion_group!(fp, bench_arc_midpoint);
 criterion_group!(
@@ -205,7 +229,7 @@ criterion_group!(arc_circle_segment, bench_partial_arc);
 // These should be benchmarked by default
 criterion_group!(warmup, bench_warmup); // somehow improves performance
 criterion_group!(annulus, bench_partial_annulus);
-criterion_group!(antialias, bench_aa_partial_arc_iter,);
+criterion_group!(antialias, bench_aa_partial_arc_iter, bench_aa_multiple_arcs);
 
 // criterion_main!(warmup, stock, fp, arc_circle_segment, annulus);
 // criterion_main!(arc_circle_segment, annulus, antialias);
