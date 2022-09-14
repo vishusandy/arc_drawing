@@ -159,13 +159,27 @@ fn bench_partial_annulus(c: &mut Criterion) {
         )
     });
 }
-fn bench_aa_circle(c: &mut Criterion) {
-    c.bench_function("aa_circle", |b| {
+
+fn bench_aa_circle_iter(c: &mut Criterion) {
+    c.bench_function("aa_circle_iter", |b| {
         b.iter_batched(
             || arc_test::setup(arc_test::RADIUS),
             |mut image| {
                 let arc = arc_test::AAArc::start(arc_test::RADIUS, arc_test::CENTER.into());
                 arc_test::draw(&mut image, arc, image::Rgba([255, 0, 0, 255]));
+            },
+            BatchSize::SmallInput,
+        )
+    });
+}
+
+fn bench_aa_circle_draw(c: &mut Criterion) {
+    c.bench_function("aa_circle_draw", |b| {
+        b.iter_batched(
+            || arc_test::setup(arc_test::RADIUS),
+            |mut image| {
+                let arc = arc_test::AAArc::start(arc_test::RADIUS, arc_test::CENTER.into());
+                arc.draw(&mut image, image::Rgba([255, 0, 0, 255]));
             },
             BatchSize::SmallInput,
         )
@@ -192,7 +206,7 @@ criterion_group!(arc_circle_segment, bench_partial_arc);
 // These should be benchmarked by default
 criterion_group!(warmup, bench_warmup); // somehow improves performance
 criterion_group!(annulus, bench_partial_annulus);
-criterion_group!(antialias, bench_aa_circle);
+criterion_group!(antialias, bench_aa_circle_iter, bench_aa_circle_draw);
 
 // criterion_main!(warmup, stock, fp, arc_circle_segment, annulus);
 criterion_main!(warmup, annulus, antialias);
