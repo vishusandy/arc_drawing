@@ -145,7 +145,7 @@ pub(crate) mod aa_quad {
                     self.y = self.y.ceil();
                     debug!("switching");
                     // self.step_y().reduce_opac_a(0.0)
-                    self.step_y()
+                    self.step_y().reduce_opac_b(0.5)
                 } else {
                     self.step_y()
                 }
