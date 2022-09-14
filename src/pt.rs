@@ -165,7 +165,7 @@ impl<T> Pt<T> {
         match quad {
             1 => Pt::new(self.y + c.x(), -self.x + c.y()),
             2 => Pt::new(-self.x + c.x(), -self.y + c.y()),
-            3 => Pt::new(-self.x + c.x(), self.y + c.y()),
+            3 => Pt::new(-self.y + c.x(), self.x + c.y()),
             4 => Pt::new(self.x + c.x(), self.y + c.y()),
             _ => panic!("invalid quadrant"),
         }
@@ -180,7 +180,8 @@ impl<T> Pt<T> {
         match quad {
             1 => Pt::new(-y, x),
             2 => Pt::new(-x, -y),
-            3 => Pt::new(-x, y),
+            // 3 => Pt::new(-x, y),
+            3 => Pt::new(y, -x),
             4 => Pt::new(x, y),
             _ => panic!("invalid quadrant"),
         }

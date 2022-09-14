@@ -56,14 +56,16 @@ pub(crate) mod aa_quad {
 
         fn match_x(&self, p: f64) -> bool {
             match self {
-                Self::X(x) => (x - p).abs() <= std::f64::EPSILON,
+                Self::X(x) => *x <= p,
+                // Self::X(x) => (x - p).abs() <= std::f64::EPSILON,
                 _ => false,
             }
         }
 
         fn match_y(&self, p: f64) -> bool {
             match self {
-                Self::Y(y) => (y - p).abs() <= std::f64::EPSILON,
+                Self::Y(y) => *y >= p,
+                // Self::Y(y) => (y - p).abs() <= std::f64::EPSILON,
                 _ => false,
             }
         }
@@ -92,7 +94,7 @@ pub(crate) mod aa_quad {
             let end_quad = angle_to_quad(end_angle);
             debug!("start_quad={} end_quad={}", quad, end_quad);
             let mut start = Pt::from_radian(start_angle, r, c.into()).quad_to_iter(quad, c);
-            let end = Pt::from_radian(end_angle, r, c.into()).quad_to_iter(quad, c);
+            let end = Pt::from_radian(end_angle, r, c.into()).quad_to_iter(end_quad, c);
             let inc_x = if start.x() < start.y() {
                 start.x = start.x;
                 start.y = start.y;
@@ -144,7 +146,10 @@ pub(crate) mod aa_quad {
             (a, b, o)
         }
 
-        fn step_x(&mut self) -> AAPt<u32> {
+        fn step_x(&mut self) -> Option<AAPt<u32>> {
+            if self.end_quad == self.quad && self.end.match_x(self.x) {
+                return None;
+            }
             let (x, y) = (self.x, self.y);
             let (ya, yb, da) = Self::calc_fract(self.y);
             let rst = AAPt::new(
@@ -154,10 +159,13 @@ pub(crate) mod aa_quad {
             );
             self.x += 1.0;
             self.y = self.calc_slow(self.x);
-            rst
+            Some(rst)
         }
 
-        fn step_y(&mut self) -> AAPt<u32> {
+        fn step_y(&mut self) -> Option<AAPt<u32>> {
+            if self.end_quad == self.quad && self.end.match_y(self.y) {
+                return None;
+            }
             let (x, y) = (self.x, self.y);
             let (xa, xb, da) = Self::calc_fract(self.x);
             let rst = AAPt::new(
@@ -167,10 +175,10 @@ pub(crate) mod aa_quad {
             );
             self.y -= 1.0;
             self.x = self.calc_slow(self.y);
-            rst
+            Some(rst)
         }
 
-        fn step(&mut self) -> AAPt<u32> {
+        fn step(&mut self) -> Option<AAPt<u32>> {
             let (x, y) = (self.x, self.y);
             if self.x <= self.y {
                 self.step_x()
@@ -180,7 +188,7 @@ pub(crate) mod aa_quad {
                     self.inc_x = false;
                     self.y = self.y.ceil();
                     debug!("switching");
-                    self.step_y().reduce_opac_b(0.5)
+                    self.step_y().map(|o| o.reduce_opac_b(0.5))
                 } else {
                     self.step_y()
                 }
@@ -204,20 +212,31 @@ pub(crate) mod aa_quad {
         }
 
         fn end(&self) -> bool {
-            self.quad == self.end_quad && self.y <= 0.0
+            self.quad == self.end_quad && (self.y <= 0.0)
         }
 
         pub fn draw(mut self, image: &mut image::RgbaImage, color: image::Rgba<u8>) {
             let ffd = (self.r / std::f64::consts::SQRT_2).round() as u32; //forty-five degree point
             loop {
                 for _ in 0..ffd {
-                    self.step_x().draw(image, color);
+                    match self.step_x() {
+                        Some(pt) => pt.draw(image, color),
+                        None => break,
+                    }
                 }
+
                 self.y = self.y.ceil();
-                self.step_y().reduce_opac_b(0.5).draw(image, color);
+                match self.step_y() {
+                    //special case for forty-five degree point - reduce opacity for a better look
+                    Some(pt) => pt.reduce_opac_b(0.5).draw(image, color),
+                    None => break,
+                }
 
                 for _ in 1..ffd {
-                    self.step_y().draw(image, color);
+                    match self.step_y() {
+                        Some(pt) => pt.draw(image, color),
+                        None => break,
+                    }
                 }
 
                 if self.end() {
@@ -239,7 +258,7 @@ pub(crate) mod aa_quad {
                 return self.next();
             }
             log::trace!("x={:.2} y={:.2}", self.x, self.y);
-            Some(self.step())
+            self.step()
         }
     }
 
@@ -297,8 +316,8 @@ pub(crate) mod aa_quad {
             use crate::RADS;
             crate::logger(log::LevelFilter::Debug);
             let mut image = crate::guidelines();
-            let start = RADS * 7.8;
-            let end = RADS * 1.9;
+            let start = RADS * 5.8;
+            let end = RADS * 7.4;
             let r = crate::RADIUS as f64;
             let c = (crate::CENTER.0 as f64, crate::CENTER.1 as f64);
             let arc = AAArc::arc(start, end, r, c.into());
