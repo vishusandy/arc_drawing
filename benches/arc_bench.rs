@@ -163,11 +163,11 @@ fn bench_partial_annulus(c: &mut Criterion) {
     });
 }
 
-fn bench_aa_partial_arc_iter(c: &mut Criterion) {
+fn bench_aa_partial_arc(c: &mut Criterion) {
     const RADS: f64 = std::f64::consts::PI / 4.0;
     const START: f64 = RADS * 0.2;
     const END: f64 = RADS * 7.75;
-    c.bench_function("aa_partial_arc_iter", |b| {
+    c.bench_function("aa_arc", |b| {
         b.iter_batched(
             || {
                 (
@@ -189,11 +189,13 @@ fn bench_aa_partial_arc_iter(c: &mut Criterion) {
 }
 
 fn bench_aa_multiple_arcs(c: &mut Criterion) {
-    use arc_test::{CENTER_F, IMG_SIZE};
+    use arc_test::Pt;
     use consts::*;
-    let base = image::RgbaImage::from_pixel(IMG_SIZE, IMG_SIZE, image::Rgba([255, 255, 255, 255]));
+    const SIZE: u32 = 600;
+    const C: Pt<f64> = Pt::new(300.0, 300.0);
+    let base = image::RgbaImage::from_pixel(SIZE, SIZE, image::Rgba([255, 255, 255, 255]));
     let arcs: Vec<arc_test::AAArc> = (0..50)
-        .map(|i| arc_test::AAArc::new(STARTS[i], ENDS[i], RADII[i], CENTER_F.into()))
+        .map(|i| arc_test::AAArc::new(STARTS[i], ENDS[i], RADII[i], C))
         .collect();
 
     c.bench_function("aa_multiple_arcs", |b| {
@@ -229,7 +231,7 @@ criterion_group!(arc_circle_segment, bench_partial_arc);
 // These should be benchmarked by default
 criterion_group!(warmup, bench_warmup); // somehow improves performance
 criterion_group!(annulus, bench_partial_annulus);
-criterion_group!(antialias, bench_aa_partial_arc_iter, bench_aa_multiple_arcs);
+criterion_group!(antialias, bench_aa_partial_arc, bench_aa_multiple_arcs);
 
 // criterion_main!(warmup, stock, fp, arc_circle_segment, annulus);
 // criterion_main!(arc_circle_segment, annulus, antialias);
