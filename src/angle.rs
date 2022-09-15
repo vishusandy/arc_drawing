@@ -12,6 +12,11 @@ pub(crate) fn octant_end_angle(oct: u8) -> f64 {
     oct as f64 * RADS - std::f64::EPSILON * 2.0
 }
 
+pub(crate) fn normalize(angle: f64) -> f64 {
+    use crate::PI2;
+    (angle % PI2 + PI2) % PI2
+}
+
 pub trait Angle {
     fn f64(&self) -> f64;
     fn radians(&self) -> f64 {

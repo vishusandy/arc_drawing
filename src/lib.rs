@@ -25,6 +25,8 @@ pub const CENTER: (i32, i32) = (300, 300);
 pub const RADIUS_F: f64 = RADIUS as f64;
 pub const CENTER_F: (f64, f64) = (CENTER.0 as f64, CENTER.1 as f64);
 const SHOW_MARKERS: bool = false;
+const PI2: f64 = std::f64::consts::PI * 2.0;
+const QUAD: f64 = std::f64::consts::PI / 2.0;
 
 const OR: f64 = std::f64::consts::PI / 4.0;
 pub const RADS: f64 = std::f64::consts::PI / 4.0; // range of a single octant

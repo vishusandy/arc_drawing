@@ -53,12 +53,5 @@ fn alpha(a: u8, c: image::Rgba<u8>) -> image::Rgba<u8> {
 }
 
 fn angle_to_quad(angle: f64) -> u8 {
-    use crate::RADS;
-    match angle {
-        a if a < RADS * 2.0 => 1,
-        a if a < RADS * 4.0 => 2,
-        a if a < RADS * 6.0 => 3,
-        a if a < RADS * 8.0 => 4,
-        _ => panic!("invalid angle"),
-    }
+    (angle / crate::QUAD).floor() as u8 + 1
 }
