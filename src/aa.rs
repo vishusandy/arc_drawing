@@ -31,10 +31,15 @@ impl<T> AAPt<T> {
 impl AAPt<u32> {
     fn draw(&self, image: &mut image::RgbaImage, color: image::Rgba<u8>) {
         use image::Pixel;
-        let c1 = alpha(opac(self.da), color);
-        let c2 = alpha(opac(self.db), color);
-        image.get_pixel_mut(self.a.x(), self.a.y()).blend(&c2);
-        image.get_pixel_mut(self.b.x(), self.b.y()).blend(&c1);
+        let (width, height) = image.dimensions();
+        if self.a.x < width && self.a.y < height {
+            let c2 = alpha(opac(self.db), color);
+            image.get_pixel_mut(self.a.x(), self.a.y()).blend(&c2);
+        }
+        if self.b.x < width && self.b.y < height {
+            let c1 = alpha(opac(self.da), color);
+            image.get_pixel_mut(self.b.x(), self.b.y()).blend(&c1);
+        }
     }
 }
 
