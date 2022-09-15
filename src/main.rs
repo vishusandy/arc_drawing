@@ -21,7 +21,7 @@ fn main() -> Result<(), image::ImageError> {
     // an.draw(&mut image, image::Rgba([255, 0, 0, 255]));
 
     // DRAW ANTIALIASED CIRCLE
-    let aa_arc = arc_test::AAArc::new(START, END, RADIUS_F, CENTER_F.into());
+    let aa_arc = arc_test::AAArc::new(START, END, RADIUS_F, CENTER_F);
     aa_arc.draw(&mut image, image::Rgba([255, 0, 0, 255]));
 
     let _b = black_box(image);

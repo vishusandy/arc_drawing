@@ -104,12 +104,7 @@ fn bench_aa_partial_arc(c: &mut Criterion) {
             || {
                 (
                     arc_test::setup(arc_test::RADIUS),
-                    arc_test::AAArc::arc(
-                        START,
-                        END,
-                        arc_test::RADIUS_F as f64,
-                        arc_test::CENTER_F.into(),
-                    ),
+                    arc_test::AAArc::arc(START, END, arc_test::RADIUS_F as f64, arc_test::CENTER_F),
                 )
             },
             |(mut image, arc)| {

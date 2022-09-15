@@ -70,15 +70,15 @@ impl AAArc {
         }
     }
 
-    fn step_x(&mut self) -> Option<AAPt<u32>> {
+    fn step_x(&mut self) -> Option<AAPt<i32>> {
         if self.end_quad == self.quad && self.end.match_x(self.x) {
             return None;
         }
         let (x, _) = (self.x, self.y);
         let (ya, yb, da) = Self::calc_fract(self.y);
         let rst = AAPt::new(
-            Pt::new(x, ya).iter_to_quad(self.quad, self.c).u32(),
-            Pt::new(x, yb).iter_to_quad(self.quad, self.c).u32(),
+            Pt::new(x, ya).iter_to_quad(self.quad, self.c).i32(),
+            Pt::new(x, yb).iter_to_quad(self.quad, self.c).i32(),
             da,
         );
         self.x += 1.0;
@@ -86,15 +86,15 @@ impl AAArc {
         Some(rst)
     }
 
-    fn step_y(&mut self) -> Option<AAPt<u32>> {
+    fn step_y(&mut self) -> Option<AAPt<i32>> {
         if self.end_quad == self.quad && self.end.match_y(self.y) {
             return None;
         }
         let (_, y) = (self.x, self.y);
         let (xa, xb, da) = Self::calc_fract(self.x);
         let rst = AAPt::new(
-            Pt::new(xa, y).iter_to_quad(self.quad, self.c).u32(),
-            Pt::new(xb, y).iter_to_quad(self.quad, self.c).u32(),
+            Pt::new(xa, y).iter_to_quad(self.quad, self.c).i32(),
+            Pt::new(xb, y).iter_to_quad(self.quad, self.c).i32(),
             da,
         );
         self.y -= 1.0;
@@ -103,7 +103,7 @@ impl AAArc {
     }
 
     /// Advance or end iteration
-    fn step(&mut self) -> Option<AAPt<u32>> {
+    fn step(&mut self) -> Option<AAPt<i32>> {
         if self.x <= self.y {
             self.step_x()
         } else {
@@ -168,7 +168,7 @@ impl AAArc {
 }
 
 impl Iterator for AAArc {
-    type Item = AAPt<u32>;
+    type Item = AAPt<i32>;
 
     /// Iterate over points in an arc, returning the two corresponding points and their opacities
     fn next(&mut self) -> Option<Self::Item> {
@@ -257,9 +257,9 @@ mod tests {
         let start = RADS * 3.5;
         let end = RADS * -1.5;
         let r = crate::RADIUS as f64;
-        let c = (crate::CENTER.0 as f64, crate::CENTER.1 as f64);
+        let c = Pt::new(100.0, 100.0);
         debug!("FFD={:.2}", r / std::f64::consts::SQRT_2);
-        let arc = AAArc::new(start, end, r, c.into());
+        let arc = AAArc::new(start, end, r, c);
         debug!("ARC: {:#?}", arc);
         let color = image::Rgba([255, 0, 0, 255]);
         arc.draw(&mut image, color);

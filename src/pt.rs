@@ -90,6 +90,7 @@ impl Pt<f64> {
             y: self.y.round() as i32,
         }
     }
+    #[allow(dead_code)]
     pub(crate) fn u32(&self) -> Pt<u32> {
         Pt {
             x: self.x.abs().round() as u32,

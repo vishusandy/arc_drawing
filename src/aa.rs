@@ -28,17 +28,22 @@ impl<T> AAPt<T> {
     }
 }
 
-impl AAPt<u32> {
+impl AAPt<i32> {
     fn draw(&self, image: &mut image::RgbaImage, color: image::Rgba<u8>) {
         use image::Pixel;
-        let (width, height) = image.dimensions();
-        if self.a.x < width && self.a.y < height {
+        let width = image.width() as i32;
+        let height = image.height() as i32;
+        if self.a.x >= 0 && self.a.x < width && self.a.y < height {
             let c2 = alpha(opac(self.db), color);
-            image.get_pixel_mut(self.a.x(), self.a.y()).blend(&c2);
+            image
+                .get_pixel_mut(self.a.x() as u32, self.a.y() as u32)
+                .blend(&c2);
         }
-        if self.b.x < width && self.b.y < height {
+        if self.b.x >= 0 && self.b.x < width && self.b.y < height {
             let c1 = alpha(opac(self.da), color);
-            image.get_pixel_mut(self.b.x(), self.b.y()).blend(&c1);
+            image
+                .get_pixel_mut(self.b.x() as u32, self.b.y() as u32)
+                .blend(&c1);
         }
     }
 }
@@ -51,4 +56,3 @@ fn opac(d: f64) -> u8 {
 fn alpha(a: u8, c: image::Rgba<u8>) -> image::Rgba<u8> {
     image::Rgba([c[0], c[1], c[2], a])
 }
-
