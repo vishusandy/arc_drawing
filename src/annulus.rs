@@ -1,10 +1,14 @@
 mod translate;
 use crate::angle;
 use crate::Pt;
-use log::{debug, info, trace};
+use log::info;
 
 fn calc_line(slope: f64, int: i32, x: i32) -> i32 {
     (x as f64 * slope).round() as i32 + int
+}
+
+fn calc_slope(x1: i32, y1: i32, x2: i32, y2: i32) -> f64 {
+    (y2 as f64 - y1 as f64) / (x2 as f64 - x1 as f64)
 }
 
 #[derive(Clone, Debug)]
@@ -36,10 +40,6 @@ impl Edge {
     fn int(&self) -> i32 {
         self.int
     }
-}
-
-fn calc_slope(x1: i32, y1: i32, x2: i32, y2: i32) -> f64 {
-    (y2 as f64 - y1 as f64) / (x2 as f64 - x1 as f64)
 }
 
 #[derive(Clone, Debug)]
@@ -110,21 +110,21 @@ impl Annulus {
     where
         T: crate::Angle,
     {
-        let mut start_angle = start_angle.radians();
-        let mut end_angle = end_angle.radians();
-        debug!("New: start={:.2} end={:.2}", start_angle, end_angle);
-        Self::check_angles(&mut start_angle, &mut end_angle);
+        let start_angle = crate::angle::normalize(start_angle.radians());
+        let end_angle = crate::angle::normalize(end_angle.radians());
         Self::check_radii(&mut ri, &mut ro);
-        let initial_end = end_angle;
 
         let end_oct = angle::angle_to_octant(end_angle);
         let start_oct = angle::angle_to_octant(start_angle);
-        if start_oct == end_oct && start_angle > end_angle {
-            end_angle = angle::octant_end_angle(start_oct);
-        }
 
-        let mut a = Self::annulus(start_angle, end_angle, ri, ro, c);
-        a.end = Edge::blank(initial_end);
+        let cur_end = if start_oct == end_oct && start_angle > end_angle {
+            angle::octant_end_angle(start_oct)
+        } else {
+            end_angle
+        };
+
+        let mut a = Self::annulus(start_angle, cur_end, ri, ro, c);
+        a.end = Edge::blank(end_angle);
         a
     }
 
@@ -138,18 +138,9 @@ impl Annulus {
         let ea = if start_oct == end_oct {
             end_angle
         } else {
-            debug!("start_oct!=end_oct: changing ea");
             angle::octant_end_angle(start_oct)
         };
         let mut cur_end = Edge::blank(ea);
-
-        debug!(
-            "start_oct={} end_oct={} start_angle={} new_end_angle={}\n",
-            angle::angle_to_octant(start_angle),
-            end_oct,
-            start_angle,
-            ea
-        );
 
         let inr = Pos::new(cur_start.angle, cur_end.angle, cur_start.oct, ri, c);
         let otr = Pos::new(cur_start.angle, cur_end.angle, cur_start.oct, ro, c);
@@ -185,16 +176,6 @@ impl Annulus {
         Pt::new(self.otr.x, self.otr.y)
     }
 
-    fn check_angles(start: &mut f64, end: &mut f64) {
-        use crate::RADS;
-        if *start < 0.0 || *start > RADS * 8.0 {
-            panic!("Invalid start angle '{:.2}': angle must equal to or greater than 0 and less than 2*pi", start);
-        }
-        if *end < 0.0 || *end >= RADS * 8.0 {
-            panic!("Invalid end angle '{:.2}': angle must equal to or greater than 0 and less than 2*pi",end);
-        }
-    }
-
     fn check_radii(a: &mut i32, b: &mut i32) {
         if a > b {
             std::mem::swap(a, b);
@@ -206,7 +187,6 @@ impl Annulus {
             self.oct = self.oct % 8 + 1; // Increment octant.  Wraps around to 1 if oct == 8
             let start = angle::octant_start_angle(self.oct);
             *self = Self::annulus(start, self.end.angle, self.inr.r, self.otr.r, self.c);
-            info!("Next octant:\n{:#?}", self);
             true
         } else {
             false
@@ -242,22 +222,18 @@ impl Annulus {
             ),
             (inr, otr) => {
                 let (slope, int) = if x <= self.inr.ex && x <= self.otr.ex {
-                    info!("Edge = start");
                     self.cur_start.line()
                 } else {
-                    info!("Edge = end");
                     self.cur_end.line()
                 };
 
                 let inr = inr.unwrap_or_else(|| {
                     self.otr.inc();
-                    info!("\tinr=None -> y={}", calc_line(slope, int, x));
                     calc_line(slope, int, x)
                 });
 
                 let otr = otr.unwrap_or_else(|| {
                     self.inr.inc();
-                    info!("\totr=None -> y={}", calc_line(slope, int, x));
                     calc_line(slope, int, x)
                 });
 
@@ -274,17 +250,13 @@ impl Annulus {
         image: &mut image::RgbaImage,
         color: image::Rgba<u8>,
     ) {
-        trace!(
-            "\tDraw: x={} yi={} yo={} drawing y=({}..={})",
-            x,
-            yi,
-            yo,
-            yo.min(yi),
-            yo.max(yi)
-        );
+        let width = image.width() as i32;
+        let height = image.height() as i32;
         for y in yo.min(yi)..=yo.max(yi) {
             let Pt { x, y } = translate::iter_to_real(x, y, self.oct, self.c);
-            image.put_pixel(x as u32, y as u32, color);
+            if x >= 0 && x < width && y >= 0 && y < height {
+                image.put_pixel(x as u32, y as u32, color);
+            }
         }
     }
 
@@ -297,15 +269,8 @@ impl Annulus {
                 continue;
             }
             let (x, y1, y2) = self.step();
-            trace!(
-                "    Put: x={} y1={}->{} y2={}->{}",
-                x,
-                y1,
-                y1.max(x),
-                y2,
-                y2.max(x)
-            );
-            self.put_line(x, y1.max(x), y2.max(x), image, color);
+            let (x, y1, y2) = (x, y1.max(x), y2.max(x));
+            self.put_line(x, y1, y2, image, color);
         }
     }
 
@@ -317,14 +282,6 @@ impl Annulus {
         image: &mut image::RgbaImage,
         color: image::Rgba<u8>,
     ) {
-        trace!(
-            "\tDraw: x={} yi={} yo={} drawing y=({}..={})",
-            x,
-            yi,
-            yo,
-            yo.min(yi),
-            yo.max(yi)
-        );
         for y in yo.min(yi)..=yo.max(yi) {
             let Pt { x, y } = translate::iter_to_real(x, y, self.oct, self.c);
             image.put_pixel(x as u32, y as u32, color);
@@ -339,14 +296,6 @@ impl Annulus {
                 continue;
             }
             let (x, y1, y2) = self.step();
-            trace!(
-                "    Put: x={} y1={}->{} y2={}->{}",
-                x,
-                y1,
-                y1.max(x),
-                y2,
-                y2.max(x)
-            );
             self.put_aa_line(x, y1.max(x), y2.max(x), image, color);
         }
     }
@@ -363,8 +312,9 @@ mod tests {
 
         let ri = crate::RADIUS - 10;
         let ro = crate::RADIUS;
-        let start = RADS * 7.4;
-        let end = RADS * 4.2 - std::f64::EPSILON;
+        let start = RADS * -1.05;
+        let end = RADS * -1.45 - std::f64::EPSILON;
+        let center = Pt::new(100, 100);
 
         imageproc::drawing::draw_hollow_circle_mut(
             &mut image,
@@ -373,7 +323,7 @@ mod tests {
             image::Rgba([0, 0, 255, 255]),
         );
 
-        let mut an: Annulus = Annulus::new(start, end, ri, ro, crate::CENTER.into());
+        let mut an: Annulus = Annulus::new(start, end, ri, ro, center);
         let oct = an.cur_start.oct;
         info!("Annulus: {:#?}", an);
 

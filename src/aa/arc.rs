@@ -1,4 +1,5 @@
-use super::{angle_to_quad, AAPt};
+use super::AAPt;
+use crate::angle::angle_to_quad;
 use crate::Pt;
 use log::debug;
 
@@ -30,8 +31,9 @@ impl AAArc {
     where
         T: crate::Angle,
     {
-        let start = start.radians() % std::f64::consts::PI * 2.0;
-        let end = end.radians() % std::f64::consts::PI * 2.0;
+        let start = crate::angle::normalize(start.radians());
+        let end = crate::angle::normalize(end.radians());
+        debug!("start={:.2} end={:.2}", start, end);
         Self::arc(start, end, r, c)
     }
 
@@ -43,7 +45,6 @@ impl AAArc {
         let end_angle = end_angle.radians();
         let quad = angle_to_quad(start_angle);
         let end_quad = angle_to_quad(end_angle);
-        debug!("start_quad={} end_quad={}", quad, end_quad);
         let mut start = Pt::from_radian(start_angle, r, c.into()).quad_to_iter(quad, c);
         let end = Pt::from_radian(end_angle, r, c.into()).quad_to_iter(end_quad, c);
         let inc_x = if start.x() < start.y() {
@@ -101,7 +102,7 @@ impl AAArc {
         Some(rst)
     }
 
-    /// Advance iteration or end
+    /// Advance or end iteration
     fn step(&mut self) -> Option<AAPt<u32>> {
         if self.x <= self.y {
             self.step_x()
@@ -110,7 +111,6 @@ impl AAArc {
                 // This is to handle the forty-five degree edge case
                 self.fast_x = false;
                 self.y = self.y.ceil();
-                debug!("switching x={} y={}", self.x, self.y);
                 self.step_y().map(|o| o.reduce_opac_b(0.5))
             } else {
                 self.step_y()
@@ -122,7 +122,6 @@ impl AAArc {
     fn next_quad(&mut self) -> bool {
         if self.y < 0.0 {
             self.reset();
-            debug!("Q={}", self.quad);
             true
         } else {
             false
@@ -243,7 +242,7 @@ mod tests {
         let end = RADS * 7.4;
         let r = crate::RADIUS as f64;
         let c = (crate::CENTER.0 as f64, crate::CENTER.1 as f64);
-        let arc = AAArc::arc(start, end, r, c.into());
+        let arc = AAArc::new(start, end, r, c.into());
         debug!("ARC: {:#?}", arc);
         let color = image::Rgba([255, 0, 0, 255]);
         draw(&mut image, arc, color);
@@ -255,12 +254,12 @@ mod tests {
         use crate::RADS;
         crate::logger(log::LevelFilter::Debug);
         let mut image = crate::guidelines();
-        let start = RADS * 1.5;
-        let end = RADS * 0.5;
+        let start = RADS * 3.5;
+        let end = RADS * -1.5;
         let r = crate::RADIUS as f64;
         let c = (crate::CENTER.0 as f64, crate::CENTER.1 as f64);
         debug!("FFD={:.2}", r / std::f64::consts::SQRT_2);
-        let arc = AAArc::arc(start, end, r, c.into());
+        let arc = AAArc::new(start, end, r, c.into());
         debug!("ARC: {:#?}", arc);
         let color = image::Rgba([255, 0, 0, 255]);
         arc.draw(&mut image, color);

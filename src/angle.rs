@@ -17,6 +17,10 @@ pub(crate) fn normalize(angle: f64) -> f64 {
     (angle % PI2 + PI2) % PI2
 }
 
+pub(crate) fn angle_to_quad(angle: f64) -> u8 {
+    (angle / crate::QUAD).floor() as u8 + 1
+}
+
 pub trait Angle {
     fn f64(&self) -> f64;
     fn radians(&self) -> f64 {

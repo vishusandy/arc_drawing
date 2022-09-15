@@ -52,6 +52,3 @@ fn alpha(a: u8, c: image::Rgba<u8>) -> image::Rgba<u8> {
     image::Rgba([c[0], c[1], c[2], a])
 }
 
-fn angle_to_quad(angle: f64) -> u8 {
-    (angle / crate::QUAD).floor() as u8 + 1
-}
