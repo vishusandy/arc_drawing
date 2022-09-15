@@ -12,13 +12,6 @@ pub(crate) fn octant_end_angle(oct: u8) -> f64 {
     oct as f64 * RADS - std::f64::EPSILON * 2.0
 }
 
-pub(crate) fn degree_to_radians<T>(degrees: T) -> f64
-where
-    T: Angle,
-{
-    (degrees.f64()).to_radians()
-}
-
 pub trait Angle {
     fn f64(&self) -> f64;
     fn radians(&self) -> f64 {

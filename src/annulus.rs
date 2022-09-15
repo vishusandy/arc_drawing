@@ -106,10 +106,6 @@ pub struct Annulus {
     c: Pt<i32>,
 }
 impl Annulus {
-    fn is_last(&self) -> bool {
-        todo!()
-    }
-
     pub fn new<T>(start_angle: T, end_angle: T, mut ri: i32, mut ro: i32, c: Pt<i32>) -> Self
     where
         T: crate::Angle,
@@ -136,7 +132,6 @@ impl Annulus {
         let end_oct = angle::angle_to_octant(end_angle);
         let start_oct = angle::angle_to_octant(start_angle);
 
-        let start = Edge::blank(start_angle);
         let end = Edge::blank(end_angle);
 
         let mut cur_start = Edge::blank(start_angle);

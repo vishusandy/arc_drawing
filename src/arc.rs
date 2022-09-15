@@ -18,7 +18,6 @@ impl Loc {
 #[derive(Clone, Debug)]
 pub struct Arc {
     loc: Loc,
-    start_angle: f64,
     end_angle: f64,
     start_oct: u8,
     end_oct: u8,
@@ -56,14 +55,13 @@ impl Arc {
         } else {
             Self::calc_start(start, &loc, start_oct)
         };
-        let Pt { x: ex, y: ey } = if start_oct % 2 == 0 {
+        let Pt { x: ex, y: _ } = if start_oct % 2 == 0 {
             Self::calc_end_x(start, &loc, start_oct)
         } else {
             Self::calc_end_x(end, &loc, end_oct)
         };
         Self {
             loc,
-            start_angle: start,
             end_angle: end,
             start_oct,
             end_oct,
@@ -76,7 +74,6 @@ impl Arc {
     }
 
     fn calc_start(start: f64, loc: &Loc, oct: u8) -> (i32, i32, i32) {
-        let c = loc.c.f64();
         let pt = Pt::from_radian(start, loc.r, loc.c.into()).real_to_iter(oct, loc.c.into());
         let d: i32 = ((pt.x().round() as f64 + 1.0).powi(2) + (pt.y().round() as f64 - 0.5).powi(2)
             - loc.r.pow(2) as f64)
@@ -86,7 +83,6 @@ impl Arc {
     }
 
     fn calc_end_x(end: f64, loc: &Loc, oct: u8) -> Pt<i32> {
-        let c = loc.c.f64();
         Pt::from_radian(end, loc.r, loc.c.into())
             .real_to_iter(oct, loc.c.into())
             .i32()

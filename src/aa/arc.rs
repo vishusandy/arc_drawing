@@ -73,7 +73,7 @@ impl AAArc {
         if self.end_quad == self.quad && self.end.match_x(self.x) {
             return None;
         }
-        let (x, y) = (self.x, self.y);
+        let (x, _) = (self.x, self.y);
         let (ya, yb, da) = Self::calc_fract(self.y);
         let rst = AAPt::new(
             Pt::new(x, ya).iter_to_quad(self.quad, self.c).u32(),
@@ -89,7 +89,7 @@ impl AAArc {
         if self.end_quad == self.quad && self.end.match_y(self.y) {
             return None;
         }
-        let (x, y) = (self.x, self.y);
+        let (_, y) = (self.x, self.y);
         let (xa, xb, da) = Self::calc_fract(self.x);
         let rst = AAPt::new(
             Pt::new(xa, y).iter_to_quad(self.quad, self.c).u32(),
@@ -103,7 +103,6 @@ impl AAArc {
 
     /// Advance iteration or end
     fn step(&mut self) -> Option<AAPt<u32>> {
-        let (x, y) = (self.x, self.y);
         if self.x <= self.y {
             self.step_x()
         } else {
@@ -200,6 +199,7 @@ impl End {
     }
 
     /// Check if the end point has been reached
+    #[allow(dead_code)]
     fn r#match(&self, p: Pt<f64>) -> bool {
         match self {
             Self::X(x) => *x <= p.x,

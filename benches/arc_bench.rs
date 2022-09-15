@@ -56,74 +56,6 @@ fn bench_warmup(c: &mut Criterion) {
     });
 }
 
-fn bench_arc_integer2_full(c: &mut Criterion) {
-    c.bench_function("arc_integer2_full", |b| {
-        b.iter_batched(
-            || arc_test::setup(arc_test::RADIUS),
-            |mut image| {
-                arc_test::full_circle(
-                    &mut image,
-                    arc_test::RADIUS,
-                    arc_test::CENTER,
-                    image::Rgba([255, 0, 0, 255]),
-                )
-            },
-            BatchSize::SmallInput,
-        )
-    });
-}
-fn bench_arc_integer2_single(c: &mut Criterion) {
-    c.bench_function("arc_integer2_single", |b| {
-        b.iter_batched(
-            || arc_test::setup(arc_test::RADIUS),
-            |mut image| {
-                arc_test::full_arc_oct(
-                    &mut image,
-                    arc_test::RADIUS,
-                    arc_test::CENTER,
-                    0,
-                    image::Rgba([255, 0, 0, 255]),
-                )
-            },
-            BatchSize::SmallInput,
-        )
-    });
-}
-
-fn bench_bres_iter_o1(c: &mut Criterion) {
-    c.bench_function("bres_iter_o1", |b| {
-        b.iter_batched(
-            || arc_test::setup(arc_test::RADIUS),
-            |mut image| {
-                arc_test::draw_iter(
-                    &mut image,
-                    arc_test::Oct1::full(arc_test::RADIUS, arc_test::CENTER),
-                    image::Rgba([255, 0, 0, 255]),
-                )
-            },
-            BatchSize::SmallInput,
-        )
-    });
-}
-
-#[allow(dead_code)]
-fn bench_bres_all_octants(c: &mut Criterion) {
-    c.bench_function("bres_iter_circle", |b| {
-        b.iter_batched(
-            || arc_test::setup(arc_test::RADIUS),
-            |mut image| {
-                arc_test::draw_bres_circle(
-                    &mut image,
-                    arc_test::RADIUS,
-                    arc_test::CENTER,
-                    image::Rgba([255, 0, 0, 255]),
-                )
-            },
-            BatchSize::SmallInput,
-        )
-    });
-}
-
 fn bench_partial_arc(c: &mut Criterion) {
     const RADS: f64 = std::f64::consts::PI / 4.0;
     const START: f64 = RADS * 0.2;
@@ -213,14 +145,7 @@ fn bench_aa_multiple_arcs(c: &mut Criterion) {
 
 // Old
 criterion_group!(fp, bench_arc_midpoint);
-criterion_group!(
-    bres_iterators,
-    bench_arc_integer,
-    bench_arc_integer2_single,
-    bench_bres_iter_o1,
-    bench_bres_all_octants,
-    bench_arc_integer2_full
-);
+criterion_group!(bres_iterators, bench_arc_integer);
 
 // For comparison
 criterion_group!(stock, bench_imageproc_circle); // circle drawing from imageproc crate

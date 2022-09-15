@@ -1,22 +1,19 @@
-#![allow(dead_code)]
-#![allow(unused_variables)]
 mod aa;
 mod angle;
 mod annulus;
 mod arc;
-mod bres;
 mod fp;
 mod pt;
 
 // STATUS
-//  arc::Arc is the full implementation of partial circular arc drawing, however it could use some
-//  performance improvements and optimizations :\
+//  arc::Arc for arcs (full & partial)
+//      does it support start > end?
+//  annulus::Annulus for filled arcs (full & partial)
+//  aa::AAArc for antialiased arcs (full & partial)
 
 pub use aa::arc::AAArc;
 pub use annulus::Annulus;
 pub use arc::Arc;
-pub use bres::octs::{Oct1, Oct2};
-pub use bres::{draw_bres_circle, full_arc_oct, full_circle};
 pub use fp::{arc_integer, arc_midpoint};
 
 pub(crate) use angle::Angle;
@@ -32,6 +29,7 @@ const SHOW_MARKERS: bool = false;
 const OR: f64 = std::f64::consts::PI / 4.0;
 pub const RADS: f64 = std::f64::consts::PI / 4.0; // range of a single octant
 
+#[cfg(test)]
 fn logger(level: log::LevelFilter) {
     let _ = env_logger::Builder::new()
         .filter_level(level)
@@ -51,7 +49,6 @@ pub fn draw_iter<T: Iterator<Item = (i32, i32)>>(
     iter: T,
     color: image::Rgba<u8>,
 ) {
-    // let iter = Oct1::new(r, c);
     for (x, y) in iter {
         image.put_pixel(x as u32, y as u32, color);
     }
