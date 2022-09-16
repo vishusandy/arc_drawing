@@ -33,13 +33,13 @@ impl AAPt<i32> {
         use image::Pixel;
         let width = image.width() as i32;
         let height = image.height() as i32;
-        if self.a.x >= 0 && self.a.x < width && self.a.y < height {
+        if self.a.x >= 0 && self.a.x < width && self.a.y > 0 && self.a.y < height {
             let c2 = alpha(opac(self.db), color);
             image
                 .get_pixel_mut(self.a.x() as u32, self.a.y() as u32)
                 .blend(&c2);
         }
-        if self.b.x >= 0 && self.b.x < width && self.b.y < height {
+        if self.b.x >= 0 && self.b.x < width && self.b.y > 0 && self.b.y < height {
             let c1 = alpha(opac(self.da), color);
             image
                 .get_pixel_mut(self.b.x() as u32, self.b.y() as u32)
