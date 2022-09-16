@@ -32,12 +32,15 @@ impl AAArc {
         T: crate::Angle,
     {
         let start = crate::angle::normalize(start.radians());
-        let end = crate::angle::normalize(end.radians());
+        let mut end = crate::angle::normalize(end.radians());
+        if start == end {
+            end = crate::angle::normalize(start - std::f64::EPSILON * 3.0);
+        }
         debug!("start={:.2} end={:.2}", start, end);
         Self::arc(start, end, r, c)
     }
 
-    pub fn arc<T>(start_angle: T, end_angle: T, r: f64, c: Pt<f64>) -> Self
+    fn arc<T>(start_angle: T, end_angle: T, r: f64, c: Pt<f64>) -> Self
     where
         T: crate::Angle + std::fmt::Display,
     {
@@ -254,10 +257,10 @@ mod tests {
         use crate::RADS;
         crate::logger(log::LevelFilter::Debug);
         let mut image = crate::guidelines();
-        let start = RADS * 3.5;
-        let end = RADS * -1.5;
+        let start = RADS * 0.0;
+        let end = RADS * 5.5;
         let r = crate::RADIUS as f64;
-        let c = Pt::new(100.0, 100.0);
+        let c = Pt::new(300.0, 300.0);
         debug!("FFD={:.2}", r / std::f64::consts::SQRT_2);
         let arc = AAArc::new(start, end, r, c);
         debug!("ARC: {:#?}", arc);
