@@ -46,6 +46,7 @@ fn bench_arc_integer(c: &mut Criterion) {
         )
     });
 }
+
 fn bench_warmup(c: &mut Criterion) {
     c.bench_function("warmup", |b| {
         b.iter_batched(
@@ -116,10 +117,9 @@ fn bench_aa_partial_arc(c: &mut Criterion) {
 }
 
 fn bench_aa_multiple_arcs(c: &mut Criterion) {
-    use arc_test::Pt;
     use consts::*;
     const SIZE: u32 = 600;
-    const C: Pt<f64> = Pt::new(300.0, 300.0);
+    const C: arc_test::Pt<f64> = arc_test::Pt::new(300.0, 300.0);
     let base = image::RgbaImage::from_pixel(SIZE, SIZE, image::Rgba([255, 255, 255, 255]));
     let arcs: Vec<arc_test::AAArc> = (0..50)
         .map(|i| arc_test::AAArc::new(STARTS[i], ENDS[i], RADII[i], C))
@@ -151,7 +151,12 @@ criterion_group!(arc_circle_segment, bench_partial_arc);
 // These should be benchmarked by default
 criterion_group!(warmup, bench_warmup); // somehow improves performance
 criterion_group!(annulus, bench_partial_annulus);
-criterion_group!(antialias, bench_aa_partial_arc, bench_aa_multiple_arcs);
+criterion_group! {
+    name = antialias;
+    // This can be any expression that returns a `Criterion` object.
+    config = Criterion::default().sample_size(200);
+    targets = bench_aa_partial_arc, bench_aa_multiple_arcs
+}
 
 // criterion_main!(warmup, stock, fp, arc_circle_segment, annulus);
 // criterion_main!(arc_circle_segment, annulus, antialias);

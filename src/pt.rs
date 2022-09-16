@@ -60,6 +60,7 @@ impl<T> Pt<T> {
     where
         T: Copy + std::ops::Sub<Output = T> + std::ops::Neg<Output = T> + std::fmt::Debug,
     {
+        #[cfg(test)]
         log::debug!("Quad to iter: {:?}", self);
         let x = self.x - c.x();
         let y = self.y - c.y();

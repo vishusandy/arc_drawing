@@ -1,7 +1,6 @@
 use super::AAPt;
 use crate::angle::angle_to_quad;
 use crate::Pt;
-use log::debug;
 
 #[derive(Clone, Debug)]
 pub struct AAArc {
@@ -33,10 +32,11 @@ impl AAArc {
     {
         let start = crate::angle::normalize(start.radians());
         let mut end = crate::angle::normalize(end.radians());
-        if start == end {
+        if (start - end).abs() <= std::f64::EPSILON {
             end = crate::angle::normalize(start - std::f64::EPSILON * 3.0);
         }
-        debug!("start={:.2} end={:.2}", start, end);
+        #[cfg(test)]
+        log::debug!("start={:.2} end={:.2}", start, end);
         Self::arc(start, end, r, c)
     }
 
@@ -181,6 +181,7 @@ impl Iterator for AAArc {
         if self.next_quad() {
             return self.next();
         }
+        #[cfg(test)]
         log::trace!("x={:.2} y={:.2}", self.x, self.y);
         self.step()
     }
@@ -246,7 +247,7 @@ mod tests {
         let r = crate::RADIUS as f64;
         let c = (crate::CENTER.0 as f64, crate::CENTER.1 as f64);
         let arc = AAArc::new(start, end, r, c.into());
-        debug!("ARC: {:#?}", arc);
+        log::debug!("ARC: {:#?}", arc);
         let color = image::Rgba([255, 0, 0, 255]);
         draw(&mut image, arc, color);
         image.save("images/aa_partial.png")
@@ -258,12 +259,12 @@ mod tests {
         crate::logger(log::LevelFilter::Debug);
         let mut image = crate::guidelines();
         let start = RADS * 0.0;
-        let end = RADS * 5.5;
+        let end = RADS * 8.0;
         let r = crate::RADIUS as f64;
         let c = Pt::new(300.0, 300.0);
-        debug!("FFD={:.2}", r / std::f64::consts::SQRT_2);
+        log::debug!("FFD={:.2}", r / std::f64::consts::SQRT_2);
         let arc = AAArc::new(start, end, r, c);
-        debug!("ARC: {:#?}", arc);
+        log::debug!("ARC: {:#?}", arc);
         let color = image::Rgba([255, 0, 0, 255]);
         arc.draw(&mut image, color);
         image.save("images/aa_partial_draw.png")

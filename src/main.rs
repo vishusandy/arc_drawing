@@ -2,7 +2,6 @@ use arc_test::{CENTER_F, RADIUS, RADIUS_F};
 const RADS: f64 = std::f64::consts::PI / 4.0; // range of a single octant
 
 fn main() -> Result<(), image::ImageError> {
-    use criterion::black_box;
     let mut image = arc_test::setup(RADIUS);
 
     // DRAW PARTIAL ARC
@@ -24,8 +23,7 @@ fn main() -> Result<(), image::ImageError> {
     let aa_arc = arc_test::AAArc::new(START, END, RADIUS_F, CENTER_F);
     aa_arc.draw(&mut image, image::Rgba([255, 0, 0, 255]));
 
-    let _b = black_box(image);
-    if _b.height() > 0 {
+    if image.height() > 0 {
         Ok(())
     } else {
         Err(image::ImageError::Unsupported(

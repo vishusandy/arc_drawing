@@ -1,7 +1,6 @@
 mod translate;
 use crate::angle;
 use crate::Pt;
-use log::info;
 
 fn calc_line(slope: f64, int: i32, x: i32) -> i32 {
     (x as f64 * slope).round() as i32 + int
@@ -111,7 +110,10 @@ impl Annulus {
         T: crate::Angle,
     {
         let start_angle = crate::angle::normalize(start_angle.radians());
-        let end_angle = crate::angle::normalize(end_angle.radians());
+        let mut end_angle = crate::angle::normalize(end_angle.radians());
+        if (start_angle - end_angle).abs() <= std::f64::EPSILON {
+            end_angle = crate::angle::normalize(end_angle - std::f64::EPSILON * 3.0);
+        }
         Self::check_radii(&mut ri, &mut ro);
 
         let end_oct = angle::angle_to_octant(end_angle);
@@ -198,7 +200,8 @@ impl Annulus {
             if self.cur_start.angle > self.end.angle {
                 false
             } else {
-                info!("End");
+                #[cfg(test)]
+                log::info!("End");
                 true
             }
         } else {
@@ -310,11 +313,11 @@ mod tests {
         crate::logger(log::LevelFilter::Debug);
         let mut image = crate::setup(crate::RADIUS);
 
-        let ri = crate::RADIUS - 10;
+        let ri = crate::RADIUS - 20;
         let ro = crate::RADIUS;
-        let start = RADS * -1.05;
-        let end = RADS * -1.45 - std::f64::EPSILON;
-        let center = Pt::new(100, 100);
+        let start = RADS * 0.0;
+        let end = RADS * 8.0;
+        let center = Pt::new(300, 300);
 
         imageproc::drawing::draw_hollow_circle_mut(
             &mut image,
@@ -325,7 +328,7 @@ mod tests {
 
         let mut an: Annulus = Annulus::new(start, end, ri, ro, center);
         let oct = an.cur_start.oct;
-        info!("Annulus: {:#?}", an);
+        log::info!("Annulus: {:#?}", an);
 
         let is = an.inner_start().iter_to_real(oct, crate::CENTER.into());
         let os = an.outer_start().iter_to_real(oct, crate::CENTER.into());
