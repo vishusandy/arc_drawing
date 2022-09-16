@@ -31,15 +31,21 @@ impl<T> AAPt<T> {
 impl AAPt<i32> {
     fn draw(&self, image: &mut image::RgbaImage, color: image::Rgba<u8>) {
         use image::Pixel;
-        let width = image.width() as i32;
-        let height = image.height() as i32;
-        if self.a.x >= 0 && self.a.x < width && self.a.y > 0 && self.a.y < height {
+        let width = image.width();
+        let height = image.height();
+
+        let a = self.a.u32();
+        let b = self.b.u32();
+
+        // if self.a.x >= 0 && self.a.x < width && self.a.y > 0 && self.a.y < height {
+        if a.x < width && a.y < height {
             let c2 = alpha(opac(self.db), color);
             image
                 .get_pixel_mut(self.a.x() as u32, self.a.y() as u32)
                 .blend(&c2);
         }
-        if self.b.x >= 0 && self.b.x < width && self.b.y > 0 && self.b.y < height {
+        // if self.b.x >= 0 && self.b.x < width && self.b.y > 0 && self.b.y < height {
+        if b.x < width && b.y < height {
             let c1 = alpha(opac(self.da), color);
             image
                 .get_pixel_mut(self.b.x() as u32, self.b.y() as u32)
@@ -48,11 +54,13 @@ impl AAPt<i32> {
     }
 }
 
+#[inline]
 fn opac(d: f64) -> u8 {
     use std::ops::Rem;
     (d * 255.0).round().rem(256.0) as u8
 }
 
+#[inline]
 fn alpha(a: u8, c: image::Rgba<u8>) -> image::Rgba<u8> {
     image::Rgba([c[0], c[1], c[2], a])
 }

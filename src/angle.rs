@@ -1,22 +1,28 @@
 use crate::RADS;
 
+#[inline]
 pub(crate) fn angle_to_octant(angle: f64) -> u8 {
     (angle / RADS).floor() as u8 + 1
 }
 
+#[inline]
 pub(crate) fn octant_start_angle(oct: u8) -> f64 {
     (oct - 1) as f64 * RADS
 }
+
+#[inline]
 pub(crate) fn octant_end_angle(oct: u8) -> f64 {
     // subtract a *very* tiny amount to prevent moving into the next octant
-    oct as f64 * RADS - std::f64::EPSILON * 2.0
+    oct as f64 * RADS - crate::TINY
 }
 
+#[inline]
 pub(crate) fn normalize(angle: f64) -> f64 {
     use crate::PI2;
     (angle % PI2 + PI2) % PI2
 }
 
+#[inline]
 pub(crate) fn angle_to_quad(angle: f64) -> u8 {
     (angle / crate::QUAD).floor() as u8 + 1
 }

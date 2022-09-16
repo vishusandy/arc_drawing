@@ -11,6 +11,7 @@ impl<T> Pt<T> {
         Self { x, y }
     }
 
+    #[inline]
     pub const fn x(&self) -> T
     where
         T: Copy,
@@ -18,6 +19,7 @@ impl<T> Pt<T> {
         self.x
     }
 
+    #[inline]
     pub const fn y(&self) -> T
     where
         T: Copy,
@@ -85,6 +87,8 @@ impl Pt<f64> {
 
         Self { x, y }
     }
+
+    #[inline]
     pub(crate) fn i32(&self) -> Pt<i32> {
         Pt {
             x: self.x.round() as i32,
@@ -113,6 +117,14 @@ impl Pt<i32> {
             7 => Pt::new(self.x + c.x(), self.y + c.y()),
             8 => Pt::new(self.y + c.x(), self.x + c.y()),
             _ => Pt::new(self.x + c.x(), self.y + c.y()),
+        }
+    }
+
+    #[inline]
+    pub(crate) fn u32(&self) -> Pt<u32> {
+        Pt {
+            x: self.x as u32,
+            y: self.y as u32,
         }
     }
 }

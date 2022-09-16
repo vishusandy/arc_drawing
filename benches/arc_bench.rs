@@ -154,10 +154,10 @@ criterion_group!(annulus, bench_partial_annulus);
 criterion_group! {
     name = antialias;
     // This can be any expression that returns a `Criterion` object.
-    config = Criterion::default().sample_size(200);
+    config = Criterion::default().sample_size(500);
     targets = bench_aa_partial_arc, bench_aa_multiple_arcs
 }
 
 // criterion_main!(warmup, stock, fp, arc_circle_segment, annulus);
 // criterion_main!(arc_circle_segment, annulus, antialias);
-criterion_main!(warmup, antialias);
+criterion_main!(warmup, annulus);

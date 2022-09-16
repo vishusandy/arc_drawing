@@ -33,7 +33,7 @@ impl AAArc {
         let start = crate::angle::normalize(start.radians());
         let mut end = crate::angle::normalize(end.radians());
         if (start - end).abs() <= std::f64::EPSILON {
-            end = crate::angle::normalize(start - std::f64::EPSILON * 3.0);
+            end = crate::angle::normalize(start - crate::TINY);
         }
         #[cfg(test)]
         log::debug!("start={:.2} end={:.2}", start, end);
@@ -77,7 +77,7 @@ impl AAArc {
         if self.end_quad == self.quad && self.end.match_x(self.x) {
             return None;
         }
-        let (x, _) = (self.x, self.y);
+        let x = self.x;
         let (ya, yb, da) = Self::calc_fract(self.y);
         let rst = AAPt::new(
             Pt::new(x, ya).iter_to_quad(self.quad, self.c).i32(),
@@ -93,7 +93,7 @@ impl AAArc {
         if self.end_quad == self.quad && self.end.match_y(self.y) {
             return None;
         }
-        let (_, y) = (self.x, self.y);
+        let y = self.y;
         let (xa, xb, da) = Self::calc_fract(self.x);
         let rst = AAPt::new(
             Pt::new(xa, y).iter_to_quad(self.quad, self.c).i32(),
@@ -261,7 +261,7 @@ mod tests {
         let start = RADS * 0.0;
         let end = RADS * 8.0;
         let r = crate::RADIUS as f64;
-        let c = Pt::new(300.0, 300.0);
+        let c = Pt::new(100.0, 100.0);
         log::debug!("FFD={:.2}", r / std::f64::consts::SQRT_2);
         let arc = AAArc::new(start, end, r, c);
         log::debug!("ARC: {:#?}", arc);

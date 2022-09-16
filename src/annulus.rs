@@ -112,7 +112,7 @@ impl Annulus {
         let start_angle = crate::angle::normalize(start_angle.radians());
         let mut end_angle = crate::angle::normalize(end_angle.radians());
         if (start_angle - end_angle).abs() <= std::f64::EPSILON {
-            end_angle = crate::angle::normalize(end_angle - std::f64::EPSILON * 3.0);
+            end_angle = crate::angle::normalize(end_angle - crate::TINY);
         }
         Self::check_radii(&mut ri, &mut ro);
 
@@ -137,10 +137,9 @@ impl Annulus {
         let end = Edge::blank(end_angle);
 
         let mut cur_start = Edge::blank(start_angle);
-        let ea = if start_oct == end_oct {
-            end_angle
-        } else {
-            angle::octant_end_angle(start_oct)
+        let ea = match start_oct == end_oct {
+            true => end_angle,
+            false => angle::octant_end_angle(start_oct),
         };
         let mut cur_end = Edge::blank(ea);
 
@@ -196,16 +195,9 @@ impl Annulus {
     }
 
     fn end(&self) -> bool {
-        if self.oct == self.end.oct && self.x >= self.inr.ex && self.x >= self.otr.ex {
-            if self.cur_start.angle > self.end.angle {
-                false
-            } else {
-                #[cfg(test)]
-                log::info!("End");
-                true
-            }
-        } else {
-            false
+        match self.oct == self.end.oct && self.x >= self.inr.ex && self.x >= self.otr.ex {
+            true => self.cur_start.angle <= self.end.angle,
+            false => false,
         }
     }
 
@@ -253,12 +245,12 @@ impl Annulus {
         image: &mut image::RgbaImage,
         color: image::Rgba<u8>,
     ) {
-        let width = image.width() as i32;
-        let height = image.height() as i32;
+        let width = image.width();
+        let height = image.height();
         for y in yo.min(yi)..=yo.max(yi) {
-            let Pt { x, y } = translate::iter_to_real(x, y, self.oct, self.c);
-            if x >= 0 && x < width && y >= 0 && y < height {
-                image.put_pixel(x as u32, y as u32, color);
+            let Pt { x, y } = translate::iter_to_real(x, y, self.oct, self.c).u32();
+            if x < width && y < height {
+                image.put_pixel(x, y, color);
             }
         }
     }
@@ -274,32 +266,6 @@ impl Annulus {
             let (x, y1, y2) = self.step();
             let (x, y1, y2) = (x, y1.max(x), y2.max(x));
             self.put_line(x, y1, y2, image, color);
-        }
-    }
-
-    fn put_aa_line(
-        &self,
-        x: i32,
-        yi: i32,
-        yo: i32,
-        image: &mut image::RgbaImage,
-        color: image::Rgba<u8>,
-    ) {
-        for y in yo.min(yi)..=yo.max(yi) {
-            let Pt { x, y } = translate::iter_to_real(x, y, self.oct, self.c);
-            image.put_pixel(x as u32, y as u32, color);
-        }
-    }
-    pub fn draw_aa(&mut self, image: &mut image::RgbaImage, color: image::Rgba<u8>) {
-        loop {
-            if self.end() {
-                return;
-            }
-            if self.next_octant() {
-                continue;
-            }
-            let (x, y1, y2) = self.step();
-            self.put_aa_line(x, y1.max(x), y2.max(x), image, color);
         }
     }
 }
