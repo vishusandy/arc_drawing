@@ -258,10 +258,10 @@ mod tests {
         use crate::RADS;
         crate::logger(log::LevelFilter::Debug);
         let mut image = crate::guidelines();
-        let start = RADS * 0.0;
-        let end = RADS * 8.0;
+        let start = RADS * -0.8;
+        let end = RADS * 5.8;
         let r = crate::RADIUS as f64;
-        let c = Pt::new(100.0, 100.0);
+        let c = Pt::new(300.0, 300.0);
         log::debug!("FFD={:.2}", r / std::f64::consts::SQRT_2);
         let arc = AAArc::new(start, end, r, c);
         log::debug!("ARC: {:#?}", arc);

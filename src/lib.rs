@@ -25,14 +25,26 @@ pub const CENTER: (i32, i32) = (300, 300);
 pub const RADIUS_F: f64 = RADIUS as f64;
 pub const CENTER_F: Pt<f64> = Pt::new(CENTER.0 as f64, CENTER.1 as f64);
 
-const SHOW_MARKERS: bool = false;
-
 const PI2: f64 = std::f64::consts::PI * 2.0;
 const QUAD: f64 = std::f64::consts::PI / 2.0;
 const TINY: f64 = std::f64::EPSILON * 3.0;
 
-const OR: f64 = std::f64::consts::PI / 4.0;
 pub const RADS: f64 = std::f64::consts::PI / 4.0; // range of a single octant
+
+#[cfg(test)]
+const OR: f64 = std::f64::consts::PI / 4.0;
+#[cfg(test)]
+const SHOW_MARKERS: bool = false;
+
+pub fn draw_iter<T: Iterator<Item = (i32, i32)>>(
+    image: &mut image::RgbaImage,
+    iter: T,
+    color: image::Rgba<u8>,
+) {
+    for (x, y) in iter {
+        image.put_pixel(x as u32, y as u32, color);
+    }
+}
 
 #[cfg(test)]
 fn logger(level: log::LevelFilter) {
@@ -45,20 +57,12 @@ fn logger(level: log::LevelFilter) {
         .try_init();
 }
 
+#[cfg(test)]
 pub fn blank() -> image::RgbaImage {
     image::RgbaImage::from_pixel(IMG_SIZE, IMG_SIZE, image::Rgba([255, 255, 255, 255]))
 }
 
-pub fn draw_iter<T: Iterator<Item = (i32, i32)>>(
-    image: &mut image::RgbaImage,
-    iter: T,
-    color: image::Rgba<u8>,
-) {
-    for (x, y) in iter {
-        image.put_pixel(x as u32, y as u32, color);
-    }
-}
-
+#[cfg(test)]
 pub fn setup(r: i32) -> image::RgbaImage {
     let mut image = guidelines();
     let center = CENTER;
@@ -74,6 +78,7 @@ pub fn setup(r: i32) -> image::RgbaImage {
     image
 }
 
+#[cfg(test)]
 fn guidelines() -> image::RgbaImage {
     let mut image =
         image::RgbaImage::from_pixel(IMG_SIZE, IMG_SIZE, image::Rgba([255, 255, 255, 255]));
@@ -105,6 +110,7 @@ fn guidelines() -> image::RgbaImage {
     image
 }
 
+#[cfg(test)]
 fn draw_markers(image: &mut image::RgbaImage, r: i32, c: (i32, i32)) {
     let rads = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0];
     for o in 0..8 {
@@ -116,6 +122,7 @@ fn draw_markers(image: &mut image::RgbaImage, r: i32, c: (i32, i32)) {
     }
 }
 
+#[cfg(test)]
 fn plot_marker(
     image: &mut image::RgbaImage,
     r: i32,

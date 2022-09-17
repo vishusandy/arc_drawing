@@ -278,10 +278,9 @@ mod tests {
         crate::logger(log::LevelFilter::Debug);
         let mut image = crate::setup(crate::RADIUS);
 
-        // let ri = crate::RADIUS - 20;
-        let ri = 10;
+        let ri = crate::RADIUS - 40;
         let ro = crate::RADIUS;
-        let start = RADS * 6.2;
+        let start = RADS * 1.5;
         let end = RADS * 6.8;
         let center = Pt::new(300, 300);
 

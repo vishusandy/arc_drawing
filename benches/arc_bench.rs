@@ -3,17 +3,23 @@
 #[cfg(test)]
 mod consts;
 
+use arc_test::{CENTER, IMG_SIZE, RADIUS};
+
 use criterion::{criterion_group, criterion_main, BatchSize, Criterion};
 
+pub fn blank() -> image::RgbaImage {
+    image::RgbaImage::from_pixel(IMG_SIZE, IMG_SIZE, image::Rgba([255, 255, 255, 255]))
+}
+
 fn bench_imageproc_circle(c: &mut Criterion) {
-    c.bench_function("imageproc_circle", |b| {
+    c.bench_function("stock_circle", |b| {
         b.iter_batched(
-            || arc_test::blank(),
+            || blank(),
             |mut image| {
                 imageproc::drawing::draw_hollow_circle_mut(
                     &mut image,
-                    arc_test::CENTER,
-                    arc_test::RADIUS,
+                    CENTER,
+                    RADIUS,
                     image::Rgba([255, 0, 0, 255]),
                 )
             },
@@ -25,7 +31,7 @@ fn bench_imageproc_circle(c: &mut Criterion) {
 fn bench_arc_midpoint(c: &mut Criterion) {
     c.bench_function("arc_floats", |b| {
         b.iter_batched(
-            || arc_test::setup(arc_test::RADIUS),
+            || blank(),
             |image| arc_test::arc_midpoint(image, arc_test::RADIUS, arc_test::CENTER),
             BatchSize::SmallInput,
         )
@@ -35,7 +41,7 @@ fn bench_arc_midpoint(c: &mut Criterion) {
 fn bench_arc_integer(c: &mut Criterion) {
     c.bench_function("arc_integer", |b| {
         b.iter_batched(
-            || arc_test::setup(arc_test::RADIUS),
+            || blank(),
             |image| arc_test::arc_integer(image, arc_test::RADIUS, arc_test::CENTER),
             BatchSize::SmallInput,
         )
@@ -45,7 +51,7 @@ fn bench_arc_integer(c: &mut Criterion) {
 fn bench_warmup(c: &mut Criterion) {
     c.bench_function("warmup", |b| {
         b.iter_batched(
-            || arc_test::setup(arc_test::RADIUS),
+            || blank(),
             |image| arc_test::arc_integer(image, arc_test::RADIUS, arc_test::CENTER),
             BatchSize::SmallInput,
         )
@@ -58,7 +64,7 @@ fn bench_partial_arc(c: &mut Criterion) {
     const END: f64 = RADS * 7.75;
     c.bench_function("partial_arc", |b| {
         b.iter_batched(
-            || arc_test::setup(arc_test::RADIUS),
+            || blank(),
             |mut image| {
                 let mut arc =
                     arc_test::Arc::new(START, END, arc_test::RADIUS, arc_test::CENTER.into());
@@ -75,7 +81,7 @@ fn bench_partial_annulus(c: &mut Criterion) {
     const END: f64 = RADS * 7.75;
     c.bench_function("partial_annulus", |b| {
         b.iter_batched(
-            || arc_test::setup(arc_test::RADIUS),
+            || blank(),
             |mut image| {
                 let mut arc = arc_test::Annulus::new(
                     START,
@@ -99,7 +105,7 @@ fn bench_aa_partial_arc(c: &mut Criterion) {
         b.iter_batched(
             || {
                 (
-                    arc_test::setup(arc_test::RADIUS),
+                    blank(),
                     arc_test::AAArc::new(START, END, arc_test::RADIUS_F as f64, arc_test::CENTER_F),
                 )
             },
@@ -120,7 +126,7 @@ fn bench_aa_multiple_arcs(c: &mut Criterion) {
         .map(|i| arc_test::AAArc::new(STARTS[i], ENDS[i], RADII[i], C))
         .collect();
 
-    c.bench_function("aa_multiple_arcs", |b| {
+    c.bench_function("50_aa_arcs", |b| {
         b.iter_batched(
             || (base.clone(), arcs.clone()),
             |(mut image, arcs)| {
@@ -137,22 +143,17 @@ fn bench_aa_multiple_arcs(c: &mut Criterion) {
 criterion_group!(fp, bench_arc_midpoint);
 criterion_group!(bres_iterators, bench_arc_integer);
 
-// For comparison
-criterion_group!(stock, bench_imageproc_circle); // circle drawing from imageproc crate
+criterion_group!(stock, bench_imageproc_circle); // For comparison - benchmarks default image library crate
 
-// Current but don't benchmark by default
-criterion_group!(arc_circle_segment, bench_partial_arc);
+criterion_group!(arc, bench_partial_arc);
 
-// These should be benchmarked by default
 criterion_group!(warmup, bench_warmup); // somehow improves performance
+
 criterion_group!(annulus, bench_partial_annulus);
 criterion_group! {
     name = antialias;
-    // This can be any expression that returns a `Criterion` object.
     config = Criterion::default().sample_size(500);
     targets = bench_aa_partial_arc, bench_aa_multiple_arcs
 }
 
-// criterion_main!(warmup, stock, fp, arc_circle_segment, annulus);
-// criterion_main!(arc_circle_segment, annulus, antialias);
-criterion_main!(warmup, stock, annulus, antialias);
+criterion_main!(warmup, stock, arc, annulus, antialias);
