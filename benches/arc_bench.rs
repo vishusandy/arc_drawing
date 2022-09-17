@@ -156,4 +156,5 @@ criterion_group! {
     targets = bench_aa_partial_arc, bench_aa_multiple_arcs
 }
 
-criterion_main!(warmup, stock, arc, annulus, antialias);
+// criterion_main!(warmup, stock, arc, annulus, antialias);
+criterion_main!(warmup, antialias);

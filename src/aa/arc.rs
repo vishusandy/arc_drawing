@@ -114,7 +114,7 @@ impl AAArc {
                 // This is to handle the forty-five degree edge case
                 self.fast_x = false;
                 self.y = self.y.ceil();
-                self.step_y().map(|o| o.reduce_opac_b(0.5))
+                self.step_y().map(|o| o.mult_opac_b(0.5))
             } else {
                 self.step_y()
             }
@@ -153,7 +153,9 @@ impl AAArc {
 
     /// Draw by iterating over the arc
     pub fn draw(self, image: &mut image::RgbaImage, color: image::Rgba<u8>) {
-        draw(image, self, color);
+        for pt in self {
+            pt.draw(image, color);
+        }
     }
 
     /// Calculate the slow coordinate from the fast coordinate
@@ -228,10 +230,9 @@ impl End {
 }
 
 /// Draw an arc by plotting each iteration on an image
+#[cfg(test)]
 fn draw(image: &mut image::RgbaImage, iter: AAArc, color: image::Rgba<u8>) {
-    for pt in iter {
-        pt.draw(image, color);
-    }
+    iter.draw(image, color);
 }
 
 #[cfg(test)]
