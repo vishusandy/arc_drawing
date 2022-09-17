@@ -5,11 +5,6 @@ mod consts;
 
 use criterion::{criterion_group, criterion_main, BatchSize, Criterion};
 
-#[test]
-fn test_arc_midpoint() -> Result<(), image::ImageError> {
-    setup(arc_test::RADIUS).save("arc_midpoint.png")
-}
-
 fn bench_imageproc_circle(c: &mut Criterion) {
     c.bench_function("imageproc_circle", |b| {
         b.iter_batched(
@@ -98,8 +93,8 @@ fn bench_partial_annulus(c: &mut Criterion) {
 
 fn bench_aa_partial_arc(c: &mut Criterion) {
     const RADS: f64 = std::f64::consts::PI / 4.0;
-    const START: f64 = RADS * 0.2;
-    const END: f64 = RADS * 7.75;
+    const START: f64 = RADS * 0.0;
+    const END: f64 = RADS * 8.0;
     c.bench_function("aa_arc", |b| {
         b.iter_batched(
             || {
@@ -160,4 +155,4 @@ criterion_group! {
 
 // criterion_main!(warmup, stock, fp, arc_circle_segment, annulus);
 // criterion_main!(arc_circle_segment, annulus, antialias);
-criterion_main!(warmup, annulus);
+criterion_main!(warmup, stock, annulus, antialias);

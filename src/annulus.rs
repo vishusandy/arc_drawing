@@ -216,10 +216,9 @@ impl Annulus {
                 calc_line(self.cur_end.slope(), self.cur_end.int(), x),
             ),
             (inr, otr) => {
-                let (slope, int) = if x <= self.inr.ex && x <= self.otr.ex {
-                    self.cur_start.line()
-                } else {
-                    self.cur_end.line()
+                let (slope, int) = match x <= self.inr.ex && x <= self.otr.ex {
+                    true => self.cur_start.line(),
+                    false => self.cur_end.line(),
                 };
 
                 let inr = inr.unwrap_or_else(|| {
@@ -279,10 +278,11 @@ mod tests {
         crate::logger(log::LevelFilter::Debug);
         let mut image = crate::setup(crate::RADIUS);
 
-        let ri = crate::RADIUS - 20;
+        // let ri = crate::RADIUS - 20;
+        let ri = 10;
         let ro = crate::RADIUS;
-        let start = RADS * 0.0;
-        let end = RADS * 8.0;
+        let start = RADS * 6.2;
+        let end = RADS * 6.8;
         let center = Pt::new(300, 300);
 
         imageproc::drawing::draw_hollow_circle_mut(
