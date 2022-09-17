@@ -61,11 +61,15 @@ impl AAPt<i32> {
 
 #[inline(always)]
 /// Blend a specified color into an existing image coordinate.  This ignores `color`'s
-/// alpha value and instead uses `opac` which is a floating point number from 0.0 to 1.0
+/// alpha value and instead uses `opac` which is a floating point number from 0.0 to 1.0.
+///
+/// A few safety checks are skipped here for performance
 ///
 /// # Safety
 /// The x and y coordinates must be less than the width and height, respectively.
 /// This is because it uses the `get_unchecked_mut()` method to access the image.
+///
+/// Also, `opac` must be in the range `(0..=1.0)`.
 unsafe fn blend(
     image: &mut image::RgbaImage,
     width: u32,
@@ -82,10 +86,10 @@ unsafe fn blend(
     let [r1, g1, b1, a1] = mult_alpha(rgba_float(bg));
     let [r2, g2, b2, a2] = mult_alpha(rgb_float(color.channels(), opac));
     let o = 1.0 - opac;
-    bg[0] = (r1.mul_add(o, r2) * 255.0) as u8; // ((r2 + r1 * (1.0 - a2)) * 255.0);
-    bg[1] = (g1.mul_add(o, g2) * 255.0) as u8; // ((g2 + g1 * (1.0 - a2)) * 255.0);
-    bg[2] = (b1.mul_add(o, b2) * 255.0) as u8; // ((b2 + b1 * (1.0 - a2)) * 255.0);
-    bg[3] = ((a1 + a2 - a1 * a2) * 255.0) as u8;
+    bg[0] = (r1.mul_add(o, r2) * 255.0).to_int_unchecked(); // ((r2 + r1 * (1.0 - a2)) * 255.0);
+    bg[1] = (g1.mul_add(o, g2) * 255.0).to_int_unchecked(); // ((g2 + g1 * (1.0 - a2)) * 255.0);
+    bg[2] = (b1.mul_add(o, b2) * 255.0).to_int_unchecked(); // ((b2 + b1 * (1.0 - a2)) * 255.0);
+    bg[3] = ((a1 + a2 - a1 * a2) * 255.0).to_int_unchecked();
 }
 
 #[inline]
