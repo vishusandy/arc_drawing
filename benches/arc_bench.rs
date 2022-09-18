@@ -2,8 +2,14 @@
 
 #[cfg(test)]
 mod consts;
+#[cfg(test)]
+mod old_code;
 
-use arc_test::{CENTER, IMG_SIZE, RADIUS};
+const IMG_SIZE: u32 = 600;
+const RADIUS: i32 = 240;
+const CENTER: (i32, i32) = (300, 300);
+const RADIUS_F: f64 = RADIUS as f64;
+const CENTER_F: arc_test::Pt<f64> = arc_test::Pt::new(CENTER.0 as f64, CENTER.1 as f64);
 
 use criterion::{criterion_group, criterion_main, BatchSize, Criterion};
 
@@ -32,7 +38,7 @@ fn bench_arc_midpoint(c: &mut Criterion) {
     c.bench_function("arc_floats", |b| {
         b.iter_batched(
             || blank(),
-            |image| arc_test::arc_midpoint(image, arc_test::RADIUS, arc_test::CENTER),
+            |image| old_code::arc_midpoint(image, RADIUS, CENTER),
             BatchSize::SmallInput,
         )
     });
@@ -42,7 +48,7 @@ fn bench_arc_integer(c: &mut Criterion) {
     c.bench_function("arc_integer", |b| {
         b.iter_batched(
             || blank(),
-            |image| arc_test::arc_integer(image, arc_test::RADIUS, arc_test::CENTER),
+            |image| old_code::arc_integer(image, RADIUS, CENTER),
             BatchSize::SmallInput,
         )
     });
@@ -52,7 +58,7 @@ fn bench_warmup(c: &mut Criterion) {
     c.bench_function("warmup", |b| {
         b.iter_batched(
             || blank(),
-            |image| arc_test::arc_integer(image, arc_test::RADIUS, arc_test::CENTER),
+            |image| old_code::arc_integer(image, RADIUS, CENTER),
             BatchSize::SmallInput,
         )
     });
@@ -66,8 +72,7 @@ fn bench_partial_arc(c: &mut Criterion) {
         b.iter_batched(
             || blank(),
             |mut image| {
-                let mut arc =
-                    arc_test::Arc::new(START, END, arc_test::RADIUS, arc_test::CENTER.into());
+                let mut arc = arc_test::Arc::new(START, END, RADIUS, CENTER.into());
                 arc.draw(&mut image, image::Rgba([255, 0, 0, 255]));
             },
             BatchSize::SmallInput,
@@ -83,13 +88,8 @@ fn bench_partial_annulus(c: &mut Criterion) {
         b.iter_batched(
             || blank(),
             |mut image| {
-                let mut arc = arc_test::Annulus::new(
-                    START,
-                    END,
-                    arc_test::RADIUS - 10,
-                    arc_test::RADIUS,
-                    arc_test::CENTER.into(),
-                );
+                let mut arc =
+                    arc_test::Annulus::new(START, END, RADIUS - 10, RADIUS, CENTER.into());
                 arc.draw(&mut image, image::Rgba([255, 0, 0, 255]));
             },
             BatchSize::SmallInput,
@@ -106,7 +106,7 @@ fn bench_aa_partial_arc(c: &mut Criterion) {
             || {
                 (
                     blank(),
-                    arc_test::AAArc::new(START, END, arc_test::RADIUS_F as f64, arc_test::CENTER_F),
+                    arc_test::AAArc::new(START, END, RADIUS_F as f64, CENTER_F),
                 )
             },
             |(mut image, arc)| {
@@ -157,4 +157,4 @@ criterion_group! {
 }
 
 // criterion_main!(warmup, stock, arc, annulus, antialias);
-criterion_main!(annulus);
+criterion_main!(antialias);

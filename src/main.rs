@@ -1,7 +1,8 @@
-use arc_test::{CENTER_F, IMG_SIZE};
-// const RADS: f64 = std::f64::consts::PI / 4.0; // range of a single octant
+const CENTER_F: arc_test::Pt<f64> = arc_test::Pt::new(300.0, 300.0);
+const IMG_SIZE: u32 = 600;
 
 mod consts;
+// use test::consts;
 
 fn main() -> Result<(), image::ImageError> {
     let mut image = image::RgbaImage::new(IMG_SIZE, IMG_SIZE);

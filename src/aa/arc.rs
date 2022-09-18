@@ -241,33 +241,36 @@ mod tests {
     #[test]
     fn aa_partial_iter() -> Result<(), image::ImageError> {
         use crate::RADS;
-        crate::logger(log::LevelFilter::Debug);
+        crate::logger(log::LevelFilter::Info);
         let mut image = crate::guidelines();
+
         let start = RADS * 5.8;
         let end = RADS * 7.4;
-        let r = crate::RADIUS as f64;
-        let c = (crate::CENTER.0 as f64, crate::CENTER.1 as f64);
-        let arc = AAArc::new(start, end, r, c.into());
-        log::debug!("ARC: {:#?}", arc);
         let color = image::Rgba([255, 0, 0, 255]);
+
+        let arc = AAArc::new(start, end, crate::RADIUS_F, crate::CENTER_F);
+        log::debug!("ARC: {:#?}", arc);
         draw(&mut image, arc, color);
+
         image.save("images/aa_partial.png")
     }
 
     #[test]
     fn aa_partial_draw() -> Result<(), image::ImageError> {
         use crate::RADS;
-        crate::logger(log::LevelFilter::Debug);
+        crate::logger(log::LevelFilter::Info);
         let mut image = crate::guidelines();
+
         let start = RADS * -0.8;
         let end = RADS * 5.8;
-        let r = crate::RADIUS as f64;
+        let r = crate::RADIUS_F;
         let c = Pt::new(300.0, 300.0);
-        log::debug!("FFD={:.2}", r / std::f64::consts::SQRT_2);
+        let color = image::Rgba([255, 0, 0, 255]);
+
         let arc = AAArc::new(start, end, r, c);
         log::debug!("ARC: {:#?}", arc);
-        let color = image::Rgba([255, 0, 0, 255]);
         arc.draw(&mut image, color);
+
         image.save("images/aa_partial_draw.png")
     }
 }

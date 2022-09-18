@@ -2,36 +2,43 @@ mod aa;
 mod angle;
 mod annulus;
 mod arc;
-mod fp;
 mod pt;
+#[cfg(test)]
+mod test;
 
 // STATUS
 //  arc::Arc could use a lot of love, or a rewrite
 
+#[cfg(test)]
+const IMG_SIZE: u32 = 600;
+#[cfg(test)]
+const RADIUS: i32 = 240;
+#[cfg(test)]
+const CENTER: (i32, i32) = (300, 300);
+#[cfg(test)]
+const RADIUS_F: f64 = RADIUS as f64;
+#[cfg(test)]
+const CENTER_F: Pt<f64> = Pt::new(CENTER.0 as f64, CENTER.1 as f64);
+#[cfg(test)]
+const SHOW_MARKERS: bool = false;
+
+/// range of a single octant in radians
+pub const RADS: f64 = std::f64::consts::PI / 4.0;
+/// Radians in a full circle
+const PI2: f64 = std::f64::consts::PI * 2.0;
+/// Radians in a single quadrant
+const QUAD: f64 = std::f64::consts::PI / 2.0;
+/// Tiny amount to subtract from an angle (in radians) to avoid different angles from appearing the same
+const TINY: f64 = std::f64::EPSILON * 3.0;
+
 pub use aa::arc::AAArc;
 pub use annulus::Annulus;
 pub use arc::Arc;
-pub use fp::{arc_integer, arc_midpoint};
-
-pub(crate) use angle::Angle;
 pub use pt::Pt;
 
-pub const IMG_SIZE: u32 = 600;
-pub const RADIUS: i32 = 240;
-pub const CENTER: (i32, i32) = (300, 300);
-pub const RADIUS_F: f64 = RADIUS as f64;
-pub const CENTER_F: Pt<f64> = Pt::new(CENTER.0 as f64, CENTER.1 as f64);
-
-const PI2: f64 = std::f64::consts::PI * 2.0;
-const QUAD: f64 = std::f64::consts::PI / 2.0;
-const TINY: f64 = std::f64::EPSILON * 3.0;
-
-pub const RADS: f64 = std::f64::consts::PI / 4.0; // range of a single octant
-
+use angle::Angle;
 #[cfg(test)]
-const OR: f64 = std::f64::consts::PI / 4.0;
-#[cfg(test)]
-const SHOW_MARKERS: bool = false;
+pub(crate) use test::img::{guidelines, setup};
 
 pub fn draw_iter<T: Iterator<Item = (i32, i32)>>(
     image: &mut image::RgbaImage,
@@ -109,81 +116,4 @@ fn logger(level: log::LevelFilter) {
         .format_timestamp(None)
         .format_level(false)
         .try_init();
-}
-
-#[cfg(test)]
-pub fn blank() -> image::RgbaImage {
-    image::RgbaImage::from_pixel(IMG_SIZE, IMG_SIZE, image::Rgba([255, 255, 255, 255]))
-}
-
-#[cfg(test)]
-pub fn setup(r: i32) -> image::RgbaImage {
-    let mut image = guidelines();
-    let center = CENTER;
-    imageproc::drawing::draw_hollow_circle_mut(
-        &mut image,
-        center,
-        r,
-        image::Rgba([0, 0, 255, 255]),
-    );
-    if SHOW_MARKERS {
-        draw_markers(&mut image, r, center);
-    }
-    image
-}
-
-#[cfg(test)]
-fn guidelines() -> image::RgbaImage {
-    let mut image =
-        image::RgbaImage::from_pixel(IMG_SIZE, IMG_SIZE, image::Rgba([255, 255, 255, 255]));
-    // Draw guide lines
-    imageproc::drawing::draw_line_segment_mut(
-        &mut image,
-        (IMG_SIZE as f32 / 2.0, 0.0),
-        (IMG_SIZE as f32 / 2.0, IMG_SIZE as f32),
-        image::Rgba([252, 190, 3, 255]),
-    );
-    imageproc::drawing::draw_line_segment_mut(
-        &mut image,
-        (0.0, IMG_SIZE as f32 / 2.0),
-        (IMG_SIZE as f32, IMG_SIZE as f32 / 2.0),
-        image::Rgba([252, 190, 3, 255]),
-    );
-    imageproc::drawing::draw_line_segment_mut(
-        &mut image,
-        (0.0, 0.0),
-        (IMG_SIZE as f32, IMG_SIZE as f32),
-        image::Rgba([255, 242, 206, 255]),
-    );
-    imageproc::drawing::draw_line_segment_mut(
-        &mut image,
-        (0.0, IMG_SIZE as f32),
-        (IMG_SIZE as f32, 0.0),
-        image::Rgba([255, 242, 206, 255]),
-    );
-    image
-}
-
-#[cfg(test)]
-fn draw_markers(image: &mut image::RgbaImage, r: i32, c: (i32, i32)) {
-    let rads = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0];
-    for o in 0..8 {
-        let oa = o as f64 * OR;
-        for a in rads {
-            let rad = a * OR + oa;
-            plot_marker(image, r, rad, c, image::Rgba([0, 255, 0, 255]));
-        }
-    }
-}
-
-#[cfg(test)]
-fn plot_marker(
-    image: &mut image::RgbaImage,
-    r: i32,
-    angle: f64,
-    c: (i32, i32),
-    color: image::Rgba<u8>,
-) {
-    let pt::Pt { x, y }: pt::Pt<i32> = pt::Pt::from_radian(angle, r, c).into();
-    image.put_pixel(x as u32, y as u32, color);
 }

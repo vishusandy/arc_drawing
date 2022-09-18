@@ -1,5 +1,3 @@
-// const RADS: f64 = std::f64::consts::PI / 4.0;
-
 pub fn arc_midpoint(mut image: image::RgbaImage, radius: i32, c: (i32, i32)) -> image::RgbaImage {
     let r = radius as f64;
     let mut y: f64;
@@ -83,7 +81,6 @@ pub fn arc_midpoint(mut image: image::RgbaImage, radius: i32, c: (i32, i32)) -> 
                 );
                 y -= 1.0;
                 x2 = x2n;
-                // println!("x={:.1} y={:.1}", x, y);
             }
         }
     }
@@ -133,17 +130,21 @@ pub fn arc_integer(mut image: image::RgbaImage, r: i32, c: (i32, i32)) -> image:
     image
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    #[test]
-    fn test_arc_midpoint() -> Result<(), image::ImageError> {
-        let image = crate::setup(crate::RADIUS);
-        arc_midpoint(image, crate::RADIUS, crate::CENTER).save("images/arc_midpoint.png")
-    }
-    #[test]
-    fn test_arc_integer() -> Result<(), image::ImageError> {
-        let image = crate::setup(crate::RADIUS);
-        arc_integer(image, crate::RADIUS, crate::CENTER).save("images/arc_integer.png")
-    }
-}
+// #[cfg(test)]
+// mod tests {
+//     use super::*;
+//     #[test]
+//     fn test_arc_midpoint() -> Result<(), image::ImageError> {
+//         let r = 240;
+//         let c = (300, 300);
+//         let image = crate::setup(r);
+//         arc_midpoint(image, r, c).save("images/arc_midpoint.png")
+//     }
+//     #[test]
+//     fn test_arc_integer() -> Result<(), image::ImageError> {
+//         let r = 240;
+//         let c = (300, 300);
+//         let image = crate::setup(r);
+//         arc_integer(image, r, c).save("images/arc_integer.png")
+//     }
+// }
