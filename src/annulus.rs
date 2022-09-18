@@ -152,7 +152,7 @@ impl Annulus {
         let x = self.x;
         self.x += 1;
 
-        match (self.inr.get_y(x), self.otr.get_y(x)) {
+        match (self.inr.get_matching_y(x), self.otr.get_matching_y(x)) {
             (Some(inr), Some(otr)) => {
                 self.inr.inc();
                 self.otr.inc();

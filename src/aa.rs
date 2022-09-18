@@ -82,7 +82,7 @@ unsafe fn blend(
     // https://stackoverflow.com/questions/7438263/alpha-compositing-algorithm-blend-modes#answer-11163848
     // https://docs.rs/image/latest/src/image/color.rs.html#358-370
     let i = crate::vec_idx(width, x, y);
-    let bg = unsafe { image.get_unchecked_mut(i..i + 4) };
+    let bg = image.get_unchecked_mut(i..i + 4);
     let [r1, g1, b1, a1] = mult_alpha(rgba_float(bg));
     let [r2, g2, b2, a2] = mult_alpha(rgb_float(color.channels(), opac));
     let o = 1.0 - opac;

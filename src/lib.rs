@@ -2,6 +2,7 @@ mod aa;
 mod angle;
 mod annulus;
 mod arc;
+mod arc2;
 mod pt;
 #[cfg(test)]
 mod test;
@@ -85,7 +86,8 @@ impl Pos {
         Self { x, y, d, ex, ey, r }
     }
 
-    fn get_y(&self, x: i32) -> Option<i32> {
+    /// Get `self.y` when `self.x` is the same as the specified `x`
+    fn get_matching_y(&self, x: i32) -> Option<i32> {
         if x == self.x {
             Some(self.y)
         } else {
