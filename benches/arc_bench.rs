@@ -157,4 +157,4 @@ criterion_group! {
 }
 
 // criterion_main!(warmup, stock, arc, annulus, antialias);
-criterion_main!(warmup, antialias);
+criterion_main!(annulus);

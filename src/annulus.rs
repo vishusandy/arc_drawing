@@ -204,6 +204,7 @@ impl Annulus {
     fn step(&mut self) -> (i32, i32, i32) {
         let x = self.x;
         self.x += 1;
+
         match (self.inr.get_y(x), self.otr.get_y(x)) {
             (Some(inr), Some(otr)) => {
                 self.inr.inc();
@@ -244,12 +245,19 @@ impl Annulus {
         image: &mut image::RgbaImage,
         color: image::Rgba<u8>,
     ) {
+        use image::Pixel;
         let width = image.width();
         let height = image.height();
         for y in yo.min(yi)..=yo.max(yi) {
             let Pt { x, y } = translate::iter_to_real(x, y, self.oct, self.c).u32();
             if x < width && y < height {
-                image.put_pixel(x, y, color);
+                let i = crate::vec_idx(width, x, y);
+                unsafe {
+                    // this is safe to call get_unchecked_mut() because the bounds have already been checked
+                    image
+                        .get_unchecked_mut(i..i + 4)
+                        .copy_from_slice(color.channels());
+                }
             }
         }
     }
