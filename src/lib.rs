@@ -6,10 +6,7 @@ mod fp;
 mod pt;
 
 // STATUS
-//  arc::Arc for arcs (full & partial)
-//      does it support start > end?
-//  annulus::Annulus for filled arcs (full & partial)
-//  aa::AAArc for antialiased arcs (full & partial)
+//  arc::Arc could use a lot of love, or a rewrite
 
 pub use aa::arc::AAArc;
 pub use annulus::Annulus;
@@ -49,6 +46,58 @@ pub fn draw_iter<T: Iterator<Item = (i32, i32)>>(
 #[inline(always)]
 fn vec_idx(width: u32, x: u32, y: u32) -> usize {
     (y * width + x) as usize * 4
+}
+
+#[derive(Clone, Debug)]
+struct Pos {
+    x: i32,
+    y: i32,
+    d: i32,  // decision parameter
+    ex: i32, // ending x coordinate
+    ey: i32, // ending y coordinate
+    r: i32,
+}
+impl Pos {
+    fn new(start: f64, end: f64, oct: u8, r: i32, c: Pt<i32>) -> Self {
+        let mut start = Pt::from_radian(start, r, c.into()).real_to_iter(oct, c.into());
+        let mut end = Pt::from_radian(end, r, c.into()).real_to_iter(oct, c.into());
+        let Pt { mut x, mut y } = start.i32();
+        let Pt {
+            x: mut ex,
+            y: mut ey,
+        } = end.i32();
+        if oct % 2 == 0 {
+            std::mem::swap(&mut start, &mut end);
+            std::mem::swap(&mut x, &mut ex);
+            std::mem::swap(&mut y, &mut ey);
+        }
+        let d: i32 = ((start.x().round() as f64 + 1.0).powi(2)
+            + (start.y().round() as f64 - 0.5).powi(2)
+            - r.pow(2) as f64)
+            .round() as i32;
+        Self { x, y, d, ex, ey, r }
+    }
+
+    fn get_y(&self, x: i32) -> Option<i32> {
+        if x == self.x {
+            Some(self.y)
+        } else {
+            None
+        }
+    }
+
+    fn inc(&mut self) {
+        if self.x >= self.ex {
+            return;
+        }
+        self.x += 1;
+        if self.d > 0 {
+            self.y -= 1;
+            self.d += 2 * (self.x - self.y) + 1;
+        } else {
+            self.d += 2 * self.x + 1;
+        }
+    }
 }
 
 #[cfg(test)]

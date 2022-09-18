@@ -1,6 +1,5 @@
 mod translate;
-use crate::angle;
-use crate::Pt;
+use crate::{angle, Pos, Pt};
 
 fn calc_line(slope: f64, int: i32, x: i32) -> i32 {
     (x as f64 * slope).round() as i32 + int
@@ -38,58 +37,6 @@ impl Edge {
     }
     fn int(&self) -> i32 {
         self.int
-    }
-}
-
-#[derive(Clone, Debug)]
-struct Pos {
-    x: i32,
-    y: i32,
-    d: i32,  // decision parameter
-    ex: i32, // ending x coordinate
-    ey: i32, // ending y coordinate
-    r: i32,
-}
-impl Pos {
-    fn new(start: f64, end: f64, oct: u8, r: i32, c: Pt<i32>) -> Self {
-        let mut start = Pt::from_radian(start, r, c.into()).real_to_iter(oct, c.into());
-        let mut end = Pt::from_radian(end, r, c.into()).real_to_iter(oct, c.into());
-        let Pt { mut x, mut y } = start.i32();
-        let Pt {
-            x: mut ex,
-            y: mut ey,
-        } = end.i32();
-        if oct % 2 == 0 {
-            std::mem::swap(&mut start, &mut end);
-            std::mem::swap(&mut x, &mut ex);
-            std::mem::swap(&mut y, &mut ey);
-        }
-        let d: i32 = ((start.x().round() as f64 + 1.0).powi(2)
-            + (start.y().round() as f64 - 0.5).powi(2)
-            - r.pow(2) as f64)
-            .round() as i32;
-        Self { x, y, d, ex, ey, r }
-    }
-
-    fn get_y(&self, x: i32) -> Option<i32> {
-        if x == self.x {
-            Some(self.y)
-        } else {
-            None
-        }
-    }
-
-    fn inc(&mut self) {
-        if self.x >= self.ex {
-            return;
-        }
-        self.x += 1;
-        if self.d > 0 {
-            self.y -= 1;
-            self.d += 2 * (self.x - self.y) + 1;
-        } else {
-            self.d += 2 * self.x + 1;
-        }
     }
 }
 
@@ -245,19 +192,12 @@ impl Annulus {
         image: &mut image::RgbaImage,
         color: image::Rgba<u8>,
     ) {
-        use image::Pixel;
         let width = image.width();
         let height = image.height();
         for y in yo.min(yi)..=yo.max(yi) {
             let Pt { x, y } = translate::iter_to_real(x, y, self.oct, self.c).u32();
             if x < width && y < height {
-                let i = crate::vec_idx(width, x, y);
-                unsafe {
-                    // this is safe to call get_unchecked_mut() because the bounds have already been checked
-                    image
-                        .get_unchecked_mut(i..i + 4)
-                        .copy_from_slice(color.channels());
-                }
+                image.put_pixel(x, y, color)
             }
         }
     }
