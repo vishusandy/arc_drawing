@@ -46,6 +46,11 @@ pub fn draw_iter<T: Iterator<Item = (i32, i32)>>(
     }
 }
 
+#[inline(always)]
+fn vec_idx(width: u32, x: u32, y: u32) -> usize {
+    (y * width + x) as usize * 4
+}
+
 #[cfg(test)]
 fn logger(level: log::LevelFilter) {
     let _ = env_logger::Builder::new()

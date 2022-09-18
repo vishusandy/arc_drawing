@@ -81,7 +81,7 @@ unsafe fn blend(
     use image::Pixel;
     // https://stackoverflow.com/questions/7438263/alpha-compositing-algorithm-blend-modes#answer-11163848
     // https://docs.rs/image/latest/src/image/color.rs.html#358-370
-    let i = vec_idx(width, x, y);
+    let i = crate::vec_idx(width, x, y);
     let bg = unsafe { image.get_unchecked_mut(i..i + 4) };
     let [r1, g1, b1, a1] = mult_alpha(rgba_float(bg));
     let [r2, g2, b2, a2] = mult_alpha(rgb_float(color.channels(), opac));
@@ -105,11 +105,6 @@ fn rgba_float(c: &[u8]) -> [f32; 4] {
 #[inline]
 fn mult_alpha(c: [f32; 4]) -> [f32; 4] {
     [c[0] * c[3], c[1] * c[3], c[2] * c[3], c[3]]
-}
-
-#[inline(always)]
-fn vec_idx(width: u32, x: u32, y: u32) -> usize {
-    (y * width + x) as usize * 4
 }
 
 #[allow(dead_code)]
