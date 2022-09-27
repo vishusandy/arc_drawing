@@ -8,7 +8,7 @@ fn main() -> Result<(), image::ImageError> {
     let mut image = image::RgbaImage::new(IMG_SIZE, IMG_SIZE);
 
     // DRAW MULTIPLE ANTIALIASED CIRCLES
-    (0..50)
+    (0..consts::STARTS.len())
         .map(|i| {
             arc_test::AAArc::new(
                 consts::STARTS[i],

@@ -2,7 +2,6 @@ mod aa;
 mod angle;
 mod annulus;
 mod arc;
-mod arc2;
 mod pt;
 #[cfg(test)]
 mod test;
@@ -11,11 +10,11 @@ mod test;
 //  arc::Arc could use a lot of love, or a rewrite
 
 #[cfg(test)]
-const IMG_SIZE: u32 = 600;
+const IMG_SIZE: u32 = 400;
 #[cfg(test)]
-const RADIUS: i32 = 240;
+const RADIUS: i32 = 190;
 #[cfg(test)]
-const CENTER: (i32, i32) = (300, 300);
+const CENTER: (i32, i32) = (200, 200);
 #[cfg(test)]
 const RADIUS_F: f64 = RADIUS as f64;
 #[cfg(test)]
@@ -32,7 +31,7 @@ const QUAD: f64 = std::f64::consts::PI / 2.0;
 /// Tiny amount to subtract from an angle (in radians) to avoid different angles from appearing the same
 const TINY: f64 = std::f64::EPSILON * 3.0;
 
-pub use aa::arc::AAArc;
+pub use aa::cir_arc::AAArc;
 pub use annulus::Annulus;
 pub use arc::Arc;
 pub use pt::Pt;

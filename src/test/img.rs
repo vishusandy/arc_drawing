@@ -1,5 +1,24 @@
 use crate::{Pt, CENTER, IMG_SIZE, RADS, SHOW_MARKERS};
 
+pub fn blank(size: Pt<u32>) -> image::RgbaImage {
+    image::RgbaImage::from_pixel(size.x(), size.y(), image::Rgba([255, 255, 255, 255]))
+}
+
+#[allow(dead_code)]
+pub fn setup_ellipse(h: i32, v: i32, c: (i32, i32)) -> image::RgbaImage {
+    let mut image =
+        image::RgbaImage::from_pixel(IMG_SIZE, IMG_SIZE, image::Rgba([255, 255, 255, 255]));
+    let center = c;
+    imageproc::drawing::draw_hollow_ellipse_mut(
+        &mut image,
+        center,
+        h,
+        v,
+        image::Rgba([0, 0, 255, 255]),
+    );
+    image
+}
+
 pub fn setup(r: i32) -> image::RgbaImage {
     let mut image = guidelines();
     let center = CENTER;

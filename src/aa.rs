@@ -1,4 +1,5 @@
-pub(crate) mod arc;
+pub(crate) mod cir_arc;
+mod ellipse_arc;
 
 use crate::Pt;
 #[derive(Clone, Debug)]
@@ -44,13 +45,13 @@ impl AAPt<i32> {
         let a = self.a.u32(); // i32 to u32 - negatives wrap around to become large numbers
         let b = self.b.u32();
 
-        if a.x < width && a.y < height {
+        if (a.x < width) & (a.y < height) {
             // This is safe because the coordinates have already been checked against the width and height
             unsafe {
                 blend(image, width, a.x(), a.y(), color, self.db as f32);
             }
         }
-        if b.x < width && b.y < height {
+        if (b.x < width) & (b.y < height) {
             // This is safe because the coordinates have already been checked against the width and height
             unsafe {
                 blend(image, width, b.x(), b.y(), color, self.da as f32);
@@ -59,7 +60,6 @@ impl AAPt<i32> {
     }
 }
 
-#[inline(always)]
 /// Blend a specified color into an existing image coordinate.  This ignores `color`'s
 /// alpha value and instead uses `opac` which is a floating point number from 0.0 to 1.0.
 ///

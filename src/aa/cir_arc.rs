@@ -74,7 +74,7 @@ impl AAArc {
     }
 
     fn step_x(&mut self) -> Option<AAPt<i32>> {
-        if self.end_quad == self.quad && self.end.match_x(self.x) {
+        if (self.end_quad == self.quad) & self.end.match_x(self.x) {
             return None;
         }
         let x = self.x;
@@ -90,7 +90,7 @@ impl AAArc {
     }
 
     fn step_y(&mut self) -> Option<AAPt<i32>> {
-        if self.end_quad == self.quad && self.end.match_y(self.y) {
+        if (self.end_quad == self.quad) & self.end.match_y(self.y) {
             return None;
         }
         let y = self.y;
@@ -133,8 +133,8 @@ impl AAArc {
 
     /// Check if iteration should end
     fn end(&mut self) -> bool {
-        let last = self.quad == self.end_quad && self.y <= 0.0;
-        if self.skip && last {
+        let last = (self.quad == self.end_quad) & (self.y <= 0.0);
+        if self.skip & last {
             self.skip = false;
             self.reset();
             false
@@ -259,12 +259,12 @@ mod tests {
     fn aa_partial_draw() -> Result<(), image::ImageError> {
         use crate::RADS;
         crate::logger(log::LevelFilter::Info);
-        let mut image = crate::guidelines();
+        let mut image = crate::test::img::blank(Pt::new(crate::IMG_SIZE, crate::IMG_SIZE));
 
-        let start = RADS * -0.8;
-        let end = RADS * 5.8;
+        let start = RADS * 0.0;
+        let end = RADS * 8.0;
         let r = crate::RADIUS_F;
-        let c = Pt::new(300.0, 300.0);
+        let c = Pt::new(200.0, 200.0);
         let color = image::Rgba([255, 0, 0, 255]);
 
         let arc = AAArc::new(start, end, r, c);
