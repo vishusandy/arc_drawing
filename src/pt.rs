@@ -128,7 +128,6 @@ impl Pt<f64> {
         Self { x, y }
     }
 
-    #[inline]
     pub fn i32(&self) -> Pt<i32> {
         Pt {
             x: self.x.round() as i32,
@@ -160,11 +159,25 @@ impl Pt<i32> {
         }
     }
 
-    #[inline]
     pub fn u32(&self) -> Pt<u32> {
         Pt {
             x: self.x as u32,
             y: self.y as u32,
+        }
+    }
+}
+
+impl Pt<u32> {
+    pub fn i32(&self) -> Pt<i32> {
+        Pt {
+            x: self.x as i32,
+            y: self.y as i32,
+        }
+    }
+    pub fn f64(&self) -> Pt<f64> {
+        Pt {
+            x: self.x as f64,
+            y: self.y as f64,
         }
     }
 }
