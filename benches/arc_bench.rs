@@ -1,17 +1,12 @@
-#![cfg(test)]
-
-#[cfg(test)]
+use criterion::{criterion_group, criterion_main, BatchSize, Criterion};
 mod consts;
-#[cfg(test)]
 mod old_code;
 
 const IMG_SIZE: u32 = 600;
 const RADIUS: i32 = 240;
 const CENTER: (i32, i32) = (300, 300);
 const RADIUS_F: f64 = RADIUS as f64;
-const CENTER_F: arc_test::Pt<f64> = arc_test::Pt::new(CENTER.0 as f64, CENTER.1 as f64);
-
-use criterion::{criterion_group, criterion_main, BatchSize, Criterion};
+const CENTER_F: freehand::Pt<f64> = freehand::Pt::new(CENTER.0 as f64, CENTER.1 as f64);
 
 pub fn blank() -> image::RgbaImage {
     image::RgbaImage::from_pixel(IMG_SIZE, IMG_SIZE, image::Rgba([255, 255, 255, 255]))
@@ -72,7 +67,7 @@ fn bench_partial_arc(c: &mut Criterion) {
         b.iter_batched(
             || blank(),
             |mut image| {
-                let mut arc = arc_test::Arc::new(START, END, RADIUS, CENTER.into());
+                let mut arc = freehand::Arc::new(START, END, RADIUS, CENTER.into());
                 arc.draw(&mut image, image::Rgba([255, 0, 0, 255]));
             },
             BatchSize::SmallInput,
@@ -89,7 +84,7 @@ fn bench_partial_annulus(c: &mut Criterion) {
             || blank(),
             |mut image| {
                 let mut arc =
-                    arc_test::Annulus::new(START, END, RADIUS - 10, RADIUS, CENTER.into());
+                    freehand::Annulus::new(START, END, RADIUS - 10, RADIUS, CENTER.into());
                 arc.draw(&mut image, image::Rgba([255, 0, 0, 255]));
             },
             BatchSize::SmallInput,
@@ -106,7 +101,7 @@ fn bench_aa_partial_arc(c: &mut Criterion) {
             || {
                 (
                     blank(),
-                    arc_test::AAArc::new(START, END, RADIUS_F as f64, CENTER_F),
+                    freehand::AAArc::new(START, END, RADIUS_F as f64, CENTER_F),
                 )
             },
             |(mut image, arc)| {
@@ -120,10 +115,10 @@ fn bench_aa_partial_arc(c: &mut Criterion) {
 fn bench_aa_multiple_arcs(c: &mut Criterion) {
     use consts::*;
     const SIZE: u32 = 600;
-    const C: arc_test::Pt<f64> = arc_test::Pt::new(300.0, 300.0);
+    const C: freehand::Pt<f64> = freehand::Pt::new(300.0, 300.0);
     let base = image::RgbaImage::from_pixel(SIZE, SIZE, image::Rgba([255, 255, 255, 255]));
-    let arcs: Vec<arc_test::AAArc> = (0..50)
-        .map(|i| arc_test::AAArc::new(STARTS[i], ENDS[i], RADII[i], C))
+    let arcs: Vec<freehand::AAArc> = (0..50)
+        .map(|i| freehand::AAArc::new(STARTS[i], ENDS[i], RADII[i], C))
         .collect();
 
     c.bench_function("50_aa_arcs", |b| {

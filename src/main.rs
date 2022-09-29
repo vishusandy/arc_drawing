@@ -1,4 +1,4 @@
-const CENTER_F: arc_test::Pt<f64> = arc_test::Pt::new(300.0, 300.0);
+const CENTER_F: freehand::Pt<f64> = freehand::Pt::new(300.0, 300.0);
 const IMG_SIZE: u32 = 600;
 
 mod consts;
@@ -10,7 +10,7 @@ fn main() -> Result<(), image::ImageError> {
     // DRAW MULTIPLE ANTIALIASED CIRCLES
     (0..consts::STARTS.len())
         .map(|i| {
-            arc_test::AAArc::new(
+            freehand::AAArc::new(
                 consts::STARTS[i],
                 consts::ENDS[i],
                 consts::RADII[i],

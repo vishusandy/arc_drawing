@@ -2,9 +2,16 @@ mod aa;
 mod angle;
 mod annulus;
 mod arc;
+mod basics;
 mod pt;
 #[cfg(test)]
 mod test;
+
+pub use aa::cir_arc::AAArc;
+pub use annulus::Annulus;
+pub use arc::Arc;
+pub use basics::{horizontal_line, rectangle_filled, vertical_line};
+pub use pt::Pt;
 
 // STATUS
 //  arc::Arc could use a lot of love, or a rewrite
@@ -30,11 +37,6 @@ const PI2: f64 = std::f64::consts::PI * 2.0;
 const QUAD: f64 = std::f64::consts::PI / 2.0;
 /// Tiny amount to subtract from an angle (in radians) to avoid different angles from appearing the same
 const TINY: f64 = std::f64::EPSILON * 3.0;
-
-pub use aa::cir_arc::AAArc;
-pub use annulus::Annulus;
-pub use arc::Arc;
-pub use pt::Pt;
 
 use angle::Angle;
 #[cfg(test)]
