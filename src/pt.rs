@@ -202,7 +202,14 @@ impl From<Pt<i32>> for Pt<f64> {
         }
     }
 }
-
+impl From<Pt<u32>> for Pt<i32> {
+    fn from(pt: Pt<u32>) -> Self {
+        Self {
+            x: pt.x as i32,
+            y: pt.y as i32,
+        }
+    }
+}
 impl From<Pt<f64>> for Pt<i32> {
     fn from(pt: Pt<f64>) -> Self {
         Self {
