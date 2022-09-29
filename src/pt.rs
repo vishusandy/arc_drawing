@@ -1,7 +1,7 @@
 #[derive(Clone, Debug)]
 pub struct Pt<T> {
-    pub(crate) x: T,
-    pub(crate) y: T,
+    pub x: T,
+    pub y: T,
 }
 
 impl<T> Copy for Pt<T> where T: Copy {}
