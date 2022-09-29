@@ -27,6 +27,46 @@ impl<T> Pt<T> {
         self.y
     }
 
+    pub fn add(&self, value: T) -> Self
+    where
+        T: Copy + std::ops::Add<Output = T>,
+    {
+        Self {
+            x: self.x + value,
+            y: self.y + value,
+        }
+    }
+
+    pub fn sub(&self, value: T) -> Self
+    where
+        T: Copy + std::ops::Sub<Output = T>,
+    {
+        Self {
+            x: self.x - value,
+            y: self.y - value,
+        }
+    }
+
+    pub fn mul(&self, value: T) -> Self
+    where
+        T: Copy + std::ops::Mul<Output = T>,
+    {
+        Self {
+            x: self.x * value,
+            y: self.y * value,
+        }
+    }
+
+    pub fn div(&self, value: T) -> Self
+    where
+        T: Copy + std::ops::Div<Output = T>,
+    {
+        Self {
+            x: self.x / value,
+            y: self.y / value,
+        }
+    }
+
     pub(crate) fn real_to_iter(mut self, oct: u8, c: Pt<T>) -> Pt<T>
     where
         T: Copy + std::ops::Neg<Output = T> + std::ops::SubAssign,
@@ -78,7 +118,7 @@ impl<T> Pt<T> {
 }
 
 impl Pt<f64> {
-    pub(crate) fn from_radian<T>(angle: f64, radius: T, center: (T, T)) -> Self
+    pub fn from_radian<T>(angle: f64, radius: T, center: (T, T)) -> Self
     where
         T: Into<f64> + Copy,
     {
@@ -89,14 +129,14 @@ impl Pt<f64> {
     }
 
     #[inline]
-    pub(crate) fn i32(&self) -> Pt<i32> {
+    pub fn i32(&self) -> Pt<i32> {
         Pt {
             x: self.x.round() as i32,
             y: self.y.round() as i32,
         }
     }
     #[allow(dead_code)]
-    pub(crate) fn u32(&self) -> Pt<u32> {
+    pub fn u32(&self) -> Pt<u32> {
         Pt {
             x: self.x.abs().round() as u32,
             y: self.y.abs().round() as u32,
@@ -121,7 +161,7 @@ impl Pt<i32> {
     }
 
     #[inline]
-    pub(crate) fn u32(&self) -> Pt<u32> {
+    pub fn u32(&self) -> Pt<u32> {
         Pt {
             x: self.x as u32,
             y: self.y as u32,
@@ -181,6 +221,32 @@ where
         Self {
             x: self.x - other.x,
             y: self.y - other.y,
+        }
+    }
+}
+
+impl<T> std::ops::Mul for Pt<T>
+where
+    T: std::ops::Mul<Output = T>,
+{
+    type Output = Self;
+    fn mul(self, other: Self) -> Self {
+        Self {
+            x: self.x * other.x,
+            y: self.y * other.y,
+        }
+    }
+}
+
+impl<T> std::ops::Div for Pt<T>
+where
+    T: std::ops::Div<Output = T>,
+{
+    type Output = Self;
+    fn div(self, other: Self) -> Self {
+        Self {
+            x: self.x / other.x,
+            y: self.y / other.y,
         }
     }
 }
