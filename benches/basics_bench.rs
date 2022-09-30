@@ -1,5 +1,5 @@
 use criterion::{criterion_group, criterion_main, BatchSize, Criterion};
-use freehand::{horizontal_line, rectangle_filled, vertical_line};
+use freehand::*;
 
 const IMG_SIZE: u32 = 600;
 
@@ -26,7 +26,7 @@ fn bench_basic_vertical_line(c: &mut Criterion) {
 }
 
 fn bench_basic_horizontal_line(c: &mut Criterion) {
-    c.bench_function("vertical_line", |b| {
+    c.bench_function("horizontal_line", |b| {
         b.iter_batched(
             || blank(),
             |mut image| {
@@ -44,7 +44,7 @@ fn bench_basic_horizontal_line(c: &mut Criterion) {
 }
 
 fn bench_basic_rectangle_filled(c: &mut Criterion) {
-    c.bench_function("vertical_line", |b| {
+    c.bench_function("rectangle_filled", |b| {
         b.iter_batched(
             || blank(),
             |mut image| {
@@ -61,11 +61,51 @@ fn bench_basic_rectangle_filled(c: &mut Criterion) {
     });
 }
 
+fn bench_basic_horizontal_dashed(c: &mut Criterion) {
+    c.bench_function("horizontal_dashed", |b| {
+        b.iter_batched(
+            || blank(),
+            |mut image| {
+                horizontal_dashed_line(
+                    &mut image,
+                    IMG_SIZE / 2,
+                    0,
+                    10,
+                    IMG_SIZE,
+                    image::Rgba([255, 0, 0, 255]),
+                );
+            },
+            BatchSize::SmallInput,
+        )
+    });
+}
+
+fn bench_basic_vertical_dashed(c: &mut Criterion) {
+    c.bench_function("vertical_dashed", |b| {
+        b.iter_batched(
+            || blank(),
+            |mut image| {
+                vertical_dashed_line(
+                    &mut image,
+                    IMG_SIZE / 2,
+                    0,
+                    10,
+                    IMG_SIZE,
+                    image::Rgba([255, 0, 0, 255]),
+                );
+            },
+            BatchSize::SmallInput,
+        )
+    });
+}
+
 criterion_group!(
     basic,
     bench_basic_vertical_line,
     bench_basic_horizontal_line,
-    bench_basic_rectangle_filled
+    bench_basic_rectangle_filled,
+    bench_basic_horizontal_dashed,
+    bench_basic_vertical_dashed
 );
 
 criterion_main!(basic);

@@ -10,7 +10,9 @@ mod test;
 pub use aa::cir_arc::AAArc;
 pub use annulus::Annulus;
 pub use arc::Arc;
-pub use basics::{horizontal_line, rectangle_filled, vertical_line};
+pub use basics::{
+    horizontal_dashed_line, horizontal_line, rectangle_filled, vertical_dashed_line, vertical_line,
+};
 pub use pt::Pt;
 
 // STATUS
