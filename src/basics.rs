@@ -1,3 +1,4 @@
+pub(crate) mod blend;
 use crate::Pt;
 use image::{GenericImage, Rgba, RgbaImage};
 

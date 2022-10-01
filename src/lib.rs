@@ -10,6 +10,7 @@ mod test;
 pub use aa::cir_arc::AAArc;
 pub use annulus::Annulus;
 pub use arc::Arc;
+pub use basics::blend::{blend, blend_unchecked};
 pub use basics::{
     horizontal_dashed_line, horizontal_line, rectangle_filled, vertical_dashed_line, vertical_line,
 };
@@ -55,8 +56,11 @@ pub fn draw_iter<T: Iterator<Item = (i32, i32)>>(
 }
 
 #[inline(always)]
-fn vec_idx(width: u32, x: u32, y: u32) -> usize {
-    (y * width + x) as usize * 4
+/// Determine the offset in a byte array for a specified pixel given an image with a specified width.
+///
+/// Assumes Rgba<u8>
+fn rgba_array_index(img_width: u32, x: u32, y: u32) -> usize {
+    (y * img_width + x) as usize * 4
 }
 
 #[derive(Clone, Debug)]
