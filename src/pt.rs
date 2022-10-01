@@ -174,6 +174,12 @@ impl Pt<u32> {
             y: self.y as i32,
         }
     }
+    pub fn f32(&self) -> Pt<f32> {
+        Pt {
+            x: self.x as f32,
+            y: self.y as f32,
+        }
+    }
     pub fn f64(&self) -> Pt<f64> {
         Pt {
             x: self.x as f64,
