@@ -10,7 +10,7 @@ mod test;
 pub use aa::cir_arc::AAArc;
 pub use annulus::Annulus;
 pub use arc::Arc;
-pub use basics::blend::{blend, blend_unchecked};
+pub use basics::blend::{blend_at, blend_at_unchecked};
 pub use basics::{
     horizontal_dashed_line, horizontal_line, rectangle_filled, vertical_dashed_line, vertical_line,
 };

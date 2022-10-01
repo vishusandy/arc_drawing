@@ -8,7 +8,7 @@
 /// This is because of the `get_unchecked_mut()` method to access the image.
 ///
 /// Also, `opac` must be in the range `(0..=1.0)`.
-pub unsafe fn blend_unchecked(
+pub unsafe fn blend_at_unchecked(
     image: &mut image::RgbaImage,
     x: u32,
     y: u32,
@@ -29,7 +29,7 @@ pub unsafe fn blend_unchecked(
     bg[3] = ((a1 + a2 - a1 * a2) * 255.0).to_int_unchecked();
 }
 
-pub fn blend(
+pub fn blend_at(
     image: &mut image::RgbaImage,
     x: u32,
     y: u32,
@@ -38,7 +38,7 @@ pub fn blend(
 ) -> bool {
     if x < image.width() && y < image.height() && opac >= 0.0 && opac <= 1.0 {
         unsafe {
-            blend_unchecked(image, x, y, color, opac);
+            blend_at_unchecked(image, x, y, color, opac);
         }
         true
     } else {

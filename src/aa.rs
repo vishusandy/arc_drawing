@@ -1,6 +1,6 @@
 pub(crate) mod cir_arc;
 mod ellipse_arc;
-use crate::basics::blend::blend_unchecked;
+use crate::basics::blend::blend_at_unchecked;
 
 use crate::Pt;
 #[derive(Clone, Debug)]
@@ -39,13 +39,13 @@ impl AAPt<i32> {
         if (a.x < width) & (a.y < height) {
             // This is safe because the coordinates have already been checked against the width and height
             unsafe {
-                blend_unchecked(image, a.x(), a.y(), color, self.db as f32);
+                blend_at_unchecked(image, a.x(), a.y(), color, self.db as f32);
             }
         }
         if (b.x < width) & (b.y < height) {
             // This is safe because the coordinates have already been checked against the width and height
             unsafe {
-                blend_unchecked(image, b.x(), b.y(), color, self.da as f32);
+                blend_at_unchecked(image, b.x(), b.y(), color, self.da as f32);
             }
         }
     }
