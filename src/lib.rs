@@ -12,7 +12,8 @@ pub use annulus::Annulus;
 pub use arc::Arc;
 pub use basics::blend::{blend_at, blend_at_unchecked};
 pub use basics::{
-    horizontal_dashed_line, horizontal_line, rectangle_filled, vertical_dashed_line, vertical_line,
+    horizontal_dashed_line, horizontal_dashed_line_blend, horizontal_line, rectangle_filled,
+    vertical_dashed_line, vertical_dashed_line_blend, vertical_line,
 };
 pub use pt::Pt;
 

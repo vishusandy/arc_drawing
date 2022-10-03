@@ -1,5 +1,5 @@
 pub(crate) mod blend;
-use crate::Pt;
+use crate::{blend_at_unchecked, Pt};
 use image::{GenericImage, Rgba, RgbaImage};
 
 pub fn horizontal_line(image: &mut RgbaImage, y: u32, x0: u32, x1: u32, color: Rgba<u8>) {
@@ -34,6 +34,32 @@ pub fn horizontal_dashed_line(
     }
 }
 
+pub fn horizontal_dashed_line_blend(
+    image: &mut RgbaImage,
+    y: u32,
+    mut x0: u32,
+    mut x1: u32,
+    width: u32,
+    opacity: f32,
+    color: Rgba<u8>,
+) {
+    if x0 > x1 {
+        std::mem::swap(&mut x0, &mut x1);
+    }
+    if (width == 0) || (y >= image.height() || (x0 >= image.width())) {
+        return;
+    }
+    let mut x = x0.min(image.width() - 1);
+    let mut i = 0;
+    while x < x1.min(image.width() - 1) {
+        unsafe {
+            blend_at_unchecked(image, x, y, color, opacity);
+        }
+        x = if i == width - 1 { x + width + 1 } else { x + 1 };
+        i = if i == width - 1 { 0 } else { i + 1 };
+    }
+}
+
 pub fn vertical_line(image: &mut RgbaImage, x: u32, y0: u32, y1: u32, color: Rgba<u8>) {
     if x < image.width() {
         (y0.min(image.height() - 1)..=y1.min(image.height() - 1))
@@ -60,6 +86,32 @@ pub fn vertical_dashed_line(
     while y < y1.min(image.height() - 1) {
         unsafe {
             image.unsafe_put_pixel(x, y, color);
+        }
+        y = if i == width - 1 { y + width + 1 } else { y + 1 };
+        i = if i == width - 1 { 0 } else { i + 1 };
+    }
+}
+
+pub fn vertical_dashed_line_blend(
+    image: &mut RgbaImage,
+    x: u32,
+    mut y0: u32,
+    mut y1: u32,
+    width: u32,
+    opacity: f32,
+    color: Rgba<u8>,
+) {
+    if y0 > y1 {
+        std::mem::swap(&mut y0, &mut y1);
+    }
+    if (width == 0) || (x >= image.width() || (y0 >= image.height())) {
+        return;
+    }
+    let mut y = y0.min(image.height() - 1);
+    let mut i = 0;
+    while y < y1.min(image.height() - 1) {
+        unsafe {
+            blend_at_unchecked(image, x, y, color, opacity);
         }
         y = if i == width - 1 { y + width + 1 } else { y + 1 };
         i = if i == width - 1 { 0 } else { i + 1 };
