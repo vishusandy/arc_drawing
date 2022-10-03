@@ -15,7 +15,7 @@ pub fn horizontal_dashed_line(
     mut x0: u32,
     mut x1: u32,
     width: u32,
-    color: Rgba<u8>,
+    color: image::Rgba<u8>,
 ) {
     if x0 > x1 {
         std::mem::swap(&mut x0, &mut x1);
@@ -52,8 +52,9 @@ pub fn horizontal_dashed_line_blend(
     let mut x = x0.min(image.width() - 1);
     let mut i = 0;
     while x < x1.min(image.width() - 1) {
+        let (r, g, b) = (color[0], color[1], color[2]);
         unsafe {
-            blend_at_unchecked(image, x, y, color, opacity);
+            blend_at_unchecked(image, x, y, Rgba([r, g, b, 255]), opacity as f32 / 255.0);
         }
         x = if i == width - 1 { x + width + 1 } else { x + 1 };
         i = if i == width - 1 { 0 } else { i + 1 };
@@ -110,8 +111,9 @@ pub fn vertical_dashed_line_blend(
     let mut y = y0.min(image.height() - 1);
     let mut i = 0;
     while y < y1.min(image.height() - 1) {
+        let (r, g, b) = (color[0], color[1], color[2]);
         unsafe {
-            blend_at_unchecked(image, x, y, color, opacity);
+            blend_at_unchecked(image, x, y, Rgba([r, g, b, 255]), opacity as f32 / 255.0);
         }
         y = if i == width - 1 { y + width + 1 } else { y + 1 };
         i = if i == width - 1 { 0 } else { i + 1 };
