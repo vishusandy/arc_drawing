@@ -19,7 +19,7 @@ pub unsafe fn blend_at_unchecked(
     // https://stackoverflow.com/questions/7438263/alpha-compositing-algorithm-blend-modes#answer-11163848
     // https://docs.rs/image/latest/src/image/color.rs.html#358-370
     let i = crate::rgba_array_index(image.width(), x, y);
-    let bg = image.get_unchecked_mut(i..i + 4);
+    let bg = image.get_unchecked_mut(i..i + std::mem::size_of::<image::Rgba<u8>>());
     let [r1, g1, b1, a1] = mult_alpha(rgba_float(bg));
     let [r2, g2, b2, a2] = mult_alpha(rgb_float(color.channels(), opac));
     let o = 1.0 - opac;
@@ -44,6 +44,28 @@ pub fn blend_at(
     } else {
         false
     }
+}
+
+/// Modify a pixel by modifying it's lightness in HSL
+///
+/// # Safety
+/// X and Y must be within the image boundaries.
+///
+/// Also the function for lightness must return a value in the range (0..=1)
+pub unsafe fn blend_hsl_at_unchecked<L: Fn(f64) -> f64>(
+    image: &mut image::RgbaImage,
+    x: u32,
+    y: u32,
+    f: &L,
+) {
+    let i = crate::rgba_array_index(image.width(), x, y);
+    let bg = image.get_unchecked_mut(i..i + std::mem::size_of::<image::Rgba<u8>>());
+    let mut color = hsl::HSL::from_rgb(&bg[0..3]);
+    color.l = f(color.l);
+    let (r, g, b) = color.to_rgb();
+    bg[0] = r;
+    bg[1] = g;
+    bg[2] = b;
 }
 
 #[inline]

@@ -9,6 +9,13 @@ pub fn horizontal_line(image: &mut RgbaImage, y: u32, x0: u32, x1: u32, color: R
     }
 }
 
+pub fn vertical_line(image: &mut RgbaImage, x: u32, y0: u32, y1: u32, color: Rgba<u8>) {
+    if x < image.width() {
+        (y0.min(image.height() - 1)..=y1.min(image.height() - 1))
+            .for_each(|y| unsafe { image.unsafe_put_pixel(x, y, color) });
+    }
+}
+
 pub fn horizontal_dashed_line(
     image: &mut RgbaImage,
     y: u32,
@@ -31,40 +38,6 @@ pub fn horizontal_dashed_line(
         }
         x = if i == width - 1 { x + width + 1 } else { x + 1 };
         i = if i == width - 1 { 0 } else { i + 1 };
-    }
-}
-
-pub fn horizontal_dashed_line_blend(
-    image: &mut RgbaImage,
-    y: u32,
-    mut x0: u32,
-    mut x1: u32,
-    width: u32,
-    opacity: f32,
-    color: Rgba<u8>,
-) {
-    if x0 > x1 {
-        std::mem::swap(&mut x0, &mut x1);
-    }
-    if (width == 0) || (y >= image.height() || (x0 >= image.width())) {
-        return;
-    }
-    let mut x = x0.min(image.width() - 1);
-    let mut i = 0;
-    while x < x1.min(image.width() - 1) {
-        let (r, g, b) = (color[0], color[1], color[2]);
-        unsafe {
-            blend_at_unchecked(image, x, y, Rgba([r, g, b, 255]), opacity as f32);
-        }
-        x = if i == width - 1 { x + width + 1 } else { x + 1 };
-        i = if i == width - 1 { 0 } else { i + 1 };
-    }
-}
-
-pub fn vertical_line(image: &mut RgbaImage, x: u32, y0: u32, y1: u32, color: Rgba<u8>) {
-    if x < image.width() {
-        (y0.min(image.height() - 1)..=y1.min(image.height() - 1))
-            .for_each(|y| unsafe { image.unsafe_put_pixel(x, y, color) });
     }
 }
 
@@ -93,7 +66,34 @@ pub fn vertical_dashed_line(
     }
 }
 
-pub fn vertical_dashed_line_blend(
+pub fn horizontal_dashed_line_alpha(
+    image: &mut RgbaImage,
+    y: u32,
+    mut x0: u32,
+    mut x1: u32,
+    width: u32,
+    opacity: f32,
+    color: Rgba<u8>,
+) {
+    if x0 > x1 {
+        std::mem::swap(&mut x0, &mut x1);
+    }
+    if (width == 0) || (y >= image.height() || (x0 >= image.width())) {
+        return;
+    }
+    let mut x = x0.min(image.width() - 1);
+    let mut i = 0;
+    while x < x1.min(image.width() - 1) {
+        let (r, g, b) = (color[0], color[1], color[2]);
+        unsafe {
+            blend_at_unchecked(image, x, y, Rgba([r, g, b, 255]), opacity as f32);
+        }
+        x = if i == width - 1 { x + width + 1 } else { x + 1 };
+        i = if i == width - 1 { 0 } else { i + 1 };
+    }
+}
+
+pub fn vertical_dashed_line_alpha(
     image: &mut RgbaImage,
     x: u32,
     mut y0: u32,
