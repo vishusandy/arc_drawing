@@ -1,48 +1,31 @@
 mod translate;
 use crate::{angle, Pos, Pt};
 
-fn calc_line(slope: f64, int: i32, x: i32) -> i32 {
-    (x as f64 * slope).round() as i32 + int
-}
-
-fn calc_slope(x1: i32, y1: i32, x2: i32, y2: i32) -> f64 {
-    (y2 as f64 - y1 as f64) / (x2 as f64 - x1 as f64)
-}
-
-#[derive(Clone, Debug)]
-struct Edge {
-    angle: f64,
-    oct: u8,
-    slope: f64,
-    int: i32, // intercept
-}
-
-impl Edge {
-    fn blank(angle: f64) -> Self {
-        Self {
-            angle,
-            oct: angle::angle_to_octant(angle),
-            slope: 0.0,
-            int: 0,
-        }
-    }
-
-    fn set_slope(&mut self, x1: i32, y1: i32, x2: i32, y2: i32) {
-        self.slope = calc_slope(x1, y1, x2, y2);
-        self.int = (self.slope * (-x1 as f64) + y1 as f64).round() as i32;
-    }
-
-    fn line(&self) -> (f64, i32) {
-        (self.slope, self.int)
-    }
-
-    fn slope(&self) -> f64 {
-        self.slope
-    }
-
-    fn int(&self) -> i32 {
-        self.int
-    }
+/// Draws a partial annulus (filled donut).
+///
+/// If the angles are floating-point numbers they are interpreted as radians.
+/// Otherwise the angles are interpreted as degrees.
+pub fn annulus<A, C, I>(
+    image: &mut I,
+    start_angle: A,
+    end_angle: A,
+    inner_radius: i32,
+    outer_radius: i32,
+    center: C,
+    color: I::Pixel,
+) where
+    A: crate::Angle,
+    C: Into<Pt<i32>>,
+    I: image::GenericImage,
+{
+    Annulus::new(
+        start_angle,
+        end_angle,
+        inner_radius,
+        outer_radius,
+        center.into(),
+    )
+    .draw(image, color);
 }
 
 #[derive(Clone, Debug)]
@@ -58,9 +41,9 @@ pub struct Annulus {
 }
 
 impl Annulus {
-    pub fn new<T>(start_angle: T, end_angle: T, mut ri: i32, mut ro: i32, c: Pt<i32>) -> Self
+    pub fn new<A>(start_angle: A, end_angle: A, mut ri: i32, mut ro: i32, c: Pt<i32>) -> Self
     where
-        T: crate::Angle,
+        A: crate::Angle,
     {
         let start_angle = crate::angle::normalize(start_angle.radians());
         let mut end_angle = crate::angle::normalize(end_angle.radians());
@@ -225,6 +208,50 @@ impl Annulus {
             self.put_line(x, y1, y2, image, color);
         }
     }
+}
+
+#[derive(Clone, Debug)]
+struct Edge {
+    angle: f64,
+    oct: u8,
+    slope: f64,
+    int: i32, // intercept
+}
+
+impl Edge {
+    fn blank(angle: f64) -> Self {
+        Self {
+            angle,
+            oct: angle::angle_to_octant(angle),
+            slope: 0.0,
+            int: 0,
+        }
+    }
+
+    fn set_slope(&mut self, x1: i32, y1: i32, x2: i32, y2: i32) {
+        self.slope = calc_slope(x1, y1, x2, y2);
+        self.int = (self.slope * (-x1 as f64) + y1 as f64).round() as i32;
+    }
+
+    fn line(&self) -> (f64, i32) {
+        (self.slope, self.int)
+    }
+
+    fn slope(&self) -> f64 {
+        self.slope
+    }
+
+    fn int(&self) -> i32 {
+        self.int
+    }
+}
+
+fn calc_line(slope: f64, int: i32, x: i32) -> i32 {
+    (x as f64 * slope).round() as i32 + int
+}
+
+fn calc_slope(x1: i32, y1: i32, x2: i32, y2: i32) -> f64 {
+    (y2 as f64 - y1 as f64) / (x2 as f64 - x1 as f64)
 }
 
 #[cfg(test)]

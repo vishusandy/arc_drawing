@@ -2,6 +2,24 @@ use super::AAPt;
 use crate::angle::angle_to_quad;
 use crate::Pt;
 
+/// Draws an antialiased circular arc.
+///
+/// If the angles are floating-point numbers they are interpreted as radians.
+/// Otherwise the angles are interpreted as degrees.
+pub fn antialiased_arc<A, C, I>(
+    image: &mut image::RgbaImage,
+    start_angle: A,
+    end_angle: A,
+    radius: f64,
+    center: C,
+    color: image::Rgba<u8>,
+) where
+    A: crate::Angle,
+    C: Into<Pt<f64>>,
+{
+    AAArc::new(start_angle, end_angle, radius, center.into()).draw(image, color);
+}
+
 #[derive(Clone, Debug)]
 pub struct AAArc {
     /// Current local x coordinate (not the same as the final pixel coordinates)
@@ -26,9 +44,9 @@ pub struct AAArc {
     c: Pt<f64>,
 }
 impl AAArc {
-    pub fn new<T>(start: T, end: T, r: f64, c: Pt<f64>) -> Self
+    pub fn new<A>(start: A, end: A, r: f64, c: Pt<f64>) -> Self
     where
-        T: crate::Angle,
+        A: crate::Angle,
     {
         let start = crate::angle::normalize(start.radians());
         let mut end = crate::angle::normalize(end.radians());

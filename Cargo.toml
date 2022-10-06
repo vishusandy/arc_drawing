@@ -9,7 +9,6 @@ bench = false
 
 [dependencies]
 image = { version = "0.24", default-features = false, features = ["png"] }
-hsl = "0.1.1"
 
 [dev-dependencies]
 imageproc = "0.23"

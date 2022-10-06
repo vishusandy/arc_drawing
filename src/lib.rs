@@ -7,15 +7,14 @@ mod pt;
 #[cfg(test)]
 mod test;
 
-pub use aa::cir_arc::AAArc;
-pub use annulus::Annulus;
-pub use arc::Arc;
+pub use aa::cir_arc::{antialiased_arc, AAArc};
+pub use annulus::{annulus, Annulus};
+pub use arc::{arc, Arc};
+pub use basics::alpha::{horizontal_dashed_line_alpha, vertical_dashed_line_alpha};
 pub use basics::blend::{blend_at, blend_at_unchecked};
-pub use basics::{
-    diagonal_dashed_line, diagonal_line, horizontal_dashed_line, horizontal_dashed_line_alpha,
-    horizontal_line, rectangle_filled, vertical_dashed_line, vertical_dashed_line_alpha,
-    vertical_line,
-};
+pub use basics::dashed::{diagonal_dashed_line, horizontal_dashed_line, vertical_dashed_line};
+pub use basics::shapes::rectangle_filled;
+pub use basics::straight::{diagonal_line, horizontal_line, vertical_line};
 pub use pt::Pt;
 
 // TODO:

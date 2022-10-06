@@ -28,6 +28,8 @@ pub unsafe fn blend_at_unchecked(
     bg[3] = ((a1 + a2 - a1 * a2) * 255.0).to_int_unchecked();
 }
 
+/// Blend a specified color into an existing image coordinate.  This ignores `color`'s
+/// alpha value and instead uses `opac` which is a floating point number from 0.0 to 1.0.
 pub fn blend_at(
     image: &mut image::RgbaImage,
     x: u32,
@@ -59,19 +61,6 @@ fn rgba_float(c: &[u8]) -> [f32; 4] {
 #[inline]
 fn mult_alpha(c: [f32; 4]) -> [f32; 4] {
     [c[0] * c[3], c[1] * c[3], c[2] * c[3], c[3]]
-}
-
-#[allow(dead_code)]
-#[inline]
-fn opac(d: f64) -> u8 {
-    use std::ops::Rem;
-    (d * 255.0).round().rem(256.0) as u8
-}
-
-#[allow(dead_code)]
-#[inline]
-fn alpha(a: u8, c: image::Rgba<u8>) -> image::Rgba<u8> {
-    image::Rgba([c[0], c[1], c[2], a])
 }
 
 #[inline]

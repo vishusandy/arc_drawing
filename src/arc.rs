@@ -4,6 +4,31 @@ use crate::pt::Pt;
 /// Range of a single octant.  This is equal to PI / 4.0
 const RADS: f64 = std::f64::consts::PI / 4.0;
 
+/// Draws a circular arc.
+///
+/// If the angles are floating-point numbers they are interpreted as radians.
+/// Otherwise the angles are interpreted as degrees.
+pub fn arc<A, C, I>(
+    image: &mut I,
+    start_angle: A,
+    end_angle: A,
+    radius: i32,
+    center: C,
+    color: I::Pixel,
+) where
+    A: crate::Angle,
+    C: Into<Pt<i32>>,
+    I: image::GenericImage,
+{
+    Arc::new(
+        start_angle.radians(),
+        end_angle.radians(),
+        radius,
+        center.into(),
+    )
+    .draw(image, color);
+}
+
 #[derive(Clone, Debug)]
 struct Loc {
     r: i32,
@@ -29,19 +54,6 @@ pub struct Arc {
     ex: i32,
 }
 impl Arc {
-    /// Ensure angles are in the range 0..2*PI and that start >= end
-    fn check_angles(start: &mut f64, end: &mut f64) {
-        if start > end {
-            std::mem::swap(start, end);
-        }
-        if *start < 0.0 {
-            *start = 0.0;
-        }
-        if *end >= 8.0 {
-            *end = 8.0 - std::f64::EPSILON;
-        }
-    }
-
     pub fn new(mut start: f64, mut end: f64, radius: i32, center: Pt<i32>) -> Self {
         if radius.is_negative() {
             panic!("Radius cannot be negative");
@@ -78,6 +90,19 @@ impl Arc {
             y,
             d,
             ex,
+        }
+    }
+
+    /// Ensure angles are in the range 0..2*PI and that start >= end
+    fn check_angles(start: &mut f64, end: &mut f64) {
+        if start > end {
+            std::mem::swap(start, end);
+        }
+        if *start < 0.0 {
+            *start = 0.0;
+        }
+        if *end >= 8.0 {
+            *end = 8.0 - std::f64::EPSILON;
         }
     }
 
