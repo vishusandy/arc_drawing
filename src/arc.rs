@@ -9,6 +9,7 @@ struct Loc {
     r: i32,
     c: Pt<i32>,
 }
+
 impl Loc {
     fn new(r: i32, c: Pt<i32>) -> Self {
         Self { r, c }
@@ -113,12 +114,12 @@ impl Arc {
         self.d = 1 - self.loc.r;
     }
 
-    fn put_pixel(&self, image: &mut image::RgbaImage, color: image::Rgba<u8>) {
+    fn put_pixel<I: image::GenericImage>(&self, image: &mut I, color: I::Pixel) {
         let pt = translate::iter_to_real(self.x, self.y, self.cur_oct, self.loc.c);
         image.put_pixel(pt.x as u32, pt.y as u32, color);
     }
 
-    pub fn draw(&mut self, image: &mut image::RgbaImage, color: image::Rgba<u8>) {
+    pub fn draw<I: image::GenericImage>(&mut self, image: &mut I, color: I::Pixel) {
         loop {
             if self.x > self.y {
                 if self.end_oct == self.cur_oct || self.cur_oct == 8 {

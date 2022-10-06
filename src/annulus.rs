@@ -184,13 +184,13 @@ impl Annulus {
         }
     }
 
-    fn put_line(
+    fn put_line<I: image::GenericImage>(
         &self,
         x: i32,
         yi: i32,
         yo: i32,
-        image: &mut image::RgbaImage,
-        color: image::Rgba<u8>,
+        image: &mut I,
+        color: I::Pixel,
     ) {
         let width = image.width();
         let height = image.height();
@@ -202,7 +202,7 @@ impl Annulus {
         }
     }
 
-    pub fn draw(&mut self, image: &mut image::RgbaImage, color: image::Rgba<u8>) {
+    pub fn draw<I: image::GenericImage>(&mut self, image: &mut I, color: I::Pixel) {
         loop {
             if self.end() {
                 return;

@@ -5,7 +5,6 @@
 ///
 /// # Safety
 /// The x and y coordinates must be less than the image width and height, respectively.
-/// This is because of the `get_unchecked_mut()` method to access the image.
 ///
 /// Also, `opac` must be in the range `(0..=1.0)`.
 pub unsafe fn blend_at_unchecked(
@@ -44,28 +43,6 @@ pub fn blend_at(
     } else {
         false
     }
-}
-
-/// Modify a pixel by modifying it's lightness in HSL
-///
-/// # Safety
-/// X and Y must be within the image boundaries.
-///
-/// Also the function for lightness must return a value in the range (0..=1)
-pub unsafe fn blend_hsl_at_unchecked<L: Fn(f64) -> f64>(
-    image: &mut image::RgbaImage,
-    x: u32,
-    y: u32,
-    f: &L,
-) {
-    let i = crate::rgba_array_index(image.width(), x, y);
-    let bg = image.get_unchecked_mut(i..i + std::mem::size_of::<image::Rgba<u8>>());
-    let mut color = hsl::HSL::from_rgb(&bg[0..3]);
-    color.l = f(color.l);
-    let (r, g, b) = color.to_rgb();
-    bg[0] = r;
-    bg[1] = g;
-    bg[2] = b;
 }
 
 #[inline]
