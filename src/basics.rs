@@ -29,20 +29,9 @@ pub unsafe fn diagonal_line_unchecked<I: GenericImage>(
     mut y1: u32,
     color: I::Pixel,
 ) {
-    if x0 > x1 {
-        std::mem::swap(&mut x0, &mut x1);
-        std::mem::swap(&mut y0, &mut y1);
-    }
-    if y0 < y1 {
-        let dist = (x1 - x0).min(y1 - y0);
-        (0..=dist).for_each(|i| image.unsafe_put_pixel(x0 + i, y0 + i, color));
-    } else {
-        let dist = (x1 - x0).min(y0 - y1);
-        (0..=dist).for_each(|i| image.unsafe_put_pixel(x0 + i, y0 - i, color));
-    }
 }
 
-/// Draws a straight diagonal line between two points
+/// Draws a straight diagonal line between two points.
 pub fn diagonal_line<I: GenericImage>(
     image: &mut I,
     mut x0: u32,
@@ -51,18 +40,27 @@ pub fn diagonal_line<I: GenericImage>(
     mut y1: u32,
     color: I::Pixel,
 ) {
-    unsafe {
-        diagonal_line_unchecked(
-            image,
-            x0.min(image.width() - 1),
-            y0.min(image.height() - 1),
-            x1.min(image.width() - 1),
-            y1.min(image.height() - 1),
-            color,
-        );
+    if x0 > x1 {
+        std::mem::swap(&mut x0, &mut x1);
+        std::mem::swap(&mut y0, &mut y1);
+    }
+
+    let x0 = x0.min(image.width() - 1);
+    let y0 = y0.min(image.height() - 1);
+    let x1 = x1.min(image.width() - 1);
+    let y1 = y1.min(image.height() - 1);
+
+    if y0 < y1 {
+        let dist = (x1 - x0).min(y1 - y0);
+        (0..=dist).for_each(|i| unsafe { image.unsafe_put_pixel(x0 + i, y0 + i, color) });
+    } else {
+        let dist = (x1 - x0).min(y0 - y1);
+        (0..=dist).for_each(|i| unsafe { image.unsafe_put_pixel(x0 + i, y0 - i, color) });
     }
 }
 
+// TODO: should this use `let x1 = x1.min(image.width()-1)` ??
+// TODO: should this be `while x <= x1.min(..)` ??
 pub fn horizontal_dashed_line<I: GenericImage>(
     image: &mut I,
     y: u32,
@@ -113,30 +111,51 @@ pub fn vertical_dashed_line<I: GenericImage>(
     }
 }
 
-pub fn horizontal_dashed_line_alpha(
-    image: &mut RgbaImage,
-    y: u32,
+pub fn diagonal_dashed_line<I: GenericImage>(
+    image: &mut I,
     mut x0: u32,
+    mut y0: u32,
     mut x1: u32,
+    mut y1: u32,
     width: u32,
-    opacity: f32,
-    color: Rgba<u8>,
+    color: I::Pixel,
 ) {
-    if x0 > x1 {
-        std::mem::swap(&mut x0, &mut x1);
-    }
-    if (width == 0) || (y >= image.height() || (x0 >= image.width())) {
+    if width == 0 {
+        diagonal_line(image, x0, y0, x1, y1, color);
         return;
     }
-    let mut x = x0.min(image.width() - 1);
+
+    if x0 > x1 {
+        std::mem::swap(&mut x0, &mut x1);
+        std::mem::swap(&mut y0, &mut y1);
+    }
+
+    let x0 = x0.min(image.width() - 1);
+    let y0 = y0.min(image.height() - 1);
+    let x1 = x1.min(image.width() - 1);
+    let y1 = y1.min(image.height() - 1);
     let mut i = 0;
-    while x < x1.min(image.width() - 1) {
-        let (r, g, b) = (color[0], color[1], color[2]);
-        unsafe {
-            blend_at_unchecked(image, x, y, Rgba([r, g, b, 255]), opacity as f32);
+
+    if y0 < y1 {
+        let dist = (x1 - x0).min(y1 - y0);
+        while i <= dist {
+            unsafe {
+                image.unsafe_put_pixel(x0 + i, y0 + i, color);
+            }
+            let i1 = i + 1;
+            let iw = i + width + 1;
+            i = if i1 % width == 0 { iw } else { i1 };
         }
-        x = if i == width - 1 { x + width + 1 } else { x + 1 };
-        i = if i == width - 1 { 0 } else { i + 1 };
+    } else {
+        let dist = (x1 - x0).min(y0 - y1);
+        while i <= dist {
+            unsafe {
+                image.unsafe_put_pixel(x0 + i, y0 - i, color);
+            }
+            let i1 = i + 1;
+            let iw = i + width + 1;
+            i = if i1 % width == 0 { iw } else { i1 };
+        }
     }
 }
 
@@ -167,6 +186,33 @@ pub fn vertical_dashed_line_alpha(
     }
 }
 
+pub fn horizontal_dashed_line_alpha(
+    image: &mut RgbaImage,
+    y: u32,
+    mut x0: u32,
+    mut x1: u32,
+    width: u32,
+    opacity: f32,
+    color: Rgba<u8>,
+) {
+    if x0 > x1 {
+        std::mem::swap(&mut x0, &mut x1);
+    }
+    if (width == 0) || (y >= image.height() || (x0 >= image.width())) {
+        return;
+    }
+    let mut x = x0.min(image.width() - 1);
+    let mut i = 0;
+    while x < x1.min(image.width() - 1) {
+        let (r, g, b) = (color[0], color[1], color[2]);
+        unsafe {
+            blend_at_unchecked(image, x, y, Rgba([r, g, b, 255]), opacity as f32);
+        }
+        x = if i == width - 1 { x + width + 1 } else { x + 1 };
+        i = if i == width - 1 { 0 } else { i + 1 };
+    }
+}
+
 pub fn rectangle_filled<I: GenericImage>(
     image: &mut I,
     pt: Pt<u32>,
@@ -191,8 +237,15 @@ mod tests {
         let height = 400;
         let width = 400;
         let mut image = image::RgbaImage::from_pixel(width, height, Rgba([255, 255, 255, 255]));
-        vertical_line(&mut image, width / 2, 0, height - 1, Rgba([0, 0, 255, 255]));
+
+        vertical_line(&mut image, width / 2, 0, height - 1, Rgba([0, 255, 0, 255]));
         horizontal_line(&mut image, height / 2, 0, width - 1, Rgba([0, 255, 0, 255]));
+
+        horizontal_dashed_line(&mut image, 100, 0, width * 2, 2, Rgba([174, 252, 178, 255]));
+        vertical_dashed_line(&mut image, 100, 0, width - 1, 2, Rgba([174, 252, 178, 255]));
+        horizontal_dashed_line(&mut image, 300, 0, width * 2, 2, Rgba([174, 252, 178, 255]));
+        vertical_dashed_line(&mut image, 300, 0, width - 1, 2, Rgba([174, 252, 178, 255]));
+
         rectangle_filled(
             &mut image,
             Pt::new(300, 300),
@@ -200,13 +253,16 @@ mod tests {
             150,
             Rgba([255, 0, 0, 255]),
         );
-        horizontal_dashed_line(&mut image, 20, 0, width * 2, 10, Rgba([0, 255, 0, 255]));
-        vertical_dashed_line(&mut image, 20, 0, width - 1, 1, Rgba([0, 0, 255, 255]));
 
         diagonal_line(&mut image, 200, 200, 400, 0, Rgba([255, 98, 0, 255]));
         diagonal_line(&mut image, 200, 200, 0, 0, Rgba([255, 98, 0, 255]));
         diagonal_line(&mut image, 200, 200, 400, 400, Rgba([255, 98, 0, 255]));
         diagonal_line(&mut image, 200, 200, 0, 500, Rgba([255, 98, 0, 255]));
+
+        diagonal_dashed_line(&mut image, 0, 100, 300, 400, 2, Rgba([255, 210, 181, 255]));
+        diagonal_dashed_line(&mut image, 0, 100, 300, 400, 100, Rgba([255, 98, 0, 255]));
+
+        diagonal_dashed_line(&mut image, 400, 50, 50, 400, 2, Rgba([255, 210, 181, 255]));
 
         image.save("images/basic_drawing.png")
     }
