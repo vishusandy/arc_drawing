@@ -26,16 +26,20 @@ impl Edge {
             int: 0,
         }
     }
+
     fn set_slope(&mut self, x1: i32, y1: i32, x2: i32, y2: i32) {
         self.slope = calc_slope(x1, y1, x2, y2);
         self.int = (self.slope * (-x1 as f64) + y1 as f64).round() as i32;
     }
+
     fn line(&self) -> (f64, i32) {
         (self.slope, self.int)
     }
+
     fn slope(&self) -> f64 {
         self.slope
     }
+
     fn int(&self) -> i32 {
         self.int
     }
@@ -207,7 +211,7 @@ impl Annulus {
         }
     }
 
-    pub fn draw<I: image::GenericImage>(&mut self, image: &mut I, color: I::Pixel) {
+    pub fn draw<I: image::GenericImage>(mut self, image: &mut I, color: I::Pixel) {
         loop {
             if self.end() {
                 return;
@@ -244,38 +248,8 @@ mod tests {
             image::Rgba([0, 0, 255, 255]),
         );
 
-        let mut an: Annulus = Annulus::new(start, end, ri, ro, center);
-        let oct = an.cur_start.oct;
-
-        let is = an.inner_start().iter_to_real(oct, crate::CENTER.into());
-        let os = an.outer_start().iter_to_real(oct, crate::CENTER.into());
-
+        let an: Annulus = Annulus::new(start, end, ri, ro, center);
         an.draw(&mut image, image::Rgba([255, 0, 0, 255]));
-
-        if log::log_enabled!(log::Level::Trace) {
-            image.put_pixel(
-                is.x() as u32 + 1,
-                is.y() as u32,
-                image::Rgba([0, 255, 0, 255]),
-            );
-            image.put_pixel(
-                os.x() as u32 + 1,
-                os.y() as u32,
-                image::Rgba([0, 255, 0, 255]),
-            );
-            let ie = an.inner_end().iter_to_real(oct, crate::CENTER.into());
-            let oe = an.outer_end().iter_to_real(oct, crate::CENTER.into());
-            image.put_pixel(
-                ie.x() as u32 - 1,
-                ie.y() as u32,
-                image::Rgba([0, 255, 0, 255]),
-            );
-            image.put_pixel(
-                oe.x() as u32 - 1,
-                oe.y() as u32,
-                image::Rgba([0, 255, 0, 255]),
-            );
-        }
 
         image.save("images/annulus.png")
     }

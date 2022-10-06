@@ -126,7 +126,7 @@ impl Arc {
         image.put_pixel(pt.x as u32, pt.y as u32, color);
     }
 
-    pub fn draw<I: image::GenericImage>(&mut self, image: &mut I, color: I::Pixel) {
+    pub fn draw<I: image::GenericImage>(mut self, image: &mut I, color: I::Pixel) {
         loop {
             if self.x > self.y {
                 if self.end_oct == self.cur_oct || self.cur_oct == 8 {
@@ -171,9 +171,9 @@ mod tests {
         let end = RADS * 6.8;
         let ro = crate::RADIUS;
         let ri = crate::RADIUS - 10;
-        let mut arc = Arc::new(start, end, ro, crate::CENTER.into());
+        let arc = Arc::new(start, end, ro, crate::CENTER.into());
         arc.draw(&mut image, image::Rgba([255, 0, 0, 255]));
-        let mut arc = Arc::new(start, end, ri, crate::CENTER.into());
+        let arc = Arc::new(start, end, ri, crate::CENTER.into());
         arc.draw(&mut image, image::Rgba([0, 255, 0, 255]));
         image.save("images/arc_partial.png")
     }

@@ -147,6 +147,7 @@ impl Pt<f64> {
 
 impl Pt<i32> {
     #[cfg(test)]
+    #[allow(dead_code)]
     pub(super) const fn iter_to_real(self, oct: u8, c: Pt<i32>) -> Pt<i32> {
         match oct {
             1 => Pt::new(self.y + c.x(), -self.x + c.y()),

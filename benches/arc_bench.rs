@@ -67,7 +67,7 @@ fn bench_partial_arc(c: &mut Criterion) {
         b.iter_batched(
             || blank(),
             |mut image| {
-                let mut arc = freehand::Arc::new(START, END, RADIUS, CENTER.into());
+                let arc = freehand::Arc::new(START, END, RADIUS, CENTER.into());
                 arc.draw(&mut image, image::Rgba([255, 0, 0, 255]));
             },
             BatchSize::SmallInput,
@@ -83,8 +83,7 @@ fn bench_partial_annulus(c: &mut Criterion) {
         b.iter_batched(
             || blank(),
             |mut image| {
-                let mut arc =
-                    freehand::Annulus::new(START, END, RADIUS - 10, RADIUS, CENTER.into());
+                let arc = freehand::Annulus::new(START, END, RADIUS - 10, RADIUS, CENTER.into());
                 arc.draw(&mut image, image::Rgba([255, 0, 0, 255]));
             },
             BatchSize::SmallInput,
