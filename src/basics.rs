@@ -16,21 +16,6 @@ pub fn vertical_line<I: GenericImage>(image: &mut I, x: u32, y0: u32, y1: u32, c
     }
 }
 
-/// Draws a straight diagonal line between two points without bounds checking.
-///
-/// # Safety
-///
-/// Both x and y values must be within the image boundaries
-pub unsafe fn diagonal_line_unchecked<I: GenericImage>(
-    image: &mut I,
-    mut x0: u32,
-    mut y0: u32,
-    mut x1: u32,
-    mut y1: u32,
-    color: I::Pixel,
-) {
-}
-
 /// Draws a straight diagonal line between two points.
 pub fn diagonal_line<I: GenericImage>(
     image: &mut I,
@@ -59,8 +44,6 @@ pub fn diagonal_line<I: GenericImage>(
     }
 }
 
-// TODO: should this use `let x1 = x1.min(image.width()-1)` ??
-// TODO: should this be `while x <= x1.min(..)` ??
 pub fn horizontal_dashed_line<I: GenericImage>(
     image: &mut I,
     y: u32,
@@ -72,12 +55,16 @@ pub fn horizontal_dashed_line<I: GenericImage>(
     if x0 > x1 {
         std::mem::swap(&mut x0, &mut x1);
     }
+
     if (width == 0) || (y >= image.height() || (x0 >= image.width())) {
         return;
     }
+
+    let x1 = x1.min(image.width() - 1);
     let mut x = x0.min(image.width() - 1);
     let mut i = 0;
-    while x < x1.min(image.width() - 1) {
+
+    while x < x1 {
         unsafe {
             image.unsafe_put_pixel(x, y, color);
         }
@@ -97,12 +84,16 @@ pub fn vertical_dashed_line<I: GenericImage>(
     if y0 > y1 {
         std::mem::swap(&mut y0, &mut y1);
     }
+
     if (width == 0) || (x >= image.width() || (y0 >= image.height())) {
         return;
     }
+
+    let y1 = y1.min(image.height() - 1);
     let mut y = y0.min(image.height() - 1);
     let mut i = 0;
-    while y < y1.min(image.height() - 1) {
+
+    while y < y1 {
         unsafe {
             image.unsafe_put_pixel(x, y, color);
         }
@@ -171,12 +162,15 @@ pub fn vertical_dashed_line_alpha(
     if y0 > y1 {
         std::mem::swap(&mut y0, &mut y1);
     }
+
     if (width == 0) || (x >= image.width() || (y0 >= image.height())) {
         return;
     }
+
+    let y1 = y1.min(image.height() - 1);
     let mut y = y0.min(image.height() - 1);
     let mut i = 0;
-    while y < y1.min(image.height() - 1) {
+    while y < y1 {
         let (r, g, b) = (color[0], color[1], color[2]);
         unsafe {
             blend_at_unchecked(image, x, y, Rgba([r, g, b, 255]), opacity as f32);
@@ -201,9 +195,12 @@ pub fn horizontal_dashed_line_alpha(
     if (width == 0) || (y >= image.height() || (x0 >= image.width())) {
         return;
     }
+
+    let x1 = x1.min(image.width() - 1);
     let mut x = x0.min(image.width() - 1);
     let mut i = 0;
-    while x < x1.min(image.width() - 1) {
+
+    while x < x1 {
         let (r, g, b) = (color[0], color[1], color[2]);
         unsafe {
             blend_at_unchecked(image, x, y, Rgba([r, g, b, 255]), opacity as f32);
@@ -233,7 +230,7 @@ mod tests {
     #[test]
     // #[ignore = "Image drawing test - requires manual validation; also this test won't change often"]
     fn basic_drawing() -> Result<(), image::ImageError> {
-        crate::logger(log::LevelFilter::Debug);
+        crate::logger(crate::LOG_LEVEL);
         let height = 400;
         let width = 400;
         let mut image = image::RgbaImage::from_pixel(width, height, Rgba([255, 255, 255, 255]));

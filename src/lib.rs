@@ -12,7 +12,7 @@ pub use annulus::Annulus;
 pub use arc::Arc;
 pub use basics::blend::{blend_at, blend_at_unchecked};
 pub use basics::{
-    diagonal_line, diagonal_line_unchecked, horizontal_dashed_line, horizontal_dashed_line_alpha,
+    diagonal_dashed_line, diagonal_line, horizontal_dashed_line, horizontal_dashed_line_alpha,
     horizontal_line, rectangle_filled, vertical_dashed_line, vertical_dashed_line_alpha,
     vertical_line,
 };
@@ -20,7 +20,10 @@ pub use pt::Pt;
 
 // STATUS
 //  arc::Arc could use a lot of love, or a rewrite
+// need to review u32 <-> i32 casts for safety
 
+#[cfg(test)]
+const LOG_LEVEL: log::LevelFilter = log::LevelFilter::Warn;
 #[cfg(test)]
 const IMG_SIZE: u32 = 400;
 #[cfg(test)]
