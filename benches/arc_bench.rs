@@ -15,7 +15,7 @@ pub fn blank() -> image::RgbaImage {
 fn bench_imageproc_circle(c: &mut Criterion) {
     c.bench_function("stock_circle", |b| {
         b.iter_batched(
-            || blank(),
+            blank,
             |mut image| {
                 imageproc::drawing::draw_hollow_circle_mut(
                     &mut image,
@@ -32,7 +32,7 @@ fn bench_imageproc_circle(c: &mut Criterion) {
 fn bench_arc_midpoint(c: &mut Criterion) {
     c.bench_function("arc_floats", |b| {
         b.iter_batched(
-            || blank(),
+            blank,
             |image| old_code::arc_midpoint(image, RADIUS, CENTER),
             BatchSize::SmallInput,
         )
@@ -42,7 +42,7 @@ fn bench_arc_midpoint(c: &mut Criterion) {
 fn bench_arc_integer(c: &mut Criterion) {
     c.bench_function("arc_integer", |b| {
         b.iter_batched(
-            || blank(),
+            blank,
             |image| old_code::arc_integer(image, RADIUS, CENTER),
             BatchSize::SmallInput,
         )
@@ -52,7 +52,7 @@ fn bench_arc_integer(c: &mut Criterion) {
 fn bench_warmup(c: &mut Criterion) {
     c.bench_function("warmup", |b| {
         b.iter_batched(
-            || blank(),
+            blank,
             |image| old_code::arc_integer(image, RADIUS, CENTER),
             BatchSize::SmallInput,
         )
@@ -65,7 +65,7 @@ fn bench_partial_arc(c: &mut Criterion) {
     const END: f64 = RADS * 7.75;
     c.bench_function("partial_arc", |b| {
         b.iter_batched(
-            || blank(),
+            blank,
             |mut image| {
                 let arc = freehand::Arc::new(START, END, RADIUS, CENTER.into());
                 arc.draw(&mut image, image::Rgba([255, 0, 0, 255]));
@@ -81,7 +81,7 @@ fn bench_partial_annulus(c: &mut Criterion) {
     const END: f64 = RADS * 7.75;
     c.bench_function("partial_annulus", |b| {
         b.iter_batched(
-            || blank(),
+            blank,
             |mut image| {
                 let arc = freehand::Annulus::new(START, END, RADIUS - 10, RADIUS, CENTER.into());
                 arc.draw(&mut image, image::Rgba([255, 0, 0, 255]));

@@ -30,7 +30,7 @@ struct Ellipse {
     ex: f64,
 }
 impl Ellipse {
-    fn ellipse(xr: f64, yr: f64, c: Pt<f64>) -> Self {
+    fn blank_ellipse(xr: f64, yr: f64, c: Pt<f64>) -> Self {
         Self {
             x: 0.0,
             y: xr,
@@ -109,7 +109,7 @@ mod tests {
             // crate::test::img::setup_ellipse(h as i32, v as i32, (c.x() as i32, c.y() as i32));
             crate::test::img::guidelines();
         // let mut image = crate::test::img::blank(Pt::new(crate::IMG_SIZE, crate::IMG_SIZE));
-        let mut e = Ellipse::ellipse(xr, yr, c);
+        let mut e = Ellipse::blank_ellipse(xr, yr, c);
         log::debug!("{:?}", e);
         log::debug!("45 = {}", Ellipse::ffd(xr, yr));
 

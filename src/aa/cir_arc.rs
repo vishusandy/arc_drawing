@@ -51,8 +51,6 @@ impl AAArc {
         let mut start = Pt::from_radian(start_angle, r, c.into()).quad_to_iter(quad, c);
         let end = Pt::from_radian(end_angle, r, c.into()).quad_to_iter(end_quad, c);
         let inc_x = if start.x() < start.y() {
-            start.x = start.x;
-            start.y = start.y;
             true
         } else {
             start.y = start.y.ceil();
@@ -62,7 +60,7 @@ impl AAArc {
         Self {
             x: start.x,
             y: start.y,
-            r: r,
+            r,
             r2: r * r,
             quad,
             end_quad,
@@ -109,15 +107,13 @@ impl AAArc {
     fn step(&mut self) -> Option<AAPt<i32>> {
         if self.x <= self.y {
             self.step_x()
+        } else if self.fast_x {
+            // This is to handle the forty-five degree edge case
+            self.fast_x = false;
+            self.y = self.y.ceil();
+            self.step_y().map(|o| o.mult_opac_b(0.5))
         } else {
-            if self.fast_x {
-                // This is to handle the forty-five degree edge case
-                self.fast_x = false;
-                self.y = self.y.ceil();
-                self.step_y().map(|o| o.mult_opac_b(0.5))
-            } else {
-                self.step_y()
-            }
+            self.step_y()
         }
     }
 

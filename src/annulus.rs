@@ -83,6 +83,7 @@ impl Annulus {
         a
     }
 
+    #[allow(clippy::self_named_constructors)]
     fn annulus(start_angle: f64, end_angle: f64, ri: i32, ro: i32, c: Pt<i32>) -> Self {
         let end_oct = angle::angle_to_octant(end_angle);
         let start_oct = angle::angle_to_octant(start_angle);
@@ -243,7 +244,7 @@ mod tests {
 
         imageproc::drawing::draw_hollow_circle_mut(
             &mut image,
-            crate::CENTER.into(),
+            crate::CENTER,
             ri,
             image::Rgba([0, 0, 255, 255]),
         );
