@@ -1,10 +1,8 @@
-
-use crate::Pt;
 use image::GenericImage;
 
-pub fn rectangle_filled<I: GenericImage>(
+pub fn rectangle_filled<I: GenericImage, P: crate::pt::Point<u32>>(
     image: &mut I,
-    pt: Pt<u32>,
+    pt: P,
     height: u32,
     width: u32,
     color: I::Pixel,
@@ -12,6 +10,6 @@ pub fn rectangle_filled<I: GenericImage>(
     let x0 = pt.x();
     let x1 = pt.x() + width - 1;
     for y in pt.y()..pt.y() + height {
-        crate::horizontal_line(image, y, x0, x1, color);
+        crate::horizontal_line(image, crate::Pt::new(x0, y), x1, color);
     }
 }

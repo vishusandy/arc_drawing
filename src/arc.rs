@@ -17,14 +17,14 @@ pub fn arc<A, C, I>(
     color: I::Pixel,
 ) where
     A: crate::Angle,
-    C: Into<Pt<i32>>,
+    C: crate::pt::Point<i32>,
     I: image::GenericImage,
 {
     Arc::new(
         start_angle.radians(),
         end_angle.radians(),
         radius,
-        center.into(),
+        center.pt(),
     )
     .draw(image, color);
 }

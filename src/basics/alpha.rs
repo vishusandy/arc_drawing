@@ -1,54 +1,58 @@
 use crate::blend_at_unchecked;
+use crate::pt::Point;
 use image::{Rgba, RgbaImage};
 
-pub fn horizontal_line_alpha<I: image::GenericImage>(
+pub fn horizontal_line_alpha<I, P>(
     image: &mut RgbaImage,
-    y: u32,
-    x0: u32,
+    pt: P,
     x1: u32,
     opacity: f32,
     color: Rgba<u8>,
-) {
-    if y < image.height() {
-        (x0.min(image.width() - 1)..=x1.min(image.width() - 1))
+) where
+    I: image::GenericImage,
+    P: Point<u32>,
+{
+    if pt.y() < image.height() {
+        (pt.x().min(image.width() - 1)..=x1.min(image.width() - 1))
             // This is safe due to the min() calls above
-            .for_each(|x| unsafe { blend_at_unchecked(image, x, y, opacity, color) });
+            .for_each(|x| unsafe { blend_at_unchecked(image, x, pt.y(), opacity, color) });
     }
 }
 
-pub fn vertical_line_alpha<I: image::GenericImage>(
+pub fn vertical_line_alpha<I, P>(
     image: &mut RgbaImage,
-    x: u32,
-    y0: u32,
+    pt: P,
     y1: u32,
     opacity: f32,
     color: Rgba<u8>,
-) {
-    if x < image.width() {
-        (y0.min(image.height() - 1)..=y1.min(image.height() - 1))
+) where
+    I: image::GenericImage,
+    P: Point<u32>,
+{
+    if pt.x() < image.width() {
+        (pt.y().min(image.height() - 1)..=y1.min(image.height() - 1))
             // This is safe due to the min() calls above
-            .for_each(|y| unsafe { blend_at_unchecked(image, x, y, opacity, color) });
+            .for_each(|y| unsafe { blend_at_unchecked(image, pt.x(), y, opacity, color) });
     }
 }
 
-pub fn diagonal_line_alpha(
+pub fn diagonal_line_alpha<P>(
     image: &mut RgbaImage,
-    mut x0: u32,
-    mut y0: u32,
-    mut x1: u32,
-    mut y1: u32,
+    mut a: P,
+    mut b: P,
     opacity: f32,
     color: Rgba<u8>,
-) {
-    if x0 > x1 {
-        std::mem::swap(&mut x0, &mut x1);
-        std::mem::swap(&mut y0, &mut y1);
+) where
+    P: Point<u32>,
+{
+    if a.x() > b.x() {
+        std::mem::swap(&mut a, &mut b);
     }
 
-    let x0 = x0.min(image.width() - 1);
-    let y0 = y0.min(image.height() - 1);
-    let x1 = x1.min(image.width() - 1);
-    let y1 = y1.min(image.height() - 1);
+    let x0 = a.x().min(image.width() - 1);
+    let y0 = a.y().min(image.height() - 1);
+    let x1 = b.x().min(image.width() - 1);
+    let y1 = b.y().min(image.height() - 1);
 
     if y0 < y1 {
         let dist = (x1 - x0).min(y1 - y0);
@@ -63,15 +67,18 @@ pub fn diagonal_line_alpha(
     }
 }
 
-pub fn vertical_dashed_line_alpha(
+pub fn vertical_dashed_line_alpha<P>(
     image: &mut RgbaImage,
-    x: u32,
-    mut y0: u32,
+    pt: P,
     mut y1: u32,
     width: u32,
     opacity: f32,
     color: Rgba<u8>,
-) {
+) where
+    P: Point<u32>,
+{
+    let (x, mut y0) = pt.tuple();
+
     if y0 > y1 {
         std::mem::swap(&mut y0, &mut y1);
     }
@@ -94,15 +101,17 @@ pub fn vertical_dashed_line_alpha(
     }
 }
 
-pub fn horizontal_dashed_line_alpha(
+pub fn horizontal_dashed_line_alpha<P>(
     image: &mut RgbaImage,
-    y: u32,
-    mut x0: u32,
+    pt: P,
     mut x1: u32,
     width: u32,
     opacity: f32,
     color: Rgba<u8>,
-) {
+) where
+    P: Point<u32>,
+{
+    let (mut x0, y) = pt.tuple();
     if x0 > x1 {
         std::mem::swap(&mut x0, &mut x1);
     }
@@ -128,21 +137,18 @@ pub fn horizontal_dashed_line_alpha(
 
 pub fn diagonal_dashed_line_alpha<P>(
     image: &mut RgbaImage,
-    a: P,
-    b: P,
+    mut a: P,
+    mut b: P,
     width: u32,
     opacity: f32,
     color: Rgba<u8>,
 ) where
-    P: Into<crate::Pt<u32>>,
+    P: Point<u32>,
 {
     if width == 0 {
         // todo: diagonal_line_alpha()
         return;
     }
-
-    let mut a = a.into();
-    let mut b = b.into();
 
     if a.x() > b.x() {
         std::mem::swap(&mut a, &mut b);

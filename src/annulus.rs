@@ -1,4 +1,5 @@
 mod translate;
+use crate::pt::Point;
 use crate::{angle, Pos, Pt};
 
 /// Draws a partial annulus (filled donut).
@@ -15,7 +16,7 @@ pub fn annulus<A, C, I>(
     color: I::Pixel,
 ) where
     A: crate::Angle,
-    C: Into<Pt<i32>>,
+    C: Point<i32>,
     I: image::GenericImage,
 {
     Annulus::new(
@@ -23,7 +24,7 @@ pub fn annulus<A, C, I>(
         end_angle,
         inner_radius,
         outer_radius,
-        center.into(),
+        center.pt(),
     )
     .draw(image, color);
 }

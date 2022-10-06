@@ -1,13 +1,13 @@
+use crate::pt::Point;
 use image::GenericImage;
 
-pub fn horizontal_dashed_line<I: GenericImage>(
-    image: &mut I,
-    y: u32,
-    mut x0: u32,
-    mut x1: u32,
-    width: u32,
-    color: I::Pixel,
-) {
+pub fn horizontal_dashed_line<I, P>(image: &mut I, pt: P, mut x1: u32, width: u32, color: I::Pixel)
+where
+    I: GenericImage,
+    P: Point<u32>,
+{
+    let (mut x0, y) = pt.tuple();
+
     if x0 > x1 {
         std::mem::swap(&mut x0, &mut x1);
     }
@@ -30,14 +30,13 @@ pub fn horizontal_dashed_line<I: GenericImage>(
     }
 }
 
-pub fn vertical_dashed_line<I: GenericImage>(
-    image: &mut I,
-    x: u32,
-    mut y0: u32,
-    mut y1: u32,
-    width: u32,
-    color: I::Pixel,
-) {
+pub fn vertical_dashed_line<I, P>(image: &mut I, pt: P, mut y1: u32, width: u32, color: I::Pixel)
+where
+    I: GenericImage,
+    P: Point<u32>,
+{
+    let (x, mut y0) = pt.tuple();
+
     if y0 > y1 {
         std::mem::swap(&mut y0, &mut y1);
     }
@@ -60,20 +59,15 @@ pub fn vertical_dashed_line<I: GenericImage>(
     }
 }
 
-pub fn diagonal_dashed_line<I: GenericImage, P: Into<crate::Pt<u32>>>(
-    image: &mut I,
-    a: P,
-    b: P,
-    width: u32,
-    color: I::Pixel,
-) {
+pub fn diagonal_dashed_line<I, P>(image: &mut I, mut a: P, mut b: P, width: u32, color: I::Pixel)
+where
+    I: GenericImage,
+    P: Point<u32>,
+{
     if width == 0 {
         crate::diagonal_line(image, a, b, color);
         return;
     }
-
-    let mut a = a.into();
-    let mut b = b.into();
 
     if a.x() > b.x() {
         std::mem::swap(&mut a, &mut b);

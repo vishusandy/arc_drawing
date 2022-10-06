@@ -15,9 +15,9 @@ pub fn antialiased_arc<A, C, I>(
     color: image::Rgba<u8>,
 ) where
     A: crate::Angle,
-    C: Into<Pt<f64>>,
+    C: crate::pt::Point<f64>,
 {
-    AAArc::new(start_angle, end_angle, radius, center.into()).draw(image, color);
+    AAArc::new(start_angle, end_angle, radius, center.pt()).draw(image, color);
 }
 
 #[derive(Clone, Debug)]

@@ -14,8 +14,7 @@ fn bench_basic_vertical_line(c: &mut Criterion) {
             |mut image| {
                 vertical_line(
                     &mut image,
-                    IMG_SIZE / 2,
-                    0,
+                    (IMG_SIZE / 2, 0),
                     IMG_SIZE,
                     image::Rgba([255, 0, 0, 255]),
                 );
@@ -32,8 +31,7 @@ fn bench_basic_horizontal_line(c: &mut Criterion) {
             |mut image| {
                 horizontal_line(
                     &mut image,
-                    IMG_SIZE / 2,
-                    0,
+                    (0, IMG_SIZE / 2),
                     IMG_SIZE,
                     image::Rgba([255, 0, 0, 255]),
                 );
@@ -68,8 +66,7 @@ fn bench_basic_horizontal_dashed(c: &mut Criterion) {
             |mut image| {
                 horizontal_dashed_line(
                     &mut image,
-                    IMG_SIZE / 2,
-                    0,
+                    (0, IMG_SIZE / 2),
                     10,
                     IMG_SIZE,
                     image::Rgba([255, 0, 0, 255]),
@@ -87,8 +84,7 @@ fn bench_basic_vertical_dashed(c: &mut Criterion) {
             |mut image| {
                 vertical_dashed_line(
                     &mut image,
-                    IMG_SIZE / 2,
-                    0,
+                    (IMG_SIZE / 2, 0),
                     10,
                     IMG_SIZE,
                     image::Rgba([255, 0, 0, 255]),

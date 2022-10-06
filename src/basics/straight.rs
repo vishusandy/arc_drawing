@@ -1,31 +1,36 @@
+use crate::pt::Point;
 use image::GenericImage;
 
-pub fn horizontal_line<I: GenericImage>(image: &mut I, y: u32, x0: u32, x1: u32, color: I::Pixel) {
-    if y < image.height() {
-        (x0.min(image.width() - 1)..=x1.min(image.width() - 1))
+pub fn horizontal_line<I, P>(image: &mut I, pt: P, x1: u32, color: I::Pixel)
+where
+    I: GenericImage,
+    P: Point<u32>,
+{
+    if pt.y() < image.height() {
+        (pt.x().min(image.width() - 1)..=x1.min(image.width() - 1))
             // This is safe due to the min() calls above
-            .for_each(|x| unsafe { image.unsafe_put_pixel(x, y, color) });
+            .for_each(|x| unsafe { image.unsafe_put_pixel(x, pt.y(), color) });
     }
 }
 
-pub fn vertical_line<I: GenericImage>(image: &mut I, x: u32, y0: u32, y1: u32, color: I::Pixel) {
-    if x < image.width() {
-        (y0.min(image.height() - 1)..=y1.min(image.height() - 1))
+pub fn vertical_line<I, P>(image: &mut I, pt: P, y1: u32, color: I::Pixel)
+where
+    I: GenericImage,
+    P: Point<u32>,
+{
+    if pt.x() < image.width() {
+        (pt.y().min(image.height() - 1)..=y1.min(image.height() - 1))
             // This is safe due to the min() calls above
-            .for_each(|y| unsafe { image.unsafe_put_pixel(x, y, color) });
+            .for_each(|y| unsafe { image.unsafe_put_pixel(pt.x(), y, color) });
     }
 }
 
 /// Draws a straight diagonal line between two points.
-pub fn diagonal_line<I: GenericImage, P: Into<crate::Pt<u32>>>(
-    image: &mut I,
-    a: P,
-    b: P,
-    color: I::Pixel,
-) {
-    let mut a = a.into();
-    let mut b = b.into();
-
+pub fn diagonal_line<I, P>(image: &mut I, mut a: P, mut b: P, color: I::Pixel)
+where
+    I: GenericImage,
+    P: Point<u32>,
+{
     if a.x() > b.x() {
         std::mem::swap(&mut a, &mut b);
     }

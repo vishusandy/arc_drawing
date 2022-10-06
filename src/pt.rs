@@ -1,3 +1,38 @@
+pub trait Point<T> {
+    fn pt(&self) -> Pt<T> {
+        Pt::new(self.x(), self.y())
+    }
+    fn tuple(&self) -> (T, T) {
+        (self.x(), self.y())
+    }
+    fn x(&self) -> T;
+    fn y(&self) -> T;
+}
+
+impl<T> Point<T> for (T, T)
+where
+    T: Copy,
+{
+    fn x(&self) -> T {
+        self.0
+    }
+    fn y(&self) -> T {
+        self.1
+    }
+}
+
+impl<T> Point<T> for Pt<T>
+where
+    T: Copy,
+{
+    fn x(&self) -> T {
+        self.x()
+    }
+    fn y(&self) -> T {
+        self.y()
+    }
+}
+
 #[derive(Clone, Debug)]
 pub struct Pt<T> {
     pub x: T,
@@ -103,14 +138,11 @@ impl<T> Pt<T> {
     where
         T: Copy + std::ops::Sub<Output = T> + std::ops::Neg<Output = T> + std::fmt::Debug,
     {
-        #[cfg(test)]
-        log::debug!("Quad to iter: {:?}", self);
         let x = self.x - c.x();
         let y = self.y - c.y();
         match quad {
             1 => Pt::new(-y, x),
             2 => Pt::new(-x, -y),
-            // 3 => Pt::new(-x, y),
             3 => Pt::new(y, -x),
             4 => Pt::new(x, y),
             _ => panic!("invalid quadrant"),
