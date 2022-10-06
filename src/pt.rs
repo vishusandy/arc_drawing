@@ -98,6 +98,7 @@ impl<T> Pt<T> {
             _ => panic!("invalid quadrant"),
         }
     }
+
     pub(crate) fn quad_to_iter(&self, quad: u8, c: Pt<T>) -> Self
     where
         T: Copy + std::ops::Sub<Output = T> + std::ops::Neg<Output = T> + std::fmt::Debug,
@@ -134,6 +135,7 @@ impl Pt<f64> {
             y: self.y.round() as i32,
         }
     }
+
     #[allow(dead_code)]
     pub fn u32(&self) -> Pt<u32> {
         Pt {
@@ -165,6 +167,17 @@ impl Pt<i32> {
             y: self.y as u32,
         }
     }
+
+    pub fn abs_u32(&self) -> Pt<u32> {
+        Pt {
+            x: self.x.unsigned_abs(),
+            y: self.y.unsigned_abs(),
+        }
+    }
+
+    pub fn is_negative(&self) -> bool {
+        self.x.is_negative() | self.y.is_negative()
+    }
 }
 
 impl Pt<u32> {
@@ -174,12 +187,14 @@ impl Pt<u32> {
             y: self.y as i32,
         }
     }
+
     pub fn f32(&self) -> Pt<f32> {
         Pt {
             x: self.x as f32,
             y: self.y as f32,
         }
     }
+
     pub fn f64(&self) -> Pt<f64> {
         Pt {
             x: self.x as f64,
@@ -208,6 +223,7 @@ impl From<Pt<i32>> for Pt<f64> {
         }
     }
 }
+
 impl From<Pt<u32>> for Pt<i32> {
     fn from(pt: Pt<u32>) -> Self {
         Self {
@@ -216,6 +232,7 @@ impl From<Pt<u32>> for Pt<i32> {
         }
     }
 }
+
 impl From<Pt<u32>> for Pt<f32> {
     fn from(pt: Pt<u32>) -> Self {
         Self {
@@ -224,6 +241,7 @@ impl From<Pt<u32>> for Pt<f32> {
         }
     }
 }
+
 impl From<Pt<f64>> for Pt<i32> {
     fn from(pt: Pt<f64>) -> Self {
         Self {

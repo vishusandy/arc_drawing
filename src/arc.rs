@@ -43,10 +43,15 @@ impl Arc {
     }
 
     pub fn new(mut start: f64, mut end: f64, radius: i32, center: Pt<i32>) -> Self {
+        if radius.is_negative() {
+            panic!("Radius cannot be negative");
+        }
+
         Self::check_angles(&mut start, &mut end);
         let loc = Loc::new(radius, center);
         let start_oct = translate::angle_octant(start);
         let end_oct = translate::angle_octant(end);
+
         let (x, y, d) = if start_oct % 2 == 0 {
             if start_oct == end_oct {
                 Self::calc_start(end, &loc, start_oct)
@@ -56,11 +61,13 @@ impl Arc {
         } else {
             Self::calc_start(start, &loc, start_oct)
         };
+
         let Pt { x: ex, y: _ } = if start_oct % 2 == 0 {
             Self::calc_end_x(start, &loc, start_oct)
         } else {
             Self::calc_end_x(end, &loc, end_oct)
         };
+
         Self {
             loc,
             end_angle: end,

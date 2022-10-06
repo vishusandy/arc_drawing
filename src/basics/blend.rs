@@ -36,6 +36,7 @@ pub fn blend_at(
     opac: f32,
 ) -> bool {
     if x < image.width() && y < image.height() && opac >= 0.0 && opac <= 1.0 {
+        // this is safe because of the bounds checks
         unsafe {
             blend_at_unchecked(image, x, y, color, opac);
         }

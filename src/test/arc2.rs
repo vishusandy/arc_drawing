@@ -14,6 +14,7 @@
 #[cfg(test)]
 mod tests {
     #[test]
+    #[ignore]
     fn quad_test() -> Result<(), image::ImageError> {
         let mut image = crate::setup(crate::RADIUS);
 

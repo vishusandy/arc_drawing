@@ -16,6 +16,7 @@ struct Edge {
     slope: f64,
     int: i32, // intercept
 }
+
 impl Edge {
     fn blank(angle: f64) -> Self {
         Self {
@@ -51,6 +52,7 @@ pub struct Annulus {
     x: i32,
     c: Pt<i32>,
 }
+
 impl Annulus {
     pub fn new<T>(start_angle: T, end_angle: T, mut ri: i32, mut ro: i32, c: Pt<i32>) -> Self
     where
@@ -125,6 +127,9 @@ impl Annulus {
     }
 
     fn check_radii(a: &mut i32, b: &mut i32) {
+        if a.is_negative() | b.is_negative() {
+            panic!("Radii must not be negative");
+        }
         if a > b {
             std::mem::swap(a, b);
         }
@@ -223,7 +228,7 @@ mod tests {
     use crate::RADS;
     #[test]
     fn annulus() -> Result<(), image::ImageError> {
-        crate::logger(log::LevelFilter::Debug);
+        crate::logger(crate::LOG_LEVEL);
         let mut image = crate::setup(crate::RADIUS);
 
         let ri = crate::RADIUS - 40;
@@ -241,13 +246,11 @@ mod tests {
 
         let mut an: Annulus = Annulus::new(start, end, ri, ro, center);
         let oct = an.cur_start.oct;
-        log::info!("Annulus: {:#?}", an);
 
         let is = an.inner_start().iter_to_real(oct, crate::CENTER.into());
         let os = an.outer_start().iter_to_real(oct, crate::CENTER.into());
 
         an.draw(&mut image, image::Rgba([255, 0, 0, 255]));
-        // debug!("{:#?}", an);
 
         if log::log_enabled!(log::Level::Trace) {
             image.put_pixel(

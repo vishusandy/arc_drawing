@@ -18,9 +18,10 @@ pub use basics::{
 };
 pub use pt::Pt;
 
-// STATUS
-//  arc::Arc could use a lot of love, or a rewrite
-// need to review u32 <-> i32 casts for safety
+// TODO:
+// add dashed_diagonal_line_alpha
+// add vertical/horizontal/diagonal_line_alpha (non-dashed variants)
+// add diagonal lines and alpha lines to benchmarks
 
 #[cfg(test)]
 const LOG_LEVEL: log::LevelFilter = log::LevelFilter::Warn;
@@ -50,10 +51,10 @@ use angle::Angle;
 #[cfg(test)]
 pub(crate) use test::img::{guidelines, setup};
 
-pub fn draw_iter<T: Iterator<Item = (i32, i32)>>(
-    image: &mut image::RgbaImage,
+pub fn draw_iter<I: image::GenericImage, T: Iterator<Item = (i32, i32)>>(
+    image: &mut I,
     iter: T,
-    color: image::Rgba<u8>,
+    color: I::Pixel,
 ) {
     for (x, y) in iter {
         image.put_pixel(x as u32, y as u32, color);

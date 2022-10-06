@@ -6,7 +6,7 @@ It provides the following features for drawing:
 - circular arcs
 - partial annulii - basically a part of a filled donut
 - antialiased circular arcs
-- straight vertical and horizontal lines, with variants for dashed lines
+- straight vertical, horizontal, and diagonal lines, with variants for dashed lines
 
 
 ## Performance

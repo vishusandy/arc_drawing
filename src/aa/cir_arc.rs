@@ -241,7 +241,7 @@ mod tests {
     #[test]
     fn aa_partial_iter() -> Result<(), image::ImageError> {
         use crate::RADS;
-        crate::logger(log::LevelFilter::Info);
+        crate::logger(crate::LOG_LEVEL);
         let mut image = crate::guidelines();
 
         let start = RADS * 5.8;
@@ -258,7 +258,7 @@ mod tests {
     #[test]
     fn aa_partial_draw() -> Result<(), image::ImageError> {
         use crate::RADS;
-        crate::logger(log::LevelFilter::Info);
+        crate::logger(crate::LOG_LEVEL);
         let mut image = crate::test::img::blank(Pt::new(crate::IMG_SIZE, crate::IMG_SIZE));
 
         let start = RADS * 0.0;

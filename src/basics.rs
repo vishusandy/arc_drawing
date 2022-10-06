@@ -5,6 +5,7 @@ use image::{GenericImage, Rgba, RgbaImage};
 pub fn horizontal_line<I: GenericImage>(image: &mut I, y: u32, x0: u32, x1: u32, color: I::Pixel) {
     if y < image.height() {
         (x0.min(image.width() - 1)..=x1.min(image.width() - 1))
+            // This is safe due to the min() calls above
             .for_each(|x| unsafe { image.unsafe_put_pixel(x, y, color) });
     }
 }
@@ -12,6 +13,7 @@ pub fn horizontal_line<I: GenericImage>(image: &mut I, y: u32, x0: u32, x1: u32,
 pub fn vertical_line<I: GenericImage>(image: &mut I, x: u32, y0: u32, y1: u32, color: I::Pixel) {
     if x < image.width() {
         (y0.min(image.height() - 1)..=y1.min(image.height() - 1))
+            // This is safe due to the min() calls above
             .for_each(|y| unsafe { image.unsafe_put_pixel(x, y, color) });
     }
 }
@@ -37,9 +39,11 @@ pub fn diagonal_line<I: GenericImage>(
 
     if y0 < y1 {
         let dist = (x1 - x0).min(y1 - y0);
+        // This is safe due to the min calls above
         (0..=dist).for_each(|i| unsafe { image.unsafe_put_pixel(x0 + i, y0 + i, color) });
     } else {
         let dist = (x1 - x0).min(y0 - y1);
+        // This is safe due to the min calls above
         (0..=dist).for_each(|i| unsafe { image.unsafe_put_pixel(x0 + i, y0 - i, color) });
     }
 }
@@ -65,6 +69,7 @@ pub fn horizontal_dashed_line<I: GenericImage>(
     let mut i = 0;
 
     while x < x1 {
+        // This is safe due to the min calls above
         unsafe {
             image.unsafe_put_pixel(x, y, color);
         }
@@ -94,6 +99,7 @@ pub fn vertical_dashed_line<I: GenericImage>(
     let mut i = 0;
 
     while y < y1 {
+        // This is safe due to the min calls above
         unsafe {
             image.unsafe_put_pixel(x, y, color);
         }
@@ -130,6 +136,7 @@ pub fn diagonal_dashed_line<I: GenericImage>(
     if y0 < y1 {
         let dist = (x1 - x0).min(y1 - y0);
         while i <= dist {
+            // This is safe due to the min calls above
             unsafe {
                 image.unsafe_put_pixel(x0 + i, y0 + i, color);
             }
@@ -140,6 +147,7 @@ pub fn diagonal_dashed_line<I: GenericImage>(
     } else {
         let dist = (x1 - x0).min(y0 - y1);
         while i <= dist {
+            // This is safe due to the min calls above
             unsafe {
                 image.unsafe_put_pixel(x0 + i, y0 - i, color);
             }
@@ -172,6 +180,7 @@ pub fn vertical_dashed_line_alpha(
     let mut i = 0;
     while y < y1 {
         let (r, g, b) = (color[0], color[1], color[2]);
+        // This is safe due to the min calls above
         unsafe {
             blend_at_unchecked(image, x, y, Rgba([r, g, b, 255]), opacity as f32);
         }
@@ -202,6 +211,7 @@ pub fn horizontal_dashed_line_alpha(
 
     while x < x1 {
         let (r, g, b) = (color[0], color[1], color[2]);
+        // This is safe due to the min calls above
         unsafe {
             blend_at_unchecked(image, x, y, Rgba([r, g, b, 255]), opacity as f32);
         }

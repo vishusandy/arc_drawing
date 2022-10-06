@@ -32,18 +32,25 @@ impl<T> AAPt<T> {
 
 impl AAPt<i32> {
     fn draw(&self, image: &mut image::RgbaImage, color: image::Rgba<u8>) {
+        if self.a.is_negative() | self.b.is_negative() {
+            return;
+        }
+
         let (width, height) = image.dimensions();
-        let a = self.a.u32(); // i32 to u32 - negatives wrap around to become large numbers
+        let a = self.a.u32();
         let b = self.b.u32();
 
         if (a.x < width) & (a.y < height) {
             // This is safe because the coordinates have already been checked against the width and height
+            // Invalid opacity values are safe, they just may produce weird blending
             unsafe {
                 blend_at_unchecked(image, a.x(), a.y(), color, self.db as f32);
             }
         }
+
         if (b.x < width) & (b.y < height) {
             // This is safe because the coordinates have already been checked against the width and height
+            // Invalid opacity values are safe, they just may produce weird blending
             unsafe {
                 blend_at_unchecked(image, b.x(), b.y(), color, self.da as f32);
             }

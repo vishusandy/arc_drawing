@@ -100,7 +100,7 @@ mod tests {
     use super::*;
     #[test]
     fn ellipse() -> Result<(), image::ImageError> {
-        crate::logger(log::LevelFilter::Debug);
+        crate::logger(crate::LOG_LEVEL);
         let xr = 70.0;
         let yr = 50.0;
         let c = Pt::new(200.0, 200.0);
