@@ -44,7 +44,7 @@ impl AAPt<i32> {
             // This is safe because the coordinates have already been checked against the width and height
             // Invalid opacity values are safe, they just may produce weird blending
             unsafe {
-                blend_at_unchecked(image, a.x(), a.y(), color, self.db as f32);
+                blend_at_unchecked(image, a.x(), a.y(), self.db as f32, color);
             }
         }
 
@@ -52,7 +52,7 @@ impl AAPt<i32> {
             // This is safe because the coordinates have already been checked against the width and height
             // Invalid opacity values are safe, they just may produce weird blending
             unsafe {
-                blend_at_unchecked(image, b.x(), b.y(), color, self.da as f32);
+                blend_at_unchecked(image, b.x(), b.y(), self.da as f32, color);
             }
         }
     }

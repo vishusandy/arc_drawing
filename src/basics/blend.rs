@@ -11,8 +11,8 @@ pub unsafe fn blend_at_unchecked(
     image: &mut image::RgbaImage,
     x: u32,
     y: u32,
-    color: image::Rgba<u8>,
     opac: f32,
+    color: image::Rgba<u8>,
 ) {
     use image::Pixel;
     // https://stackoverflow.com/questions/7438263/alpha-compositing-algorithm-blend-modes#answer-11163848
@@ -40,7 +40,7 @@ pub fn blend_at(
     if x < image.width() && y < image.height() && opac >= 0.0 && opac <= 1.0 {
         // this is safe because of the bounds checks
         unsafe {
-            blend_at_unchecked(image, x, y, color, opac);
+            blend_at_unchecked(image, x, y, opac, color);
         }
         true
     } else {

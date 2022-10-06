@@ -17,23 +17,23 @@ pub fn vertical_line<I: GenericImage>(image: &mut I, x: u32, y0: u32, y1: u32, c
 }
 
 /// Draws a straight diagonal line between two points.
-pub fn diagonal_line<I: GenericImage>(
+pub fn diagonal_line<I: GenericImage, P: Into<crate::Pt<u32>>>(
     image: &mut I,
-    mut x0: u32,
-    mut y0: u32,
-    mut x1: u32,
-    mut y1: u32,
+    a: P,
+    b: P,
     color: I::Pixel,
 ) {
-    if x0 > x1 {
-        std::mem::swap(&mut x0, &mut x1);
-        std::mem::swap(&mut y0, &mut y1);
+    let mut a = a.into();
+    let mut b = b.into();
+
+    if a.x() > b.x() {
+        std::mem::swap(&mut a, &mut b);
     }
 
-    let x0 = x0.min(image.width() - 1);
-    let y0 = y0.min(image.height() - 1);
-    let x1 = x1.min(image.width() - 1);
-    let y1 = y1.min(image.height() - 1);
+    let x0 = a.x().min(image.width() - 1);
+    let y0 = a.y().min(image.height() - 1);
+    let x1 = b.x().min(image.width() - 1);
+    let y1 = b.y().min(image.height() - 1);
 
     if y0 < y1 {
         let dist = (x1 - x0).min(y1 - y0);

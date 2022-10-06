@@ -12,7 +12,7 @@ pub fn horizontal_dashed_line<I: GenericImage>(
         std::mem::swap(&mut x0, &mut x1);
     }
 
-    if (width == 0) || (y >= image.height() || (x0 >= image.width())) {
+    if (width == 0) | (y >= image.height()) | (x0 >= image.width()) {
         return;
     }
 
@@ -60,29 +60,29 @@ pub fn vertical_dashed_line<I: GenericImage>(
     }
 }
 
-pub fn diagonal_dashed_line<I: GenericImage>(
+pub fn diagonal_dashed_line<I: GenericImage, P: Into<crate::Pt<u32>>>(
     image: &mut I,
-    mut x0: u32,
-    mut y0: u32,
-    mut x1: u32,
-    mut y1: u32,
+    a: P,
+    b: P,
     width: u32,
     color: I::Pixel,
 ) {
     if width == 0 {
-        crate::diagonal_line(image, x0, y0, x1, y1, color);
+        crate::diagonal_line(image, a, b, color);
         return;
     }
 
-    if x0 > x1 {
-        std::mem::swap(&mut x0, &mut x1);
-        std::mem::swap(&mut y0, &mut y1);
+    let mut a = a.into();
+    let mut b = b.into();
+
+    if a.x() > b.x() {
+        std::mem::swap(&mut a, &mut b);
     }
 
-    let x0 = x0.min(image.width() - 1);
-    let y0 = y0.min(image.height() - 1);
-    let x1 = x1.min(image.width() - 1);
-    let y1 = y1.min(image.height() - 1);
+    let x0 = a.x().min(image.width() - 1);
+    let y0 = a.y().min(image.height() - 1);
+    let x1 = b.x().min(image.width() - 1);
+    let y1 = b.y().min(image.height() - 1);
     let mut i = 0;
 
     if y0 < y1 {

@@ -10,7 +10,10 @@ mod test;
 pub use aa::cir_arc::{antialiased_arc, AAArc};
 pub use annulus::{annulus, Annulus};
 pub use arc::{arc, Arc};
-pub use basics::alpha::{horizontal_dashed_line_alpha, vertical_dashed_line_alpha};
+pub use basics::alpha::{
+    diagonal_dashed_line_alpha, diagonal_line_alpha, horizontal_dashed_line_alpha,
+    horizontal_line_alpha, vertical_dashed_line_alpha, vertical_line_alpha,
+};
 pub use basics::blend::{blend_at, blend_at_unchecked};
 pub use basics::dashed::{diagonal_dashed_line, horizontal_dashed_line, vertical_dashed_line};
 pub use basics::shapes::rectangle_filled;

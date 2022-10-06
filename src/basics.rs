@@ -10,7 +10,6 @@ mod tests {
     use image::Rgba;
 
     #[test]
-    // #[ignore = "Image drawing test - requires manual validation; also this test won't change often"]
     fn basic_drawing() -> Result<(), image::ImageError> {
         crate::logger(crate::LOG_LEVEL);
         let height = 400;
@@ -34,14 +33,41 @@ mod tests {
             Rgba([255, 0, 0, 255]),
         );
 
-        crate::diagonal_line(&mut image, 200, 200, 400, 0, Rgba([255, 98, 0, 255]));
-        crate::diagonal_line(&mut image, 200, 200, 0, 0, Rgba([255, 98, 0, 255]));
-        crate::diagonal_line(&mut image, 200, 200, 400, 400, Rgba([255, 98, 0, 255]));
-        crate::diagonal_line(&mut image, 200, 200, 0, 500, Rgba([255, 98, 0, 255]));
+        crate::diagonal_line(&mut image, (200, 200), (400, 0), Rgba([255, 98, 0, 255]));
+        crate::diagonal_line(&mut image, (200, 200), (0, 0), Rgba([255, 98, 0, 255]));
+        crate::diagonal_line(&mut image, (200, 200), (400, 400), Rgba([255, 98, 0, 255]));
+        crate::diagonal_line(&mut image, (200, 200), (0, 500), Rgba([255, 98, 0, 255]));
 
-        crate::diagonal_dashed_line(&mut image, 0, 100, 300, 400, 2, Rgba([255, 210, 181, 255]));
-        crate::diagonal_dashed_line(&mut image, 0, 100, 300, 400, 100, Rgba([255, 98, 0, 255]));
-        crate::diagonal_dashed_line(&mut image, 400, 50, 50, 400, 2, Rgba([255, 210, 181, 255]));
+        crate::diagonal_dashed_line(
+            &mut image,
+            (0, 100),
+            (300, 400),
+            2,
+            Rgba([255, 210, 181, 255]),
+        );
+        crate::diagonal_dashed_line(
+            &mut image,
+            (0, 100),
+            (300, 400),
+            100,
+            Rgba([255, 98, 0, 255]),
+        );
+        crate::diagonal_dashed_line(
+            &mut image,
+            (400, 50),
+            (50, 400),
+            2,
+            Rgba([255, 210, 181, 255]),
+        );
+
+        crate::diagonal_dashed_line_alpha(
+            &mut image,
+            (0, 50),
+            (350, 400),
+            2,
+            0.3,
+            Rgba([255, 192, 0, 255]),
+        );
 
         image.save("images/basic_drawing.png")
     }
