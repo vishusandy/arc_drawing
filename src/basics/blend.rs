@@ -72,3 +72,21 @@ fn rgb_float(c: &[u8], o: f32) -> [f32; 4] {
         o,
     ]
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn safe_blend() {
+        let color = image::Rgba([255, 0, 0, 255]);
+        let mut image = image::RgbaImage::from_pixel(1, 1, image::Rgba([255, 255, 255, 255]));
+        assert!(blend_at(&mut image, 0, 0, color, 0.5));
+        assert_eq!(*image.get_pixel(0, 0), image::Rgba([255, 127, 127, 255]));
+        assert!(!blend_at(&mut image, 2, 0, color, 0.5));
+        assert!(!blend_at(&mut image, 0, 2, color, 0.5));
+        assert!(!blend_at(&mut image, 2, 2, color, 0.5));
+        assert!(!blend_at(&mut image, 0, 0, color, 1.1));
+        assert!(!blend_at(&mut image, 0, 0, color, -1.1));
+    }
+}

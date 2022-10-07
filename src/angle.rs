@@ -33,6 +33,14 @@ pub trait Angle {
         self.f64().to_radians()
     }
 }
+impl Angle for f32 {
+    fn f64(&self) -> f64 {
+        *self as f64
+    }
+    fn radians(&self) -> f64 {
+        *self as f64
+    }
+}
 
 impl Angle for f64 {
     fn f64(&self) -> f64 {
@@ -64,5 +72,19 @@ impl Angle for usize {
 impl Angle for u64 {
     fn f64(&self) -> f64 {
         (self % 360) as f64
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    const RADS_F32: f32 = std::f32::consts::PI / 4.0;
+    #[test]
+    fn angles() {
+        assert_eq!(180u16.radians(), 4.0 * RADS);
+        assert_eq!(180u32.radians(), 4.0 * RADS);
+        assert_eq!(180u64.radians(), 4.0 * RADS);
+        assert_eq!(180usize.radians(), 4.0 * RADS);
+        assert!(((4.0f32 * RADS_F32).radians() - 4.0 * RADS) <= std::f32::EPSILON as f64);
     }
 }

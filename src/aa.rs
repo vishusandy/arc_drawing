@@ -31,10 +31,6 @@ impl<T> AAPt<T> {
 
 impl AAPt<i32> {
     fn draw(&self, image: &mut image::RgbaImage, color: image::Rgba<u8>) {
-        if self.a.is_negative() | self.b.is_negative() {
-            return;
-        }
-
         let (width, height) = image.dimensions();
         let a = self.a.u32();
         let b = self.b.u32();

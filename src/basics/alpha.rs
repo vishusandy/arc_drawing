@@ -60,7 +60,7 @@ pub fn diagonal_line_alpha<P>(
         let dist = (x1 - x0).min(y0 - y1);
         // This is safe due to the min calls above
         (0..=dist)
-            .for_each(|i| unsafe { blend_at_unchecked(image, x0 + i, y0 + i, opacity, color) });
+            .for_each(|i| unsafe { blend_at_unchecked(image, x0 + i, y0 - i, opacity, color) });
     }
 }
 
@@ -160,7 +160,12 @@ pub fn diagonal_dashed_line_alpha<P>(
     let y1 = b.y().min(image.height() - 1);
     let mut i = 0;
 
+    #[cfg(test)]
+    log::debug!("x0={} y0={} x1={} y1={}", x0, y0, x1, y1);
+
     if y0 < y1 {
+        #[cfg(test)]
+        log::debug!("y0 smaller than y1");
         let dist = (x1 - x0).min(y1 - y0);
         while i <= dist {
             // This is safe due to the min calls above
@@ -173,7 +178,11 @@ pub fn diagonal_dashed_line_alpha<P>(
         }
     } else {
         let dist = (x1 - x0).min(y0 - y1);
+        #[cfg(test)]
+        log::debug!("y0 larger than y1.  dist={}", dist);
         while i <= dist {
+            #[cfg(test)]
+            log::debug!("i={}", i);
             // This is safe due to the min calls above
             unsafe {
                 blend_at_unchecked(image, x0 + i, y0 - i, opacity, color);
@@ -232,6 +241,22 @@ mod tests {
         &*vec![image::Rgba([255, 127, 127, 255]); 6]
     );
     test_pixel_colors!(
+        diagonal_line_alpha_swap,
+        diagonal_line_alpha((6, 6), (0, 0), 0.5),
+        6,
+        image::Rgba([255, 0, 0, 255]),
+        &*vec![(0, 0), (1, 1), (2, 2), (3, 3), (4, 4), (5, 5)],
+        &*vec![image::Rgba([255, 127, 127, 255]); 6]
+    );
+    test_pixel_colors!(
+        diagonal_line_alpha_upwards,
+        diagonal_line_alpha((6, 0), (0, 6), 0.5),
+        6,
+        image::Rgba([255, 0, 0, 255]),
+        &*vec![(5, 0), (4, 1), (3, 2), (2, 3), (1, 4), (0, 5)],
+        &*vec![image::Rgba([255, 127, 127, 255]); 6]
+    );
+    test_pixel_colors!(
         diagonal_line_alpha_bounds,
         diagonal_line_alpha((20, 20), (10, 10), 0.5),
         6,
@@ -243,6 +268,14 @@ mod tests {
     test_pixel_colors!(
         horizontal_dashed_line_alpha_1px,
         horizontal_dashed_line_alpha((0, 0), 10, 1, 0.5),
+        6,
+        image::Rgba([255, 0, 0, 255]),
+        &*vec![(0, 0), (2, 0), (4, 0)],
+        &*vec![image::Rgba([255, 127, 127, 255]); 6]
+    );
+    test_pixel_colors!(
+        horizontal_dashed_line_alpha_swap_1px,
+        horizontal_dashed_line_alpha((10, 0), 0, 1, 0.5),
         6,
         image::Rgba([255, 0, 0, 255]),
         &*vec![(0, 0), (2, 0), (4, 0)],
@@ -282,6 +315,14 @@ mod tests {
         &*vec![image::Rgba([255, 127, 127, 255]); 6]
     );
     test_pixel_colors!(
+        vertical_dashed_line_alpha_swap_1px,
+        vertical_dashed_line_alpha((0, 10), 0, 1, 0.5),
+        6,
+        image::Rgba([255, 0, 0, 255]),
+        &*vec![(0, 0), (0, 2), (0, 4)],
+        &*vec![image::Rgba([255, 127, 127, 255]); 6]
+    );
+    test_pixel_colors!(
         vertical_dashed_line_alpha_2px,
         vertical_dashed_line_alpha((0, 0), 10, 2, 0.5),
         6,
@@ -308,11 +349,27 @@ mod tests {
     );
 
     test_pixel_colors!(
+        diagonal_dashed_line_alpha_0px,
+        diagonal_dashed_line_alpha((0, 0), (20, 10), 0, 0.5),
+        6,
+        image::Rgba([255, 0, 0, 255]),
+        &*vec![],
+        &*vec![image::Rgba([255, 127, 127, 255]); 6]
+    );
+    test_pixel_colors!(
         diagonal_dashed_line_alpha_1px,
         diagonal_dashed_line_alpha((0, 0), (20, 10), 1, 0.5),
         6,
         image::Rgba([255, 0, 0, 255]),
         &*vec![(0, 0), (2, 2), (4, 4)],
+        &*vec![image::Rgba([255, 127, 127, 255]); 6]
+    );
+    test_pixel_colors!(
+        diagonal_dashed_line_alpha_swap_1px,
+        diagonal_dashed_line_alpha((6, 0), (0, 6), 1, 0.5),
+        6,
+        image::Rgba([255, 0, 0, 255]),
+        &*vec![(0, 5), (2, 3), (4, 1)],
         &*vec![image::Rgba([255, 127, 127, 255]); 6]
     );
     test_pixel_colors!(

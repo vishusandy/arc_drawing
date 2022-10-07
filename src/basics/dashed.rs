@@ -137,7 +137,7 @@ mod tests {
     );
     test_pixels_changed!(
         horizontal_dashed_line_bounds,
-        horizontal_dashed_line((10, 10), 10, 2),
+        horizontal_dashed_line((20, 20), 10, 2),
         6,
         &*vec![]
     );
@@ -168,7 +168,7 @@ mod tests {
     );
     test_pixels_changed!(
         vertical_dashed_line_bounds,
-        vertical_dashed_line((10, 10), 10, 2),
+        vertical_dashed_line((20, 20), 10, 2),
         6,
         &*vec![]
     );

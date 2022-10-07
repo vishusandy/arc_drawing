@@ -188,18 +188,31 @@ impl Arc {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::{CENTER, RADIUS};
+    use image::Rgba;
 
     #[test]
     fn partial_arc() -> Result<(), image::ImageError> {
-        let mut image = crate::setup(crate::RADIUS);
+        let mut image = crate::setup(RADIUS);
         let start = RADS * 6.3;
         let end = RADS * 6.8;
-        let ro = crate::RADIUS;
-        let ri = crate::RADIUS - 10;
-        let arc = Arc::new(start, end, ro, crate::CENTER.into());
+        let ro = RADIUS;
+        let ri = RADIUS - 10;
+        let arc = Arc::new(start, end, ro, CENTER.into());
         arc.draw(&mut image, image::Rgba([255, 0, 0, 255]));
-        let arc = Arc::new(start, end, ri, crate::CENTER.into());
+        let arc = Arc::new(start, end, ri, CENTER.into());
         arc.draw(&mut image, image::Rgba([0, 255, 0, 255]));
         image.save("images/arc_partial.png")
+    }
+    #[test]
+    fn partial_arc_backwards() -> Result<(), image::ImageError> {
+        let mut image = crate::setup(RADIUS);
+        let start = RADS * 6.5;
+        let end = RADS * 0.5;
+        let ro = RADIUS;
+        let ri = RADIUS - 10;
+        arc(&mut image, start, end, ro, CENTER, Rgba([255, 0, 0, 255]));
+        arc(&mut image, start, end, ri, CENTER, Rgba([0, 255, 0, 255]));
+        image.save("images/arc_partial_backwards.png")
     }
 }
