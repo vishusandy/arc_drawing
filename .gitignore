@@ -10,3 +10,4 @@ arc_test/
 perf.data
 perf.data.old
 flamegraph.svg
+*.profraw

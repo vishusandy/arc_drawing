@@ -12,7 +12,6 @@ pub struct AAPt<T> {
 }
 impl<T> AAPt<T> {
     fn new(a: Pt<T>, b: Pt<T>, da: f64) -> Self {
-        // debug!("da={} -> db={}", da, 1.0 - da);
         Self {
             a,
             b,

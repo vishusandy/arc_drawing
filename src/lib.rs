@@ -26,7 +26,7 @@ pub use pt::Pt;
 // add diagonal lines and alpha lines to benchmarks
 
 #[cfg(test)]
-const LOG_LEVEL: log::LevelFilter = log::LevelFilter::Warn;
+const LOG_LEVEL: log::LevelFilter = log::LevelFilter::Debug;
 #[cfg(test)]
 const IMG_SIZE: u32 = 400;
 #[cfg(test)]

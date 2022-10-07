@@ -1,6 +1,9 @@
 use crate::{Pt, CENTER, IMG_SIZE, RADS, SHOW_MARKERS};
 
-pub fn blank(size: Pt<u32>) -> image::RgbaImage {
+pub fn blank<P>(size: P) -> image::RgbaImage
+where
+    P: crate::pt::Point<u32>,
+{
     image::RgbaImage::from_pixel(size.x(), size.y(), image::Rgba([255, 255, 255, 255]))
 }
 

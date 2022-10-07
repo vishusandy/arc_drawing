@@ -20,7 +20,12 @@ where
     let mut x = x0.min(image.width() - 1);
     let mut i = 0;
 
+    #[cfg(test)]
+    log::debug!("x0={} x1={} x={}", x0, x1, x);
+
     while x < x1 {
+        #[cfg(test)]
+        log::debug!("x={} i={}", x, i);
         // This is safe due to the min calls above
         unsafe {
             image.unsafe_put_pixel(x, y, color);
@@ -73,6 +78,10 @@ where
         std::mem::swap(&mut a, &mut b);
     }
 
+    if (a.x() >= image.width()) | (a.y() >= image.height()) {
+        return;
+    }
+
     let x0 = a.x().min(image.width() - 1);
     let y0 = a.y().min(image.height() - 1);
     let x1 = b.x().min(image.width() - 1);
@@ -102,4 +111,16 @@ where
             i = if i1 % width == 0 { iw } else { i1 };
         }
     }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::match_pixels_changed;
+
+    match_pixels_changed!(
+        horizontal_dashed_line,
+        horizontal_dashed_line((0, 0), 10, 2),
+        6,
+        &*vec![(0, 0), (0, 1), (0, 4), (0, 5)]
+    );
 }

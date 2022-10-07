@@ -178,22 +178,6 @@ impl Pt<f64> {
 }
 
 impl Pt<i32> {
-    #[cfg(test)]
-    #[allow(dead_code)]
-    pub(super) const fn iter_to_real(self, oct: u8, c: Pt<i32>) -> Pt<i32> {
-        match oct {
-            1 => Pt::new(self.y + c.x(), -self.x + c.y()),
-            2 => Pt::new(self.x + c.x(), -self.y + c.y()),
-            3 => Pt::new(-self.x + c.x(), -self.y + c.y()),
-            4 => Pt::new(-self.y + c.x(), -self.x + c.y()),
-            5 => Pt::new(-self.y + c.x(), self.x + c.y()),
-            6 => Pt::new(-self.x + c.x(), self.y + c.y()),
-            7 => Pt::new(self.x + c.x(), self.y + c.y()),
-            8 => Pt::new(self.y + c.x(), self.x + c.y()),
-            _ => Pt::new(self.x + c.x(), self.y + c.y()),
-        }
-    }
-
     pub fn u32(&self) -> Pt<u32> {
         Pt {
             x: self.x as u32,

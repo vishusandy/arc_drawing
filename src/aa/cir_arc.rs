@@ -53,8 +53,6 @@ impl AAArc {
         if (start - end).abs() <= std::f64::EPSILON {
             end = crate::angle::normalize(start - crate::TINY);
         }
-        #[cfg(test)]
-        log::debug!("start={:.2} end={:.2}", start, end);
         Self::arc(start, end, r, c)
     }
 
@@ -263,7 +261,6 @@ mod tests {
         let color = image::Rgba([255, 0, 0, 255]);
 
         let arc = AAArc::new(start, end, crate::RADIUS_F, crate::CENTER_F);
-        log::debug!("ARC: {:#?}", arc);
         draw(&mut image, arc, color);
 
         image.save("images/aa_partial.png")
@@ -282,7 +279,6 @@ mod tests {
         let color = image::Rgba([255, 0, 0, 255]);
 
         let arc = AAArc::new(start, end, r, c);
-        log::debug!("ARC: {:#?}", arc);
         arc.draw(&mut image, color);
 
         image.save("images/aa_partial_draw.png")

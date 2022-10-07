@@ -5,3 +5,124 @@ mod arc2;
 /// Image functions for testing
 #[cfg(test)]
 pub(crate) mod img;
+
+#[macro_export]
+macro_rules! match_pixels_changed {
+    ( $test_name:ident, $f:ident( $($a:expr),+ ), $size:literal, $m:expr ) => {
+        #[test]
+        fn $test_name() {
+            $crate::logger($crate::LOG_LEVEL);
+            let mut image = $crate::test::img::blank(($size, $size));
+            let img_name = format!("images/tests/failed_{}.png", stringify! {$f});
+            let white = image::Rgba([255, 255, 255, 255]);
+            let color = image::Rgba([255, 0, 0, 255]);
+            super::$f(&mut image, $($a),+, color);
+            let m: &[(u32, u32)] = $m;
+
+            for (x, y) in m {
+                let p = image.get_pixel_mut(*x, *y);
+                if p != &white {
+                    *p = white;
+                } else {
+                    image.save(&img_name).unwrap();
+                    eprintln!(
+                        "\nTEST FAILED\n  Test: {}\n  Expected pixel not found ({},{})\n  saving {}\n",
+                        stringify! {$test_name},
+                        x,
+                        y,
+                        &img_name
+                    );
+                    panic!(
+                        "{}: Expected pixel not found at ({}, {})",
+                        stringify! {$test_name},
+                        x,
+                        y
+                    );
+                }
+            }
+
+            for (x, y, p) in image.enumerate_pixels() {
+                if p != &white {
+                    image.save(&img_name).unwrap();
+                    eprintln!(
+                        "\nTEST FAILED\n  Test: {}\n  Unpexpected pixel found at ({},{})\n  saving {}\n",
+                        stringify! {$test_name},
+                        x,
+                        y,
+                        &img_name
+                    );
+                    panic!(
+                        "\n{}: Unexpected pixel found at ({}, {})\n",
+                        stringify! {$test_name},
+                        x,
+                        y
+                    );
+                }
+            }
+
+            let _ = std::fs::remove_file(img_name);
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! match_pixel_colors {
+    ( $test_name:ident, $f:ident( $($a:expr),+ ), $size:literal, $color:expr, $pixels:expr, $colors:expr ) => {
+        #[test]
+        fn $test_name() {
+            $crate::logger($crate::LOG_LEVEL);
+            let mut image = $crate::test::img::blank(($size, $size));
+            let img_name = format!("images/tests/failed_{}.png", stringify! {$f});
+            let white = image::Rgba([255, 255, 255, 255]);
+            let color = $color;
+            super::$f(&mut image, $($a),+, color);
+            let m: &[(u32, u32)] = $pixels;
+            let colors: &[_] = $colors;
+
+            for (i, (x, y)) in m.iter().enumerate() {
+                let p = image.get_pixel_mut(*x, *y);
+                let col = colors[i];
+                if p != &col {
+                    *p = white;
+                } else {
+                    image.save(&img_name).unwrap();
+                    eprintln!(
+                        "\nTEST FAILED\n  Test: {}\n  Expected color {:?} at ({},{})\n  saving {}\n",
+                        stringify! {$test_name},
+                        col.0,
+                        x,
+                        y,
+                        &img_name
+                    );
+                    panic!(
+                        "{}: Expected pixel not found at ({}, {})",
+                        stringify! {$test_name},
+                        x,
+                        y
+                    );
+                }
+            }
+
+            for (x, y, p) in image.enumerate_pixels() {
+                if p != &white {
+                    image.save(&img_name).unwrap();
+                    eprintln!(
+                        "\nTEST FAILED\n  Test: {}\n  Unpexpected pixel found at ({},{})\n  saving {}\n",
+                        stringify! {$test_name},
+                        x,
+                        y,
+                        &img_name
+                    );
+                    panic!(
+                        "{}: Unexpected pixel found at ({}, {})",
+                        stringify! {$test_name},
+                        x,
+                        y
+                    );
+                }
+            }
+
+            let _ = std::fs::remove_file(img_name);
+        }
+    };
+}

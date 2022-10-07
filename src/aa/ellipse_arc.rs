@@ -110,8 +110,6 @@ mod tests {
             crate::test::img::guidelines();
         // let mut image = crate::test::img::blank(Pt::new(crate::IMG_SIZE, crate::IMG_SIZE));
         let mut e = Ellipse::blank_ellipse(xr, yr, c);
-        log::debug!("{:?}", e);
-        log::debug!("45 = {}", Ellipse::ffd(xr, yr));
 
         e.draw(&mut image, color);
 
@@ -122,7 +120,6 @@ mod tests {
             (pt.y().round() + c.y()) as u32,
             image::Rgba([0, 0, 255, 255]),
         );
-        log::debug!("point for 45° = {:?}", pt);
 
         image.save("images/ellipse.png")
     }

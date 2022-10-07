@@ -35,6 +35,10 @@ where
         std::mem::swap(&mut a, &mut b);
     }
 
+    if (a.x() >= image.width()) | (a.y() >= image.height()) {
+        return;
+    }
+
     let x0 = a.x().min(image.width() - 1);
     let y0 = a.y().min(image.height() - 1);
     let x1 = b.x().min(image.width() - 1);
@@ -49,4 +53,48 @@ where
         // This is safe due to the min calls above
         (0..=dist).for_each(|i| unsafe { image.unsafe_put_pixel(x0 + i, y0 - i, color) });
     }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::match_pixels_changed;
+
+    match_pixels_changed!(
+        vertical_line,
+        vertical_line((0, 0), 10),
+        3,
+        &*vec![(0, 0), (0, 1), (0, 2)]
+    );
+    match_pixels_changed!(
+        vertical_line_bounds,
+        vertical_line((10, 10), 100),
+        3,
+        &*vec![]
+    );
+
+    match_pixels_changed!(
+        horizontal_line,
+        horizontal_line((0, 0), 10),
+        3,
+        &*vec![(0, 0), (1, 0), (2, 0)]
+    );
+    match_pixels_changed!(
+        horizontal_line_bounds,
+        horizontal_line((10, 10), 100),
+        3,
+        &*vec![]
+    );
+
+    match_pixels_changed!(
+        diagonal_line,
+        diagonal_line((0, 0), (10, 10)),
+        3,
+        &*vec![(0, 0), (1, 1), (2, 2)]
+    );
+    match_pixels_changed!(
+        diagonal_line_bounds,
+        diagonal_line((10, 10), (100, 100)),
+        3,
+        &*vec![]
+    );
 }
