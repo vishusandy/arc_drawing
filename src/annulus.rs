@@ -42,9 +42,10 @@ pub struct Annulus {
 }
 
 impl Annulus {
-    pub fn new<A>(start_angle: A, end_angle: A, mut ri: i32, mut ro: i32, c: Pt<i32>) -> Self
+    pub fn new<A, P>(start_angle: A, end_angle: A, mut ri: i32, mut ro: i32, c: P) -> Self
     where
         A: crate::Angle,
+        P: crate::pt::Point<i32>,
     {
         let start_angle = crate::angle::normalize(start_angle.radians());
         let mut end_angle = crate::angle::normalize(end_angle.radians());
@@ -62,7 +63,7 @@ impl Annulus {
             end_angle
         };
 
-        let mut a = Self::annulus(start_angle, cur_end, ri, ro, c);
+        let mut a = Self::annulus(start_angle, cur_end, ri, ro, c.pt());
         a.end = Edge::blank(end_angle);
         a
     }
@@ -125,7 +126,7 @@ impl Annulus {
     }
 
     fn next_octant(&mut self) -> bool {
-        if self.x >= self.inr.ex && self.x >= self.otr.ex {
+        if self.x > self.inr.ex && self.x > self.otr.ex {
             self.oct = self.oct % 8 + 1; // Increment octant.  Wraps around to 1 if oct == 8
             let start = angle::octant_start_angle(self.oct);
             *self = Self::annulus(start, self.end.angle, self.inr.r, self.otr.r, self.c);
@@ -136,7 +137,7 @@ impl Annulus {
     }
 
     fn end(&self) -> bool {
-        match self.oct == self.end.oct && self.x >= self.inr.ex && self.x >= self.otr.ex {
+        match self.oct == self.end.oct && self.x > self.inr.ex && self.x > self.otr.ex {
             true => self.cur_start.angle <= self.end.angle,
             false => false,
         }
@@ -146,7 +147,8 @@ impl Annulus {
         let x = self.x;
         self.x += 1;
 
-        match (self.inr.get_matching_y(x), self.otr.get_matching_y(x)) {
+        let coords = (self.inr.get_matching_y(x), self.otr.get_matching_y(x));
+        match coords {
             (Some(inr), Some(otr)) => {
                 self.inr.inc();
                 self.otr.inc();
@@ -258,7 +260,9 @@ fn calc_slope(x1: i32, y1: i32, x2: i32, y2: i32) -> f64 {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::test::color_in_image;
     use crate::RADS;
+
     #[test]
     fn annulus() -> Result<(), image::ImageError> {
         crate::logger(crate::LOG_LEVEL);
@@ -266,9 +270,9 @@ mod tests {
 
         let ri = crate::RADIUS - 40;
         let ro = crate::RADIUS;
-        let start = RADS * 1.5;
-        let end = RADS * 6.8;
-        let center = Pt::new(300, 300);
+        let start = RADS * 6.0;
+        let end = RADS * 8.0;
+        let center = Pt::new(200, 200);
 
         imageproc::drawing::draw_hollow_circle_mut(
             &mut image,
@@ -281,5 +285,24 @@ mod tests {
         an.draw(&mut image, image::Rgba([255, 0, 0, 255]));
 
         image.save("images/annulus.png")
+    }
+
+    #[test]
+    fn annulus_overwrite_circles() {
+        let mut image = crate::test::img::blank((400, 400));
+        let error = image::Rgba([0, 0, 255, 255]);
+        let color = image::Rgba([255, 0, 0, 255]);
+        let ri = 140;
+        let ro = 190;
+
+        imageproc::drawing::draw_hollow_circle_mut(&mut image, (200, 200), ri, error);
+        imageproc::drawing::draw_hollow_circle_mut(&mut image, (200, 200), ro, error);
+
+        super::annulus(&mut image, 0.0, 8.0 * RADS, ri, ro, (200, 200), color);
+
+        if let Some((x, y)) = color_in_image(&image, error) {
+            let _ = image.save("images/tests/failed_annulus_overwrite_circles.png");
+            panic!("{:?} found in image at ({}, {})", error.0, x, y);
+        }
     }
 }

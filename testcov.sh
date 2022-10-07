@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 dir=${PWD##*/}
-dir=${result:-/}
 
 export RUSTFLAGS="-Cinstrument-coverage"
 export LLVM_PROFILE_FILE="${dir}-%p-%m.profraw"

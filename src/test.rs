@@ -6,6 +6,19 @@ mod arc2;
 #[cfg(test)]
 pub(crate) mod img;
 
+pub(crate) fn color_in_image<P, C>(image: &image::ImageBuffer<P, C>, color: P) -> Option<(u32, u32)>
+where
+    P: image::Pixel + std::cmp::PartialEq,
+    C: std::ops::Deref<Target = [P::Subpixel]>,
+{
+    for (x, y, c) in image.enumerate_pixels() {
+        if *c == color {
+            return Some((x, y));
+        }
+    }
+    None
+}
+
 #[macro_export]
 macro_rules! test_pixels_changed {
     ( $test_name:ident, $f:ident( $($a:expr),+ ), $size:literal, $m:expr ) => {

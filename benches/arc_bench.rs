@@ -83,7 +83,7 @@ fn bench_partial_annulus(c: &mut Criterion) {
         b.iter_batched(
             blank,
             |mut image| {
-                let arc = freehand::Annulus::new(START, END, RADIUS - 10, RADIUS, CENTER.into());
+                let arc = freehand::Annulus::new(START, END, RADIUS - 10, RADIUS, CENTER);
                 arc.draw(&mut image, image::Rgba([255, 0, 0, 255]));
             },
             BatchSize::SmallInput,
