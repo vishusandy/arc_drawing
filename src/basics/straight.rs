@@ -35,7 +35,7 @@ where
         std::mem::swap(&mut a, &mut b);
     }
 
-    if (a.x() >= image.width()) | (a.y() >= image.height()) {
+    if a.x() >= image.width() || a.y().min(b.y()) >= image.height() {
         return;
     }
 
@@ -57,41 +57,41 @@ where
 
 #[cfg(test)]
 mod tests {
-    use crate::match_pixels_changed;
+    use crate::test_pixels_changed;
 
-    match_pixels_changed!(
+    test_pixels_changed!(
         vertical_line,
         vertical_line((0, 0), 10),
         3,
         &*vec![(0, 0), (0, 1), (0, 2)]
     );
-    match_pixels_changed!(
+    test_pixels_changed!(
         vertical_line_bounds,
         vertical_line((10, 10), 100),
         3,
         &*vec![]
     );
 
-    match_pixels_changed!(
+    test_pixels_changed!(
         horizontal_line,
         horizontal_line((0, 0), 10),
         3,
         &*vec![(0, 0), (1, 0), (2, 0)]
     );
-    match_pixels_changed!(
+    test_pixels_changed!(
         horizontal_line_bounds,
         horizontal_line((10, 10), 100),
         3,
         &*vec![]
     );
 
-    match_pixels_changed!(
+    test_pixels_changed!(
         diagonal_line,
         diagonal_line((0, 0), (10, 10)),
         3,
         &*vec![(0, 0), (1, 1), (2, 2)]
     );
-    match_pixels_changed!(
+    test_pixels_changed!(
         diagonal_line_bounds,
         diagonal_line((10, 10), (100, 100)),
         3,

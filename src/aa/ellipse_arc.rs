@@ -73,9 +73,6 @@ impl Ellipse {
             .sqrt()
             .round();
 
-        #[cfg(test)]
-        log::trace!("x={:.2} y={:.2}", self.x, y);
-
         let ret = Some(Pt::new(self.x, y));
         self.x += 1.0;
         ret

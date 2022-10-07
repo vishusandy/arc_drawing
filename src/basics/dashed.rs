@@ -20,12 +20,7 @@ where
     let mut x = x0.min(image.width() - 1);
     let mut i = 0;
 
-    #[cfg(test)]
-    log::debug!("x0={} x1={} x={}", x0, x1, x);
-
-    while x < x1 {
-        #[cfg(test)]
-        log::debug!("x={} i={}", x, i);
+    while x <= x1 {
         // This is safe due to the min calls above
         unsafe {
             image.unsafe_put_pixel(x, y, color);
@@ -54,7 +49,7 @@ where
     let mut y = y0.min(image.height() - 1);
     let mut i = 0;
 
-    while y < y1 {
+    while y <= y1 {
         // This is safe due to the min calls above
         unsafe {
             image.unsafe_put_pixel(x, y, color);
@@ -70,7 +65,6 @@ where
     P: Point<u32>,
 {
     if width == 0 {
-        crate::diagonal_line(image, a, b, color);
         return;
     }
 
@@ -78,7 +72,7 @@ where
         std::mem::swap(&mut a, &mut b);
     }
 
-    if (a.x() >= image.width()) | (a.y() >= image.height()) {
+    if a.x() >= image.width() || a.y().min(b.y()) >= image.height() {
         return;
     }
 
@@ -115,12 +109,98 @@ where
 
 #[cfg(test)]
 mod tests {
-    use crate::match_pixels_changed;
+    use crate::test_pixels_changed;
 
-    match_pixels_changed!(
-        horizontal_dashed_line,
+    test_pixels_changed!(
+        horizontal_dashed_line_0px,
+        horizontal_dashed_line((0, 0), 10, 0),
+        6,
+        &*vec![]
+    );
+    test_pixels_changed!(
+        horizontal_dashed_line_1px,
+        horizontal_dashed_line((0, 0), 10, 1),
+        6,
+        &*vec![(0, 0), (2, 0), (4, 0)]
+    );
+    test_pixels_changed!(
+        horizontal_dashed_line_2px,
         horizontal_dashed_line((0, 0), 10, 2),
         6,
+        &*vec![(0, 0), (1, 0), (4, 0), (5, 0)]
+    );
+    test_pixels_changed!(
+        horizontal_dashed_line_5px,
+        horizontal_dashed_line((0, 0), 10, 5),
+        6,
+        &*vec![(0, 0), (1, 0), (2, 0), (3, 0), (4, 0)]
+    );
+    test_pixels_changed!(
+        horizontal_dashed_line_bounds,
+        horizontal_dashed_line((10, 10), 10, 2),
+        6,
+        &*vec![]
+    );
+
+    test_pixels_changed!(
+        vertical_dashed_line_0px_width,
+        vertical_dashed_line((0, 0), 10, 0),
+        6,
+        &*vec![]
+    );
+    test_pixels_changed!(
+        vertical_dashed_line_1px,
+        vertical_dashed_line((0, 0), 10, 1),
+        6,
+        &*vec![(0, 0), (0, 2), (0, 4)]
+    );
+    test_pixels_changed!(
+        vertical_dashed_line_2px,
+        vertical_dashed_line((0, 0), 10, 2),
+        6,
         &*vec![(0, 0), (0, 1), (0, 4), (0, 5)]
+    );
+    test_pixels_changed!(
+        vertical_dashed_line_5px,
+        vertical_dashed_line((0, 0), 10, 5),
+        6,
+        &*vec![(0, 0), (0, 1), (0, 2), (0, 3), (0, 4)]
+    );
+    test_pixels_changed!(
+        vertical_dashed_line_bounds,
+        vertical_dashed_line((10, 10), 10, 2),
+        6,
+        &*vec![]
+    );
+
+    test_pixels_changed!(
+        diagonal_dashed_line_0px_width,
+        diagonal_dashed_line((0, 0), (10, 10), 0),
+        6,
+        &*vec![]
+    );
+    test_pixels_changed!(
+        diagonal_dashed_line_1px,
+        diagonal_dashed_line((0, 0), (10, 10), 1),
+        6,
+        &*vec![(0, 0), (2, 2), (4, 4)]
+    );
+    test_pixels_changed!(
+        diagonal_dashed_line_2px,
+        diagonal_dashed_line((0, 0), (10, 10), 2),
+        6,
+        &*vec![(0, 0), (1, 1), (4, 4), (5, 5)]
+    );
+    test_pixels_changed!(
+        diagonal_dashed_line_5px,
+        diagonal_dashed_line((0, 0), (10, 10), 5),
+        6,
+        &*vec![(0, 0), (1, 1), (2, 2), (3, 3), (4, 4)]
+    );
+    test_pixels_changed!(
+        diagonal_dashed_line_bounds,
+        diagonal_dashed_line((10, 10), (10, 10), 2),
+        6,
+        &*vec![]
     );
 }

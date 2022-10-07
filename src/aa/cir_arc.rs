@@ -195,8 +195,6 @@ impl Iterator for AAArc {
         if self.next_quad() {
             return self.next();
         }
-        #[cfg(test)]
-        log::trace!("x={:.2} y={:.2}", self.x, self.y);
         self.step()
     }
 }
