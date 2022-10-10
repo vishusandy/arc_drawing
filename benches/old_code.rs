@@ -1,3 +1,52 @@
+#[allow(dead_code)]
+fn midpoint_algo(
+    image: &mut image::RgbaImage,
+    r: f64,
+    c: freehand::Pt<u32>,
+) -> Result<(), image::ImageError> {
+    // let mut image = crate::test::img::blank((400, 400));
+    let mut x = 0.0f64;
+    let mut y = r as f64;
+    let mut d = 1.0 - r;
+
+    while x < y {
+        image.put_pixel(
+            x as u32 + c.x(),
+            y as u32 + c.y(),
+            image::Rgba([255, 0, 0, 255]),
+        );
+        x += 1.0;
+        if d > 0.0 {
+            y -= 1.0;
+            d += 2.0 * x - 2.0 * y + 1.0;
+        } else {
+            d += 2.0 * x + 1.0;
+        }
+    }
+
+    x = (r / std::f64::consts::SQRT_2).round();
+    y = (r / std::f64::consts::SQRT_2).round() + 0.5;
+    d = (x - 0.0) * (x - 0.0) + ((y + 0.0) * (y + 0.0)) - r * r;
+
+    while y > 0.0 {
+        image.put_pixel(
+            x as u32 + c.x(),
+            y as u32 + c.y(),
+            image::Rgba([255, 0, 0, 255]),
+        );
+        y -= 1.0;
+        // if x * x + y * y - r * r > 0.0 {
+        if d > 0.0 {
+            x += 1.0;
+            d += 2.0 * y - 2.0 * x + 1.0;
+        } else {
+            d += 2.0 * y - 1.0;
+        }
+    }
+
+    image.save("images/midpoint.png")
+}
+
 pub fn arc_midpoint(mut image: image::RgbaImage, radius: i32, c: (i32, i32)) -> image::RgbaImage {
     let r = radius as f64;
     let mut y: f64;

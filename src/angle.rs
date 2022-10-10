@@ -5,6 +5,12 @@ pub(crate) fn angle_to_octant(angle: f64) -> u8 {
     (angle / RADS).floor() as u8 + 1
 }
 
+#[allow(dead_code)]
+#[inline]
+pub(crate) fn rev_angle(angle: f64, oct: u8) -> f64 {
+    RADS - (angle - octant_start_angle(oct))
+}
+
 #[inline]
 pub(crate) fn octant_start_angle(oct: u8) -> f64 {
     (oct - 1) as f64 * RADS

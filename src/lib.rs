@@ -2,6 +2,7 @@ mod aa;
 mod angle;
 mod annulus;
 mod arc;
+mod arc3;
 mod basics;
 mod pt;
 #[cfg(test)]
@@ -10,6 +11,7 @@ mod test;
 pub use aa::cir_arc::{antialiased_arc, AAArc};
 pub use annulus::{annulus, Annulus};
 pub use arc::{arc, Arc};
+pub use arc3::Arc as Arc3;
 pub use basics::alpha::{
     diagonal_dashed_line_alpha, diagonal_line_alpha, horizontal_dashed_line_alpha,
     horizontal_line_alpha, vertical_dashed_line_alpha, vertical_line_alpha,
@@ -19,6 +21,8 @@ pub use basics::dashed::{diagonal_dashed_line, horizontal_dashed_line, vertical_
 pub use basics::shapes::rectangle_filled;
 pub use basics::straight::{diagonal_line, horizontal_line, vertical_line};
 pub use pt::Pt;
+
+pub(crate) use annulus::translate;
 
 // TODO:
 // add dashed_diagonal_line_alpha
@@ -71,57 +75,11 @@ fn rgba_array_index(img_width: u32, x: u32, y: u32) -> usize {
     (y * img_width + x) as usize * 4
 }
 
-#[derive(Clone, Debug)]
-struct Pos {
-    x: i32,
-    y: i32,
-    d: i32,  // decision parameter
-    ex: i32, // ending x coordinate
-    ey: i32, // ending y coordinate
-    r: i32,
-}
-impl Pos {
-    fn new(start: f64, end: f64, oct: u8, r: i32, c: Pt<i32>) -> Self {
-        let mut start = Pt::from_radian(start, r, c.into()).real_to_iter(oct, c.into());
-        let mut end = Pt::from_radian(end, r, c.into()).real_to_iter(oct, c.into());
-        let Pt { mut x, mut y } = start.i32();
-        let Pt {
-            x: mut ex,
-            y: mut ey,
-        } = end.i32();
-        if oct % 2 == 0 {
-            std::mem::swap(&mut start, &mut end);
-            std::mem::swap(&mut x, &mut ex);
-            std::mem::swap(&mut y, &mut ey);
-        }
-        let d: i32 = ((start.x().round() as f64 + 1.0).powi(2)
-            + (start.y().round() as f64 - 0.5).powi(2)
-            - r.pow(2) as f64)
-            .round() as i32;
-        Self { x, y, d, ex, ey, r }
-    }
-
-    /// Get `self.y` when `self.x` is the same as the specified `x`
-    fn get_matching_y(&self, x: i32) -> Option<i32> {
-        if x == self.x {
-            Some(self.y)
-        } else {
-            None
-        }
-    }
-
-    fn inc(&mut self) {
-        if self.x >= self.ex {
-            return;
-        }
-        self.x += 1;
-        if self.d > 0 {
-            self.y -= 1;
-            self.d += 2 * (self.x - self.y) + 1;
-        } else {
-            self.d += 2 * self.x + 1;
-        }
-    }
+/// Assumes octant 7
+fn calc_error(pt: Pt<f64>, r: i32) -> i32 {
+    ((pt.x().round() as f64 + 1.0).powi(2) + (pt.y().round() as f64 - 0.5).powi(2)
+        - r.pow(2) as f64)
+        .round() as i32
 }
 
 #[cfg(test)]

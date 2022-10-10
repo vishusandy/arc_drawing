@@ -1,6 +1,6 @@
 use crate::pt::Pt;
 
-pub(super) fn iter_to_real(x: i32, y: i32, oct: u8, c: Pt<i32>) -> Pt<i32> {
+pub(crate) fn iter_to_real(x: i32, y: i32, oct: u8, c: Pt<i32>) -> Pt<i32> {
     match oct {
         1 => (y + c.x(), -x + c.y()).into(),
         2 => (x + c.x(), -y + c.y()).into(),

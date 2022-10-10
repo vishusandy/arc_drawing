@@ -107,16 +107,14 @@ impl Arc {
     }
 
     fn calc_start(start: f64, loc: &Loc, oct: u8) -> (i32, i32, i32) {
-        let pt = Pt::from_radian(start, loc.r, loc.c.into()).real_to_iter(oct, loc.c.into());
-        let d: i32 = ((pt.x().round() as f64 + 1.0).powi(2) + (pt.y().round() as f64 - 0.5).powi(2)
-            - loc.r.pow(2) as f64)
-            .round() as i32;
+        let pt = Pt::from_radian(start, loc.r, loc.c).real_to_iter(oct, loc.c.into());
+        let d = crate::calc_error(pt, loc.r);
         let Pt { x, y } = pt.i32();
         (x, y, d)
     }
 
     fn calc_end_x(end: f64, loc: &Loc, oct: u8) -> Pt<i32> {
-        Pt::from_radian(end, loc.r, loc.c.into())
+        Pt::from_radian(end, loc.r, loc.c)
             .real_to_iter(oct, loc.c.into())
             .i32()
     }
@@ -124,8 +122,7 @@ impl Arc {
     fn next_octant(&mut self) {
         self.cur_oct += 1;
         if self.cur_oct == self.end_oct && self.cur_oct % 2 == 0 {
-            let a = self.end_angle;
-            let (x, y, d) = Self::calc_start(a, &self.loc, self.cur_oct);
+            let (x, y, d) = Self::calc_start(self.end_angle, &self.loc, self.cur_oct);
             self.x = x;
             self.y = y;
             self.d = d;
@@ -214,5 +211,16 @@ mod tests {
         arc(&mut image, start, end, ro, CENTER, Rgba([255, 0, 0, 255]));
         arc(&mut image, start, end, ri, CENTER, Rgba([0, 255, 0, 255]));
         image.save("images/arc_partial_backwards.png")
+    }
+    #[test]
+    fn partial_arc_almost_full() -> Result<(), image::ImageError> {
+        let mut image = crate::setup(RADIUS);
+        let start = RADS * 0.5;
+        let end = RADS * 0.1;
+        let ro = RADIUS;
+        let ri = RADIUS - 10;
+        arc(&mut image, start, end, ro, CENTER, Rgba([255, 0, 0, 255]));
+        arc(&mut image, start, end, ri, CENTER, Rgba([0, 255, 0, 255]));
+        image.save("images/arc_partial_almost_full.png")
     }
 }

@@ -151,12 +151,13 @@ impl<T> Pt<T> {
 }
 
 impl Pt<f64> {
-    pub fn from_radian<T>(angle: f64, radius: T, center: (T, T)) -> Self
+    pub fn from_radian<T, P>(angle: f64, radius: T, center: P) -> Self
     where
         T: Into<f64> + Copy,
+        P: crate::pt::Point<T>,
     {
-        let x = center.0.into() + radius.into() * angle.cos();
-        let y = center.1.into() - radius.into() * angle.sin();
+        let x = center.x().into() + radius.into() * angle.cos();
+        let y = center.y().into() - radius.into() * angle.sin();
 
         Self { x, y }
     }

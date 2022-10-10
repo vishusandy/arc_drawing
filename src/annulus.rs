@@ -1,7 +1,11 @@
-mod translate;
-use crate::pt::Point;
-use crate::{angle, Pos, Pt};
+mod edges;
+mod pos;
 
+pub(crate) mod translate;
+use crate::pt::Point;
+use crate::{angle, Pt};
+use edges::Edge;
+use pos::Pos;
 /// Draws a partial annulus (filled donut).
 ///
 /// If the angles are floating-point numbers they are interpreted as radians.
@@ -147,8 +151,7 @@ impl Annulus {
         let x = self.x;
         self.x += 1;
 
-        let coords = (self.inr.get_matching_y(x), self.otr.get_matching_y(x));
-        match coords {
+        match (self.inr.get_matching_y(x), self.otr.get_matching_y(x)) {
             (Some(inr), Some(otr)) => {
                 self.inr.inc();
                 self.otr.inc();
@@ -156,8 +159,8 @@ impl Annulus {
             }
             (None, None) => (
                 x,
-                calc_line(self.cur_start.slope(), self.cur_start.int(), x),
-                calc_line(self.cur_end.slope(), self.cur_end.int(), x),
+                edges::calc_line(self.cur_start.slope(), self.cur_start.int(), x),
+                edges::calc_line(self.cur_end.slope(), self.cur_end.int(), x),
             ),
             (inr, otr) => {
                 let (slope, int) = match x <= self.inr.ex && x <= self.otr.ex {
@@ -167,12 +170,12 @@ impl Annulus {
 
                 let inr = inr.unwrap_or_else(|| {
                     self.otr.inc();
-                    calc_line(slope, int, x)
+                    edges::calc_line(slope, int, x)
                 });
 
                 let otr = otr.unwrap_or_else(|| {
                     self.inr.inc();
-                    calc_line(slope, int, x)
+                    edges::calc_line(slope, int, x)
                 });
 
                 (x, inr, otr)
@@ -198,7 +201,10 @@ impl Annulus {
         }
     }
 
-    pub fn draw<I: image::GenericImage>(mut self, image: &mut I, color: I::Pixel) {
+    pub fn draw<I>(mut self, image: &mut I, color: I::Pixel)
+    where
+        I: image::GenericImage,
+    {
         loop {
             if self.end() {
                 return;
@@ -211,50 +217,6 @@ impl Annulus {
             self.put_line(x, y1, y2, image, color);
         }
     }
-}
-
-#[derive(Clone, Debug)]
-struct Edge {
-    angle: f64,
-    oct: u8,
-    slope: f64,
-    int: i32, // intercept
-}
-
-impl Edge {
-    fn blank(angle: f64) -> Self {
-        Self {
-            angle,
-            oct: angle::angle_to_octant(angle),
-            slope: 0.0,
-            int: 0,
-        }
-    }
-
-    fn set_slope(&mut self, x1: i32, y1: i32, x2: i32, y2: i32) {
-        self.slope = calc_slope(x1, y1, x2, y2);
-        self.int = (self.slope * (-x1 as f64) + y1 as f64).round() as i32;
-    }
-
-    fn line(&self) -> (f64, i32) {
-        (self.slope, self.int)
-    }
-
-    fn slope(&self) -> f64 {
-        self.slope
-    }
-
-    fn int(&self) -> i32 {
-        self.int
-    }
-}
-
-fn calc_line(slope: f64, int: i32, x: i32) -> i32 {
-    (x as f64 * slope).round() as i32 + int
-}
-
-fn calc_slope(x1: i32, y1: i32, x2: i32, y2: i32) -> f64 {
-    (y2 as f64 - y1 as f64) / (x2 as f64 - x1 as f64)
 }
 
 #[cfg(test)]

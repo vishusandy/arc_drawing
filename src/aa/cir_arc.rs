@@ -64,8 +64,8 @@ impl AAArc {
         let end_angle = end_angle.radians();
         let quad = angle_to_quad(start_angle);
         let end_quad = angle_to_quad(end_angle);
-        let mut start = Pt::from_radian(start_angle, r, c.into()).quad_to_iter(quad, c);
-        let end = Pt::from_radian(end_angle, r, c.into()).quad_to_iter(end_quad, c);
+        let mut start = Pt::from_radian(start_angle, r, c).quad_to_iter(quad, c);
+        let end = Pt::from_radian(end_angle, r, c).quad_to_iter(end_quad, c);
         let inc_x = if start.x() < start.y() {
             true
         } else {
