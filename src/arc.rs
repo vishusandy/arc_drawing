@@ -1,226 +1,134 @@
-mod translate;
-use crate::pt::Pt;
+mod bounds;
+mod edge;
+mod pos;
 
-/// Range of a single octant.  This is equal to PI / 4.0
-const RADS: f64 = std::f64::consts::PI / 4.0;
+use crate::{angle, translate, Pt};
+use bounds::Bounds;
+use edge::Edge;
+use pos::Pos;
 
-/// Draws a circular arc.
-///
-/// If the angles are floating-point numbers they are interpreted as radians.
-/// Otherwise the angles are interpreted as degrees.
-pub fn arc<A, C, I>(
+pub fn arc<A, C, I, T>(
     image: &mut I,
     start_angle: A,
     end_angle: A,
-    radius: i32,
+    radius: T,
     center: C,
     color: I::Pixel,
 ) where
     A: crate::Angle,
-    C: crate::pt::Point<i32>,
+    C: crate::pt::Point<T>,
     I: image::GenericImage,
+    T: Into<i32>,
 {
-    Arc::new(
-        start_angle.radians(),
-        end_angle.radians(),
-        radius,
-        center.pt(),
-    )
-    .draw(image, color);
-}
-
-#[derive(Clone, Debug)]
-struct Loc {
-    r: i32,
-    c: Pt<i32>,
-}
-
-impl Loc {
-    fn new(r: i32, c: Pt<i32>) -> Self {
-        Self { r, c }
-    }
+    Arc::new(start_angle, end_angle, radius, center).draw(image, color);
 }
 
 #[derive(Clone, Debug)]
 pub struct Arc {
-    loc: Loc,
-    end_angle: f64,
-    start_oct: u8,
-    end_oct: u8,
-    cur_oct: u8,
-    x: i32,
-    y: i32,
-    d: i32,
-    ex: i32,
+    pos: Pos,
+    start: Edge,
+    end: Edge,
+    c: Pt<i32>,
+    r: i32,
+    revisit: bool,
 }
+
 impl Arc {
-    pub fn new(mut start: f64, mut end: f64, radius: i32, center: Pt<i32>) -> Self {
-        if radius.is_negative() {
-            panic!("Radius cannot be negative");
-        }
+    pub fn new<A, T, C>(start_angle: A, end_angle: A, r: T, c: C) -> Self
+    where
+        A: crate::Angle,
+        T: Into<i32>,
+        C: crate::pt::Point<T>,
+    {
+        let start = angle::normalize(start_angle.radians());
+        let end = angle::normalize(end_angle.radians());
 
-        Self::check_angles(&mut start, &mut end);
-        let loc = Loc::new(radius, center);
-        let start_oct = translate::angle_octant(start);
-        let end_oct = translate::angle_octant(end);
+        let mut arc = Self::blank(start, end, r, c);
+        let bounds = Bounds::start_bounds(&arc.start, &arc.end, arc.revisit);
 
-        let (x, y, d) = if start_oct % 2 == 0 {
-            if start_oct == end_oct {
-                Self::calc_start(end, &loc, start_oct)
-            } else {
-                (0, loc.r, 1 - loc.r)
-            }
-        } else {
-            Self::calc_start(start, &loc, start_oct)
-        };
+        arc.pos = Pos::new(arc.start.oct, bounds, arc.r, arc.c);
+        arc
+    }
 
-        let Pt { x: ex, y: _ } = if start_oct % 2 == 0 {
-            Self::calc_end_x(start, &loc, start_oct)
-        } else {
-            Self::calc_end_x(end, &loc, end_oct)
-        };
+    fn blank<T, C>(start_angle: f64, end_angle: f64, r: T, c: C) -> Self
+    where
+        T: Into<i32>,
+        C: crate::pt::Point<T>,
+    {
+        let c = Pt::new(c.x().into(), c.y().into());
+        let r = r.into();
+        let start_oct = crate::angle::angle_to_octant(start_angle);
+        let end_oct = crate::angle::angle_to_octant(end_angle);
 
         Self {
-            loc,
-            end_angle: end,
-            start_oct,
-            end_oct,
-            cur_oct: start_oct,
-            x,
-            y,
-            d,
-            ex,
+            pos: Pos::start(start_oct, r),
+            start: Edge::new(start_angle, start_oct),
+            end: Edge::new(end_angle, end_oct),
+            c,
+            r,
+            revisit: start_oct == end_oct && start_angle > end_angle,
         }
     }
 
-    /// Ensure angles are in the range 0..2*PI and that start >= end
-    fn check_angles(start: &mut f64, end: &mut f64) {
-        if start > end {
-            std::mem::swap(start, end);
-        }
-        if *start < 0.0 {
-            *start = 0.0;
-        }
-        if *end >= 8.0 {
-            *end = 8.0 - std::f64::EPSILON;
-        }
-    }
-
-    fn calc_start(start: f64, loc: &Loc, oct: u8) -> (i32, i32, i32) {
-        let pt = Pt::from_radian(start, loc.r, loc.c).real_to_iter(oct, loc.c.into());
-        let d = crate::calc_error(pt, loc.r);
-        let Pt { x, y } = pt.i32();
-        (x, y, d)
-    }
-
-    fn calc_end_x(end: f64, loc: &Loc, oct: u8) -> Pt<i32> {
-        Pt::from_radian(end, loc.r, loc.c)
-            .real_to_iter(oct, loc.c.into())
-            .i32()
-    }
-
-    fn next_octant(&mut self) {
-        self.cur_oct += 1;
-        if self.cur_oct == self.end_oct && self.cur_oct % 2 == 0 {
-            let (x, y, d) = Self::calc_start(self.end_angle, &self.loc, self.cur_oct);
-            self.x = x;
-            self.y = y;
-            self.d = d;
-            self.ex = std::i32::MAX;
-        } else if self.cur_oct == self.end_oct {
-            let Pt { x, y: _ } = Self::calc_end_x(self.end_angle, &self.loc, self.end_oct);
-            self.ex = x;
-            self.restart();
-        } else {
-            self.restart();
-        }
-    }
-
-    // Resets values to the beginning of the octant
     fn restart(&mut self) {
-        self.x = 0;
-        self.y = self.loc.r;
-        self.d = 1 - self.loc.r;
+        let oct = self.pos.oct % 8 + 1;
+        let bounds = Bounds::bounds(oct, &self.start, &self.end, self.revisit);
+        self.pos = Pos::new(oct, bounds, self.r, self.c);
+        self.revisit = false;
     }
 
-    fn put_pixel<I: image::GenericImage>(&self, image: &mut I, color: I::Pixel) {
-        let pt = translate::iter_to_real(self.x, self.y, self.cur_oct, self.loc.c);
-        image.put_pixel(pt.x as u32, pt.y as u32, color);
+    fn end(&self) -> bool {
+        self.pos.oct == self.end.oct && !self.revisit
     }
 
-    pub fn draw<I: image::GenericImage>(mut self, image: &mut I, color: I::Pixel) {
+    pub fn draw<I>(mut self, image: &mut I, color: I::Pixel)
+    where
+        I: image::GenericImage,
+    {
         loop {
-            if self.x > self.y {
-                if self.end_oct == self.cur_oct || self.cur_oct == 8 {
-                    return; // end of arc reached
+            if self.pos.stop() {
+                if self.end() {
+                    break;
                 } else {
-                    self.next_octant();
-                    continue; // end of octant reached, continue to next octant
+                    self.restart();
+                    continue;
                 }
             }
-            if self.x == self.ex
-                && self.cur_oct == self.start_oct
-                && self.start_oct % 2 == 0
-                && self.cur_oct != self.end_oct
-            {
-                self.next_octant();
-                continue; // arc starts on an odd octant, ensure we only the part of the octant (finish at ex)
-            }
-            if self.x == self.ex && self.cur_oct == self.end_oct {
-                return;
-            }
 
-            self.put_pixel(image, color);
-            self.x += 1;
-            if self.d > 0 {
-                self.y -= 1;
-                self.d += 2 * (self.x - self.y) + 1;
-            } else {
-                self.d += 2 * self.x + 1;
-            }
+            let pt = self.pt();
+            image.put_pixel(pt.x() as u32, pt.y() as u32, color);
+            self.pos.inc();
         }
+    }
+
+    fn pt(&self) -> Pt<i32> {
+        let pt = Pt::new(self.pos.x, self.pos.y);
+        translate::iter_to_real(pt.x(), pt.y(), self.pos.oct, self.c)
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{CENTER, RADIUS};
-    use image::Rgba;
+    use crate::RADS;
 
     #[test]
-    fn partial_arc() -> Result<(), image::ImageError> {
-        let mut image = crate::setup(RADIUS);
-        let start = RADS * 6.3;
-        let end = RADS * 6.8;
-        let ro = RADIUS;
-        let ri = RADIUS - 10;
-        let arc = Arc::new(start, end, ro, CENTER.into());
-        arc.draw(&mut image, image::Rgba([255, 0, 0, 255]));
-        let arc = Arc::new(start, end, ri, CENTER.into());
-        arc.draw(&mut image, image::Rgba([0, 255, 0, 255]));
-        image.save("images/arc_partial.png")
-    }
-    #[test]
-    fn partial_arc_backwards() -> Result<(), image::ImageError> {
-        let mut image = crate::setup(RADIUS);
-        let start = RADS * 6.5;
+    fn arc3_draw() -> Result<(), image::ImageError> {
+        crate::logger(log::LevelFilter::Debug);
+
+        let r = 190;
+        let c = (200, 200);
+        let start = RADS * 1.8;
         let end = RADS * 0.5;
-        let ro = RADIUS;
-        let ri = RADIUS - 10;
-        arc(&mut image, start, end, ro, CENTER, Rgba([255, 0, 0, 255]));
-        arc(&mut image, start, end, ri, CENTER, Rgba([0, 255, 0, 255]));
-        image.save("images/arc_partial_backwards.png")
-    }
-    #[test]
-    fn partial_arc_almost_full() -> Result<(), image::ImageError> {
-        let mut image = crate::setup(RADIUS);
-        let start = RADS * 0.5;
-        let end = RADS * 0.1;
-        let ro = RADIUS;
-        let ri = RADIUS - 10;
-        arc(&mut image, start, end, ro, CENTER, Rgba([255, 0, 0, 255]));
-        arc(&mut image, start, end, ri, CENTER, Rgba([0, 255, 0, 255]));
-        image.save("images/arc_partial_almost_full.png")
+
+        let mut image = crate::setup(r);
+        let arc = Arc::new(start, end, r, c);
+        let dbg_arc = arc.clone();
+
+        arc.draw(&mut image, image::Rgba([255, 0, 0, 255]));
+
+        log::debug!("{:#?}", dbg_arc);
+
+        image.save("images/arc3.png")
     }
 }

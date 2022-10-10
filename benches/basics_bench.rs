@@ -1,5 +1,4 @@
 use criterion::{criterion_group, criterion_main, BatchSize, Criterion};
-use freehand::*;
 
 const IMG_SIZE: u32 = 600;
 
@@ -12,7 +11,7 @@ fn bench_basic_vertical_line(c: &mut Criterion) {
         b.iter_batched(
             blank,
             |mut image| {
-                vertical_line(
+                freehand::lines::vertical_line(
                     &mut image,
                     (IMG_SIZE / 2, 0),
                     IMG_SIZE,
@@ -29,7 +28,7 @@ fn bench_basic_horizontal_line(c: &mut Criterion) {
         b.iter_batched(
             blank,
             |mut image| {
-                horizontal_line(
+                freehand::lines::horizontal_line(
                     &mut image,
                     (0, IMG_SIZE / 2),
                     IMG_SIZE,
@@ -46,7 +45,7 @@ fn bench_basic_rectangle_filled(c: &mut Criterion) {
         b.iter_batched(
             blank,
             |mut image| {
-                rectangle_filled(
+                freehand::shapes::rectangle_filled(
                     &mut image,
                     freehand::Pt::new(50, 50),
                     100,
@@ -64,7 +63,7 @@ fn bench_basic_horizontal_dashed(c: &mut Criterion) {
         b.iter_batched(
             blank,
             |mut image| {
-                horizontal_dashed_line(
+                freehand::lines::horizontal_dashed_line(
                     &mut image,
                     (0, IMG_SIZE / 2),
                     10,
@@ -82,7 +81,7 @@ fn bench_basic_vertical_dashed(c: &mut Criterion) {
         b.iter_batched(
             blank,
             |mut image| {
-                vertical_dashed_line(
+                freehand::lines::vertical_dashed_line(
                     &mut image,
                     (IMG_SIZE / 2, 0),
                     10,
@@ -95,8 +94,52 @@ fn bench_basic_vertical_dashed(c: &mut Criterion) {
     });
 }
 
+fn bench_blend_safe(c: &mut Criterion) {
+    c.bench_function("safe_blend", |b| {
+        b.iter(|| {
+            let mut image = blank();
+            let color = image::Rgba([255, 0, 0, 255]);
+            let o = 0.5;
+            for (x, y) in (0..IMG_SIZE).zip(0..IMG_SIZE) {
+                // let o = x as f32 / IMG_SIZE as f32;
+                freehand::ops::blend_at(&mut image, x, y, o, color);
+            }
+        })
+    });
+}
+
+fn bench_blend_unsafe(c: &mut Criterion) {
+    c.bench_function("unsafe_blend", |b| {
+        b.iter(|| {
+            let mut image = blank();
+            let color = image::Rgba([255, 0, 0, 255]);
+            let o = 0.5;
+            for (x, y) in (0..IMG_SIZE).zip(0..IMG_SIZE) {
+                // let o = x as f32 / IMG_SIZE as f32;
+                unsafe {
+                    freehand::ops::blend_at_unchecked(&mut image, x, y, o, color);
+                }
+            }
+        })
+    });
+}
+
+fn bench_imageproc_blend(c: &mut Criterion) {
+    use image::Pixel;
+    c.bench_function("imageproc_blend", |b| {
+        b.iter(|| {
+            let mut image = blank();
+            let color = image::Rgba([255, 0, 0, 127]);
+            for (x, y) in (0..IMG_SIZE).zip(0..IMG_SIZE) {
+                let o = x as f32 / IMG_SIZE as f32;
+                image.get_pixel_mut(x, y).blend(&color);
+            }
+        })
+    });
+}
+
 criterion_group!(
-    basic,
+    lines,
     bench_basic_vertical_line,
     bench_basic_horizontal_line,
     bench_basic_rectangle_filled,
@@ -104,4 +147,11 @@ criterion_group!(
     bench_basic_vertical_dashed
 );
 
-criterion_main!(basic);
+criterion_group!(
+    ops,
+    bench_blend_safe,
+    bench_blend_unsafe,
+    bench_imageproc_blend
+);
+
+criterion_main!(ops);

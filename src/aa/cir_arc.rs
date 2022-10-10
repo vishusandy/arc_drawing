@@ -17,11 +17,11 @@ pub fn antialiased_arc<A, C, I>(
     A: crate::Angle,
     C: crate::pt::Point<f64>,
 {
-    AAArc::new(start_angle, end_angle, radius, center.pt()).draw(image, color);
+    AntialiasedArc::new(start_angle, end_angle, radius, center.pt()).draw(image, color);
 }
 
 #[derive(Clone, Debug)]
-pub struct AAArc {
+pub struct AntialiasedArc {
     /// Current local x coordinate (not the same as the final pixel coordinates)
     x: f64,
     /// Current local y coordinate (not the same as the final pixel coordinates)
@@ -43,7 +43,7 @@ pub struct AAArc {
     /// Center coordinates
     c: Pt<f64>,
 }
-impl AAArc {
+impl AntialiasedArc {
     pub fn new<A>(start: A, end: A, r: f64, c: Pt<f64>) -> Self
     where
         A: crate::Angle,
@@ -184,7 +184,7 @@ impl AAArc {
     }
 }
 
-impl Iterator for AAArc {
+impl Iterator for AntialiasedArc {
     type Item = AAPt<i32>;
 
     /// Iterate over points in an arc, returning the two corresponding points and their opacities
@@ -241,7 +241,7 @@ impl End {
 
 /// Draw an arc by plotting each iteration on an image
 #[cfg(test)]
-fn draw(image: &mut image::RgbaImage, iter: AAArc, color: image::Rgba<u8>) {
+fn draw(image: &mut image::RgbaImage, iter: AntialiasedArc, color: image::Rgba<u8>) {
     iter.draw(image, color);
 }
 
@@ -258,7 +258,7 @@ mod tests {
         let end = RADS * 7.4;
         let color = image::Rgba([255, 0, 0, 255]);
 
-        let arc = AAArc::new(start, end, crate::RADIUS_F, crate::CENTER_F);
+        let arc = AntialiasedArc::new(start, end, crate::RADIUS_F, crate::CENTER_F);
         draw(&mut image, arc, color);
 
         image.save("images/aa_partial.png")
@@ -276,7 +276,7 @@ mod tests {
         let c = Pt::new(200.0, 200.0);
         let color = image::Rgba([255, 0, 0, 255]);
 
-        let arc = AAArc::new(start, end, r, c);
+        let arc = AntialiasedArc::new(start, end, r, c);
         arc.draw(&mut image, color);
 
         image.save("images/aa_partial_draw.png")

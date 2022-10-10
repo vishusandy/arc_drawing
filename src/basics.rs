@@ -17,34 +17,34 @@ mod tests {
 
         let mut image = image::RgbaImage::from_pixel(width, height, Rgba([255, 255, 255, 255]));
 
-        crate::vertical_line(
+        crate::lines::vertical_line(
             &mut image,
             (width / 2, 0),
             height - 1,
             Rgba([0, 255, 0, 255]),
         );
-        crate::horizontal_line(
+        crate::lines::horizontal_line(
             &mut image,
             (0, height / 2),
             width - 1,
             Rgba([0, 255, 0, 255]),
         );
 
-        crate::horizontal_dashed_line(
+        crate::lines::horizontal_dashed_line(
             &mut image,
             (0, 100),
             width * 2,
             2,
             Rgba([174, 252, 178, 255]),
         );
-        crate::vertical_dashed_line(
+        crate::lines::vertical_dashed_line(
             &mut image,
             (100, 0),
             width - 1,
             2,
             Rgba([174, 252, 178, 255]),
         );
-        crate::horizontal_dashed_line_alpha(
+        crate::lines::horizontal_dashed_line_alpha(
             &mut image,
             (0, 300),
             800,
@@ -52,7 +52,7 @@ mod tests {
             0.4,
             Rgba([174, 252, 178, 255]),
         );
-        crate::vertical_dashed_line_alpha(
+        crate::lines::vertical_dashed_line_alpha(
             &mut image,
             (300, 0),
             400,
@@ -61,7 +61,7 @@ mod tests {
             Rgba([174, 252, 178, 255]),
         );
 
-        crate::rectangle_filled(
+        crate::shapes::rectangle_filled(
             &mut image,
             Pt::new(300, 300),
             150,
@@ -69,26 +69,26 @@ mod tests {
             Rgba([255, 0, 0, 255]),
         );
 
-        crate::diagonal_line(&mut image, (200, 200), (400, 0), Rgba([255, 98, 0, 255]));
-        crate::diagonal_line(&mut image, (200, 200), (0, 0), Rgba([255, 98, 0, 255]));
-        crate::diagonal_line(&mut image, (200, 200), (400, 400), Rgba([255, 98, 0, 255]));
-        crate::diagonal_line(&mut image, (200, 200), (0, 500), Rgba([255, 98, 0, 255]));
+        crate::lines::diagonal_line(&mut image, (200, 200), (400, 0), Rgba([255, 98, 0, 255]));
+        crate::lines::diagonal_line(&mut image, (200, 200), (0, 0), Rgba([255, 98, 0, 255]));
+        crate::lines::diagonal_line(&mut image, (200, 200), (400, 400), Rgba([255, 98, 0, 255]));
+        crate::lines::diagonal_line(&mut image, (200, 200), (0, 500), Rgba([255, 98, 0, 255]));
 
-        crate::diagonal_dashed_line(
+        crate::lines::diagonal_dashed_line(
             &mut image,
             (0, 100),
             (300, 400),
             2,
             Rgba([255, 210, 181, 255]),
         );
-        crate::diagonal_dashed_line(
+        crate::lines::diagonal_dashed_line(
             &mut image,
             (0, 100),
             (300, 400),
             100,
             Rgba([255, 98, 0, 255]),
         );
-        crate::diagonal_dashed_line(
+        crate::lines::diagonal_dashed_line(
             &mut image,
             (400, 50),
             (50, 400),
@@ -96,7 +96,7 @@ mod tests {
             Rgba([255, 210, 181, 255]),
         );
 
-        crate::diagonal_dashed_line_alpha(
+        crate::lines::diagonal_dashed_line_alpha(
             &mut image,
             (0, 50),
             (350, 400),

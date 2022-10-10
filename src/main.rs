@@ -9,7 +9,7 @@ fn main() -> Result<(), image::ImageError> {
     // DRAW MULTIPLE ANTIALIASED CIRCLES
     (0..test_consts::STARTS.len())
         .map(|i| {
-            freehand::AAArc::new(
+            freehand::AntialiasedArc::new(
                 test_consts::STARTS[i],
                 test_consts::ENDS[i],
                 test_consts::RADII[i],

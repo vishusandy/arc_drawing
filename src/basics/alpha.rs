@@ -1,4 +1,4 @@
-use crate::blend_at_unchecked;
+use crate::ops::blend_at_unchecked;
 use crate::pt::Point;
 use image::{Rgba, RgbaImage};
 

@@ -34,8 +34,8 @@ pub fn blend_at(
     image: &mut image::RgbaImage,
     x: u32,
     y: u32,
-    color: image::Rgba<u8>,
     opac: f32,
+    color: image::Rgba<u8>,
 ) -> bool {
     if x < image.width() && y < image.height() && opac >= 0.0 && opac <= 1.0 {
         // this is safe because of the bounds checks
@@ -81,12 +81,12 @@ mod tests {
     fn safe_blend() {
         let color = image::Rgba([255, 0, 0, 255]);
         let mut image = image::RgbaImage::from_pixel(1, 1, image::Rgba([255, 255, 255, 255]));
-        assert!(blend_at(&mut image, 0, 0, color, 0.5));
+        assert!(blend_at(&mut image, 0, 0, 0.5, color));
         assert_eq!(*image.get_pixel(0, 0), image::Rgba([255, 127, 127, 255]));
-        assert!(!blend_at(&mut image, 2, 0, color, 0.5));
-        assert!(!blend_at(&mut image, 0, 2, color, 0.5));
-        assert!(!blend_at(&mut image, 2, 2, color, 0.5));
-        assert!(!blend_at(&mut image, 0, 0, color, 1.1));
-        assert!(!blend_at(&mut image, 0, 0, color, -1.1));
+        assert!(!blend_at(&mut image, 2, 0, 0.5, color));
+        assert!(!blend_at(&mut image, 0, 2, 0.5, color));
+        assert!(!blend_at(&mut image, 2, 2, 0.5, color));
+        assert!(!blend_at(&mut image, 0, 0, 1.1, color));
+        assert!(!blend_at(&mut image, 0, 0, -1.1, color));
     }
 }

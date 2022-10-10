@@ -2,31 +2,40 @@ mod aa;
 mod angle;
 mod annulus;
 mod arc;
-mod arc3;
 mod basics;
 mod pt;
 #[cfg(test)]
 mod test;
 
-pub use aa::cir_arc::{antialiased_arc, AAArc};
-pub use annulus::{annulus, Annulus};
-pub use arc::{arc, Arc};
-pub use arc3::Arc as Arc3;
-pub use basics::alpha::{
-    diagonal_dashed_line_alpha, diagonal_line_alpha, horizontal_dashed_line_alpha,
-    horizontal_line_alpha, vertical_dashed_line_alpha, vertical_line_alpha,
-};
-pub use basics::blend::{blend_at, blend_at_unchecked};
-pub use basics::dashed::{diagonal_dashed_line, horizontal_dashed_line, vertical_dashed_line};
-pub use basics::shapes::rectangle_filled;
-pub use basics::straight::{diagonal_line, horizontal_line, vertical_line};
+pub use crate::aa::cir_arc::{antialiased_arc, AntialiasedArc};
+pub use crate::annulus::{annulus, Annulus};
+pub use crate::arc::{arc, Arc};
+
+pub mod lines {
+    pub use crate::basics::alpha::{
+        diagonal_dashed_line_alpha, diagonal_line_alpha, horizontal_dashed_line_alpha,
+        horizontal_line_alpha, vertical_dashed_line_alpha, vertical_line_alpha,
+    };
+    pub use crate::basics::dashed::{
+        diagonal_dashed_line, horizontal_dashed_line, vertical_dashed_line,
+    };
+    pub use crate::basics::straight::{diagonal_line, horizontal_line, vertical_line};
+}
+
+pub mod shapes {
+    pub use crate::basics::shapes::rectangle_filled;
+}
+
+pub mod ops {
+    pub use crate::basics::blend::{blend_at, blend_at_unchecked};
+}
+
 pub use pt::Pt;
 
+pub(crate) use angle::Angle;
 pub(crate) use annulus::translate;
 
 // TODO:
-// add dashed_diagonal_line_alpha
-// add vertical/horizontal/diagonal_line_alpha (non-dashed variants)
 // add diagonal lines and alpha lines to benchmarks
 
 #[cfg(test)]
@@ -53,7 +62,6 @@ const QUAD: f64 = std::f64::consts::PI / 2.0;
 /// Tiny amount to subtract from an angle (in radians) to avoid different angles from appearing the same
 const TINY: f64 = std::f64::EPSILON * 3.0;
 
-use angle::Angle;
 #[cfg(test)]
 pub(crate) use test::img::{guidelines, setup};
 

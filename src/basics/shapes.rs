@@ -10,6 +10,6 @@ pub fn rectangle_filled<I: GenericImage, P: crate::pt::Point<u32>>(
     let x0 = pt.x();
     let x1 = pt.x() + width - 1;
     for y in pt.y()..pt.y() + height {
-        crate::horizontal_line(image, crate::Pt::new(x0, y), x1, color);
+        crate::lines::horizontal_line(image, crate::Pt::new(x0, y), x1, color);
     }
 }

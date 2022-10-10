@@ -27,9 +27,9 @@ log = "0.4"
 [profile.release]
 debug = 1
 
-[[bench]]
-name = "arc_bench"
-harness = false
+# [[bench]]
+# name = "arc_bench"
+# harness = false
 
 [[bench]]
 name = "basics_bench"
