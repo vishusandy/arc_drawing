@@ -8,7 +8,7 @@ use image::GenericImage;
 /// use freehand::lines::horizontal_line;
 ///
 /// let bg = Rgba([255, 255, 255, 255]); // white
-/// let color = Rgba([255, 0, 0, 255]); // red
+/// let color = Rgba([255, 0, 0, 255]);
 /// let mut image = RgbaImage::from_pixel(400, 400, bg);
 ///
 /// /// Horizontal line across the center of the image
@@ -33,7 +33,7 @@ where
 /// use freehand::lines::vertical_line;
 ///
 /// let bg = Rgba([255, 255, 255, 255]); // white
-/// let color = Rgba([255, 0, 0, 255]); // red
+/// let color = Rgba([255, 0, 0, 255]);
 /// let mut image = RgbaImage::from_pixel(400, 400, bg);
 ///
 /// /// Vertical line across the center of the image
@@ -58,7 +58,7 @@ where
 /// use freehand::lines::diagonal_line;
 ///
 /// let bg = Rgba([255, 255, 255, 255]); // white
-/// let color = Rgba([255, 0, 0, 255]); // red
+/// let color = Rgba([255, 0, 0, 255]);
 /// let mut image = RgbaImage::from_pixel(400, 400, bg);
 ///
 /// /// Downwards diagonal line across the image

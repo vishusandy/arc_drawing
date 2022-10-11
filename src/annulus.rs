@@ -21,7 +21,7 @@ use pos::Pos;
 /// use freehand::conics::annulus;
 ///
 /// let bg = Rgba([255, 255, 255, 255]); // white
-/// let color = Rgba([255, 0, 0, 255]); // red
+/// let color = Rgba([255, 0, 0, 255]);
 /// let mut image = RgbaImage::from_pixel(400, 400, bg);
 ///
 /// let inner_radius = 150;
@@ -42,7 +42,7 @@ use pos::Pos;
 /// # use image::{RgbaImage, Rgba};
 /// # use freehand::conics::annulus;
 /// # let bg = Rgba([255, 255, 255, 255]); // white
-/// # let color = Rgba([255, 0, 0, 255]); // red
+/// # let color = Rgba([255, 0, 0, 255]);
 /// # let mut image = RgbaImage::from_pixel(400, 400, bg);
 /// # let inner_radius = 150;
 /// # let outer_radius = 190;
@@ -81,7 +81,7 @@ pub fn annulus<A, C, I>(
 /// use freehand::conics::Annulus;
 ///
 /// let bg = Rgba([255, 255, 255, 255]); // white
-/// let color = Rgba([255, 0, 0, 255]); // red
+/// let color = Rgba([255, 0, 0, 255]);
 /// let mut image = RgbaImage::from_pixel(400, 400, bg);
 ///
 /// /// A 50px wide annulus that goes across the top half of the image (0° to 180°)
@@ -126,7 +126,7 @@ impl Annulus {
     /// # use freehand::conics::Annulus;
     ///
     /// # let bg = Rgba([255, 255, 255, 255]); // white
-    /// # let color = Rgba([255, 0, 0, 255]); // red
+    /// # let color = Rgba([255, 0, 0, 255]);
     /// # let mut image = RgbaImage::from_pixel(400, 400, bg);
     ///
     /// let annulus = Annulus::new(0, 180, 150, 190, (200, 200));
@@ -177,7 +177,7 @@ impl Annulus {
     /// # use freehand::conics::Annulus;
     ///
     /// # let bg = Rgba([255, 255, 255, 255]); // white
-    /// let color = Rgba([255, 0, 0, 255]); // red
+    /// let color = Rgba([255, 0, 0, 255]);
     /// # let mut image = RgbaImage::from_pixel(400, 400, bg);
     ///
     /// let annulus = Annulus::new(0, 180, 150, 190, (190, 190));

@@ -13,7 +13,7 @@ use crate::Pt;
 /// use freehand::conics::antialiased_arc;
 
 /// let bg = Rgba([255, 255, 255, 255]); // white
-/// let color = Rgba([255, 0, 0, 255]); // red
+/// let color = Rgba([255, 0, 0, 255]);
 /// let mut image = RgbaImage::from_pixel(400, 400, bg);
 ///
 /// let radius = 190;
@@ -34,7 +34,7 @@ use crate::Pt;
 /// # use image::{RgbaImage, Rgba};
 /// # use freehand::conics::antialiased_arc;
 /// # let bg = Rgba([255, 255, 255, 255]); // white
-/// # let color = Rgba([255, 0, 0, 255]); // red
+/// # let color = Rgba([255, 0, 0, 255]);
 /// # let mut image = RgbaImage::from_pixel(400, 400, bg);
 /// # let radius = 190;
 /// # let center = (200, 200);
@@ -64,7 +64,7 @@ pub fn antialiased_arc<A, C, T>(
 /// use freehand::conics::AntialiasedArc;
 
 /// let bg = Rgba([255, 255, 255, 255]); // white
-/// let color = Rgba([255, 0, 0, 255]); // red
+/// let color = Rgba([255, 0, 0, 255]);
 /// let mut image = RgbaImage::from_pixel(400, 400, bg);
 ///
 /// let radius = 190;

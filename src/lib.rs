@@ -72,7 +72,7 @@
 //! use freehand::conics::annulus;
 //! # use image::{RgbaImage, Rgba};
 //! # let bg = Rgba([255, 255, 255, 255]); // white
-//! # let color = Rgba([255, 0, 0, 255]); // red
+//! # let color = Rgba([255, 0, 0, 255]);
 //! # let mut image = RgbaImage::from_pixel(400, 400, bg);
 //!
 //! let start = 0.0; // equivalent to 0° in radians
@@ -159,7 +159,7 @@ pub mod lines {
 /// use freehand::conics::annulus;
 /// # use image::{RgbaImage, Rgba};
 /// # let bg = Rgba([255, 255, 255, 255]); // white
-/// # let color = Rgba([255, 0, 0, 255]); // red
+/// # let color = Rgba([255, 0, 0, 255]);
 /// # let mut image = RgbaImage::from_pixel(400, 400, bg);
 ///
 /// let start = 0.0; // equivalent to 0° in radians

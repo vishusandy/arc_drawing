@@ -21,7 +21,7 @@ use pos::Pos;
 /// use freehand::conics::arc;
 ///
 /// let bg = Rgba([255, 255, 255, 255]); // white
-/// let color = Rgba([255, 0, 0, 255]); // red
+/// let color = Rgba([255, 0, 0, 255]);
 /// let mut image = RgbaImage::from_pixel(400, 400, bg);
 ///
 /// let radius = 190;
@@ -39,7 +39,7 @@ use pos::Pos;
 /// # use image::{RgbaImage, Rgba};
 /// # use freehand::conics::arc;
 /// # let bg = Rgba([255, 255, 255, 255]); // white
-/// # let color = Rgba([255, 0, 0, 255]); // red
+/// # let color = Rgba([255, 0, 0, 255]);
 /// # let mut image = RgbaImage::from_pixel(400, 400, bg);
 /// # let radius = 190;
 /// # let center = (200, 200);
@@ -73,7 +73,7 @@ pub fn arc<A, C, I, T>(
 /// use freehand::conics::Arc;
 ///
 /// let bg = Rgba([255, 255, 255, 255]); // white
-/// let color = Rgba([255, 0, 0, 255]); // red
+/// let color = Rgba([255, 0, 0, 255]);
 /// let mut image = RgbaImage::from_pixel(400, 400, bg);
 ///
 /// /// An arc that goes across the top half of the image (0° to 180°)

@@ -6,7 +6,7 @@ use image::GenericImage;
 /// use image::{RgbaImage, Rgba};
 /// use freehand::shapes::rectangle;
 ///
-/// let color = Rgba([255, 0, 0, 255]); // red
+/// let color = Rgba([255, 0, 0, 255]);
 /// let mut image = RgbaImage::from_pixel(400, 400, Rgba([255, 255, 255, 255]));
 ///
 /// rectangle(&mut image, (10, 10), 380, 380, color);
@@ -22,13 +22,13 @@ where
     let y1 = y0 + height - 1;
 
     // Top
-    crate::lines::horizontal_line(image, crate::Pt::new(x0, y0), x1, color);
+    crate::lines::horizontal_line(image, crate::Pt::new(x0 + 1, y0), x1, color);
     // Bottom
-    crate::lines::horizontal_line(image, crate::Pt::new(x0, y1), x1, color);
+    crate::lines::horizontal_line(image, crate::Pt::new(x0, y1), x1 - 1, color);
     // Left
-    crate::lines::vertical_line(image, crate::Pt::new(x0, y0), y1, color);
+    crate::lines::vertical_line(image, crate::Pt::new(x0, y0), y1 - 1, color);
     // Right
-    crate::lines::vertical_line(image, crate::Pt::new(x1, y0), y1, color);
+    crate::lines::vertical_line(image, crate::Pt::new(x1, y0 + 1), y1, color);
 }
 
 /// Draws a basic rectangle with the specified opacity.
@@ -37,7 +37,7 @@ where
 /// use image::{RgbaImage, Rgba};
 /// use freehand::shapes::rectangle_alpha;
 ///
-/// let color = Rgba([255, 0, 0, 255]); // red
+/// let color = Rgba([255, 0, 0, 255]);
 /// let mut image = RgbaImage::from_pixel(400, 400, Rgba([255, 255, 255, 255]));
 ///
 /// rectangle_alpha(&mut image, (10, 10), 380, 380, 0.5, color);
@@ -58,13 +58,13 @@ pub fn rectangle_alpha<P>(
     let y1 = y0 + height - 1;
 
     // Top
-    crate::lines::horizontal_line_alpha(image, crate::Pt::new(x0, y0), x1, opacity, color);
+    crate::lines::horizontal_line_alpha(image, crate::Pt::new(x0 + 1, y0), x1, opacity, color);
     // Bottom
-    crate::lines::horizontal_line_alpha(image, crate::Pt::new(x0, y1), x1, opacity, color);
+    crate::lines::horizontal_line_alpha(image, crate::Pt::new(x0, y1), x1 - 1, opacity, color);
     // Left
-    crate::lines::vertical_line_alpha(image, crate::Pt::new(x0, y0), y1, opacity, color);
+    crate::lines::vertical_line_alpha(image, crate::Pt::new(x0, y0), y1 - 1, opacity, color);
     // Right
-    crate::lines::vertical_line_alpha(image, crate::Pt::new(x1, y0), y1, opacity, color);
+    crate::lines::vertical_line_alpha(image, crate::Pt::new(x1, y0 + 1), y1, opacity, color);
 }
 
 /// Draws a filled rectangle.  The specified point represents the upper left cordner
@@ -74,7 +74,7 @@ pub fn rectangle_alpha<P>(
 /// use image::{RgbaImage, Rgba};
 /// use freehand::shapes::rectangle_filled;
 ///
-/// let color = Rgba([255, 0, 0, 255]); // red
+/// let color = Rgba([255, 0, 0, 255]);
 /// let mut image = RgbaImage::from_pixel(400, 400, Rgba([255, 255, 255, 255]));
 ///
 /// /// A 10px white border will be left around the image borders.
@@ -98,7 +98,7 @@ where
 /// use image::{RgbaImage, Rgba};
 /// use freehand::shapes::rectangle_filled_alpha;
 ///
-/// let color = Rgba([255, 0, 0, 255]); // red
+/// let color = Rgba([255, 0, 0, 255]);
 /// let mut image = RgbaImage::from_pixel(400, 400, Rgba([255, 255, 255, 255]));
 ///
 /// /// A 10px white border will be left around the image borders.
@@ -124,7 +124,57 @@ pub fn rectangle_filled_alpha<P>(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{test_no_color, test_only_color, test_pixels_changed};
+    use crate::{test_no_color, test_only_color, test_pixel_colors, test_pixels_changed};
+
+    mod rectangle {
+        use super::*;
+
+        test_pixels_changed!(
+            rectangle_solid,
+            rectangle((0, 0), 4, 4),
+            4,
+            &*vec![
+                (0, 0),
+                (0, 1),
+                (0, 2),
+                (0, 3),
+                (1, 0),
+                (2, 0),
+                (1, 3),
+                (2, 3),
+                (3, 0),
+                (3, 1),
+                (3, 2),
+                (3, 3)
+            ]
+        );
+    }
+
+    mod rectangle_alpha {
+        use super::*;
+
+        test_pixel_colors!(
+            rectangle_alpha,
+            rectangle_alpha((0, 0), 4, 4, 0.5),
+            4,
+            image::Rgba([255, 0, 0, 255]),
+            &*vec![
+                (0, 0),
+                (0, 1),
+                (0, 2),
+                (0, 3),
+                (1, 0),
+                (2, 0),
+                (1, 3),
+                (2, 3),
+                (3, 0),
+                (3, 1),
+                (3, 2),
+                (3, 3)
+            ],
+            &*vec![image::Rgba([255, 127, 127, 255]); 12]
+        );
+    }
 
     mod rectangle_filled {
         use super::*;

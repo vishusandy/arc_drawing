@@ -11,7 +11,7 @@ use image::{Rgba, RgbaImage};
 /// use freehand::lines::horizontal_line_alpha;
 ///
 /// let bg = Rgba([255, 255, 255, 255]); // white
-/// let color = Rgba([255, 0, 0, 255]); // red
+/// let color = Rgba([255, 0, 0, 255]);
 /// let mut image = RgbaImage::from_pixel(400, 400, bg);
 ///
 /// /// Horizontal line across the center of the image with 50% opacity
@@ -42,7 +42,7 @@ pub fn horizontal_line_alpha<P>(
 /// use freehand::lines::vertical_line_alpha;
 ///
 /// let bg = Rgba([255, 255, 255, 255]); // white
-/// let color = Rgba([255, 0, 0, 255]); // red
+/// let color = Rgba([255, 0, 0, 255]);
 /// let mut image = RgbaImage::from_pixel(400, 400, bg);
 ///
 /// /// Vertical line across the center of the image with 50% opacity
@@ -69,7 +69,7 @@ where
 /// use freehand::lines::diagonal_line_alpha;
 ///
 /// let bg = Rgba([255, 255, 255, 255]); // white
-/// let color = Rgba([255, 0, 0, 255]); // red
+/// let color = Rgba([255, 0, 0, 255]);
 /// let mut image = RgbaImage::from_pixel(400, 400, bg);
 ///
 /// /// Downwards diagonal line across the image with 50% opacity
@@ -123,7 +123,7 @@ pub fn diagonal_line_alpha<P>(
 /// use freehand::lines::vertical_dashed_line_alpha;
 ///
 /// let bg = Rgba([255, 255, 255, 255]); // white
-/// let color = Rgba([255, 0, 0, 255]); // red
+/// let color = Rgba([255, 0, 0, 255]);
 /// let mut image = RgbaImage::from_pixel(400, 400, bg);
 ///
 /// /// Vertical dashed line across the center of the image with a 2px dash and 50% opacity
@@ -179,7 +179,7 @@ pub fn vertical_dashed_line_alpha<P>(
 /// use freehand::lines::horizontal_dashed_line_alpha;
 ///
 /// let bg = Rgba([255, 255, 255, 255]); // white
-/// let color = Rgba([255, 0, 0, 255]); // red
+/// let color = Rgba([255, 0, 0, 255]);
 /// let mut image = RgbaImage::from_pixel(400, 400, bg);
 ///
 /// /// Horizontal dashed line across the center of the image with a 2px dash and 50% opacity
@@ -237,7 +237,7 @@ pub fn horizontal_dashed_line_alpha<P>(
 /// use freehand::lines::diagonal_dashed_line_alpha;
 ///
 /// let bg = Rgba([255, 255, 255, 255]); // white
-/// let color = Rgba([255, 0, 0, 255]); // red
+/// let color = Rgba([255, 0, 0, 255]);
 /// let mut image = RgbaImage::from_pixel(400, 400, bg);
 ///
 /// /// Downards dashed diagonal line across the image with a 2px dash and 50% opacity
@@ -334,6 +334,15 @@ mod tests {
             6,
             image::Rgba([255, 0, 0, 255]),
             &*vec![(0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (0, 5)],
+            &*vec![image::Rgba([255, 127, 127, 255]); 6]
+        );
+
+        test_pixel_colors!(
+            vertical_line_alpha_right,
+            vertical_line_alpha((5, 0), 20, 0.5),
+            6,
+            image::Rgba([255, 0, 0, 255]),
+            &*vec![(5, 0), (5, 1), (5, 2), (5, 3), (5, 4), (5, 5)],
             &*vec![image::Rgba([255, 127, 127, 255]); 6]
         );
 

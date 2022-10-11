@@ -10,7 +10,7 @@ use image::GenericImage;
 /// use freehand::lines::horizontal_dashed_line;
 ///
 /// let bg = Rgba([255, 255, 255, 255]); // white
-/// let color = Rgba([255, 0, 0, 255]); // red
+/// let color = Rgba([255, 0, 0, 255]);
 /// let mut image = RgbaImage::from_pixel(400, 400, bg);
 ///
 /// /// Horizontal dashed line across the center of the image with a 2px dash
@@ -59,7 +59,7 @@ where
 /// use freehand::lines::vertical_dashed_line;
 ///
 /// let bg = Rgba([255, 255, 255, 255]); // white
-/// let color = Rgba([255, 0, 0, 255]); // red
+/// let color = Rgba([255, 0, 0, 255]);
 /// let mut image = RgbaImage::from_pixel(400, 400, bg);
 ///
 /// /// Vertical dashed line across the center of the image with a 2px dash
@@ -108,7 +108,7 @@ where
 /// use freehand::lines::diagonal_dashed_line;
 ///
 /// let bg = Rgba([255, 255, 255, 255]); // white
-/// let color = Rgba([255, 0, 0, 255]); // red
+/// let color = Rgba([255, 0, 0, 255]);
 /// let mut image = RgbaImage::from_pixel(400, 400, bg);
 ///
 /// /// Downards dashed diagonal line across the image with a 2px dash
