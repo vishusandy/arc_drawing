@@ -11,6 +11,42 @@ use pos::Pos;
 ///
 /// A floating-point angle will represent an angle in radians.  Integer types
 /// will represent an angle in degrees.
+///
+/// # Examples
+///
+/// Draws an arc that goes across the top half of the image (0° to 180°):
+///
+/// ```
+/// use image::{RgbaImage, Rgba};
+/// use freehand::conics::arc;
+///
+/// let bg = Rgba([255, 255, 255, 255]); // white
+/// let color = Rgba([255, 0, 0, 255]); // red
+/// let mut image = RgbaImage::from_pixel(400, 400, bg);
+///
+/// let radius = 190;
+/// let center = (200, 200);
+/// let start = 0; // 0°
+/// let end = 180; // 180°
+/// arc(&mut image, start, end, radius, center, color);
+/// ```
+/// Integer numbers for angles are treated as degrees while floating-point numbers
+/// are treated as radians.
+///
+/// This will draw the same image as above using radians (PI = 180°):
+///
+/// ```
+/// # use image::{RgbaImage, Rgba};
+/// # use freehand::conics::arc;
+/// # let bg = Rgba([255, 255, 255, 255]); // white
+/// # let color = Rgba([255, 0, 0, 255]); // red
+/// # let mut image = RgbaImage::from_pixel(400, 400, bg);
+/// # let radius = 190;
+/// # let center = (200, 200);
+/// let start = 0.0;
+/// let end = std::f64::consts::PI;
+/// arc(&mut image, start, end, radius, center, color);
+/// ```
 pub fn arc<A, C, I, T>(
     image: &mut I,
     start_angle: A,
@@ -31,6 +67,27 @@ pub fn arc<A, C, I, T>(
 ///
 /// Does not implement the `Iterator` trait because points for even octants would
 /// be returned in reverse order.
+///
+/// ```
+/// use image::{RgbaImage, Rgba};
+/// use freehand::conics::Arc;
+///
+/// let bg = Rgba([255, 255, 255, 255]); // white
+/// let color = Rgba([255, 0, 0, 255]); // red
+/// let mut image = RgbaImage::from_pixel(400, 400, bg);
+///
+/// /// An arc that goes across the top half of the image (0° to 180°)
+/// let radius = 190;
+/// let center = (200, 200);
+/// let start = 0; // 0°
+/// let end = 180; // 180°
+///
+/// /// Create the struct
+/// let arc = Arc::new(start, end, radius, center);
+///
+/// /// Draw the struct
+/// arc.draw(&mut image, color);
+/// ```
 #[derive(Clone, Debug)]
 pub struct Arc {
     /// Current iteration position.
@@ -58,6 +115,15 @@ impl Arc {
     /// Negative angles are supported as well as angles larger than 360° (or
     /// larger than`2*PI` for radians).  Angles will be normalized into a range
     /// of 0..PI*2.
+    ///
+    /// ```
+    /// # use image::{RgbaImage, Rgba};
+    /// # use freehand::conics::Arc;
+    /// # let bg = Rgba([255, 255, 255, 255]); // white
+    /// # let mut image = RgbaImage::from_pixel(400, 400, bg);
+    ///
+    /// let arc = Arc::new(0, 180, 190, (200, 200));
+    /// ```
     pub fn new<A, T, C>(start_angle: A, end_angle: A, radius: T, center: C) -> Self
     where
         A: crate::Angle,
@@ -105,7 +171,18 @@ impl Arc {
         self.pos.oct == self.end.oct && !self.revisit
     }
 
-    /// Draw the specified arc by iterating over all points.
+    /// Draw the specified arc by iterating over its points.
+    /// ```
+    /// # use image::{RgbaImage, Rgba};
+    /// # use freehand::conics::Arc;
+    ///
+    /// # let bg = Rgba([255, 255, 255, 255]); // white
+    /// # let mut image = RgbaImage::from_pixel(400, 400, bg);
+    ///
+    /// let arc = Arc::new(0, 180, 190, (200, 200));
+    /// arc.draw(&mut image, Rgba([255, 0, 0, 255]));
+    ///
+    /// ```
     pub fn draw<I>(mut self, image: &mut I, color: I::Pixel)
     where
         I: image::GenericImage,
@@ -138,8 +215,8 @@ mod tests {
     use crate::RADS;
 
     #[test]
-    fn arc3_draw() -> Result<(), image::ImageError> {
-        crate::logger(log::LevelFilter::Debug);
+    fn arc_draw() -> Result<(), image::ImageError> {
+        crate::logger(crate::LOG_LEVEL);
 
         let r = 190;
         let c = (200, 200);
@@ -148,11 +225,8 @@ mod tests {
 
         let mut image = crate::setup(r);
         let arc = Arc::new(start, end, r, c);
-        let dbg_arc = arc.clone();
 
         arc.draw(&mut image, image::Rgba([255, 0, 0, 255]));
-
-        log::debug!("{:#?}", dbg_arc);
 
         image.save("images/arc3.png")
     }

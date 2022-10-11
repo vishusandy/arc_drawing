@@ -1,24 +1,94 @@
 //! # Overview
 //!
-//! A lightweight drawing library for use with the [`image`] crate.
+//! A lightweight drawing library for use with the [`image`] crate that only depends on the [`image`] crate.
 //!
-//! Only depends on the [`image`] crate.
-//!
-//! # Drawing Functions
+//! #### Drawing
 //!
 //! The following drawing functions are provided:
-//! - Vertical, horizontal, and diagonal lines with the following variations:
-//!     - Solid
+//! - [Straight lines]:
+//!     - Solid lines
 //!     - Alpha blended solid lines
-//!     - Dashed
+//!     - Dashed lines
 //!     - Alpha blended dashed lines
-//! - Conics/circles:
-//!     - Solid arcs
-//!     - Antialiased arcs
-//!     - [Annuli] - filled donut shape
+//! - [Conics/circles]:
+//!     - [Solid arcs]
+//!     - [Antialiased arcs]
+//!     - [Annuli] (filled donut shape - see [Annulus - Wikipedia])
+//! - [Shapes]:
+//!     - [Filled Rectangles]
 //!
 //![`image`]: https://docs.rs/image/latest/image/
-//! [Annuli]: https://en.wikipedia.org/wiki/Annulus_(mathematics)
+//! [Straight lines]: lines/index.html
+//! [Conics/circles]: conics/index.html
+//! [Annulus - Wikipedia]: https://en.wikipedia.org/wiki/Annulus_(mathematics)
+//! [Annuli]: conics/fn.annulus.html
+//! [Antialiased arcs]: conics/fn.antialiased_arc.html
+//! [Solid arcs]: conics/fn.arc.html
+//! [Shapes]: shapes/index.html
+//! [Filled Rectangles]: shapes/fn.rectangle_filled.html
+//!
+//! # Examples
+//!
+//! #### Arcs
+//!
+//! ```
+//! use freehand::conics::arc;
+//! # use image::{RgbaImage, Rgba};
+//! # let mut image = RgbaImage::from_pixel(400, 400, Rgba([255, 255, 255, 255]));
+//!
+//! /// Note: integers are treated as degrees while floating-point
+//! ///  numbers are treated as radians
+//! let start = 0; // 0°
+//! let end = 180; // 180°
+//!
+//! let radius = 190;
+//! let center = (200, 200);
+//!
+//! arc(&mut image, start, end, radius, center, Rgba([255, 0, 0, 255]));
+//! ```
+//!
+//!
+//! #### Antialiased arcs
+//!
+//! ```
+//! use freehand::conics::antialiased_arc;
+//! # use image::{RgbaImage, Rgba};
+//! # let mut image = RgbaImage::from_pixel(400, 400, Rgba([255, 255, 255, 255]));
+//!
+//! /// Note: integers are treated as degrees while floating-point
+//! ///  numbers are treated as radians
+//! let start = 0; // 0°
+//! let end = 180; // 180°
+//! # let radius = 190;
+//! # let center = (200, 200);
+//!
+//! antialiased_arc(&mut image, start, end, radius, center, Rgba([255, 0, 0, 255]));
+//! ```
+//!
+//! #### Annuli (filled donut)
+//!
+//! ```
+//! use freehand::conics::annulus;
+//! # use image::{RgbaImage, Rgba};
+//! # let bg = Rgba([255, 255, 255, 255]); // white
+//! # let color = Rgba([255, 0, 0, 255]); // red
+//! # let mut image = RgbaImage::from_pixel(400, 400, bg);
+//!
+//! /// Note: integers are treated as degrees while floating-point
+//! ///  numbers are treated as radians
+//! let start = 0.0; // equivalent to 0° in radians
+//! let end = std::f64::consts::PI; // equivalent to 180° in radians
+//!
+//! let inner_radius = 150;
+//! let outer_radius = 190;
+//! # let center = (200, 200);
+//!
+//! annulus(&mut image, start, end, inner_radius, outer_radius, center, color);
+//! ```
+//!
+//!
+
+#![deny(missing_docs)]
 
 mod aa;
 mod angle;
@@ -43,6 +113,66 @@ pub mod lines {
 }
 
 /// Conic/circular functions.  Arcs, antialiased arcs, and annuli (filled-donut shapes).
+///
+/// # Examples
+///
+/// #### Arcs
+///
+/// ```
+/// use freehand::conics::arc;
+/// # use image::{RgbaImage, Rgba};
+/// # let mut image = RgbaImage::from_pixel(400, 400, Rgba([255, 255, 255, 255]));
+///
+/// /// Note: integers are treated as degrees while floating-point
+/// ///  numbers are treated as radians
+/// let start = 0; // 0°
+/// let end = 180; // 180°
+///
+/// let radius = 190;
+/// let center = (200, 200);
+///
+/// arc(&mut image, start, end, radius, center, Rgba([255, 0, 0, 255]));
+/// ```
+///
+///
+/// #### Antialiased arcs
+///
+/// ```
+/// use freehand::conics::antialiased_arc;
+/// # use image::{RgbaImage, Rgba};
+/// # let mut image = RgbaImage::from_pixel(400, 400, Rgba([255, 255, 255, 255]));
+///
+/// /// Note: integers are treated as degrees while floating-point
+/// ///  numbers are treated as radians
+/// let start = 0; // 0°
+/// let end = 180; // 180°
+/// # let radius = 190;
+/// # let center = (200, 200);
+///
+/// antialiased_arc(&mut image, start, end, radius, center, Rgba([255, 0, 0, 255]));
+/// ```
+///
+/// #### Annuli (filled donut)
+///
+/// ```
+/// use freehand::conics::annulus;
+/// # use image::{RgbaImage, Rgba};
+/// # let bg = Rgba([255, 255, 255, 255]); // white
+/// # let color = Rgba([255, 0, 0, 255]); // red
+/// # let mut image = RgbaImage::from_pixel(400, 400, bg);
+///
+/// /// Note: integers are treated as degrees while floating-point
+/// ///  numbers are treated as radians
+/// let start = 0.0; // equivalent to 0° in radians
+/// let end = std::f64::consts::PI; // equivalent to 180° in radians
+///
+/// let inner_radius = 150;
+/// let outer_radius = 190;
+/// # let center = (200, 200);
+///
+/// annulus(&mut image, start, end, inner_radius, outer_radius, center, color);
+/// ```
+///
 pub mod conics {
     pub use crate::aa::cir_arc::{antialiased_arc, AntialiasedArc};
     pub use crate::annulus::{annulus, Annulus};

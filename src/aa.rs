@@ -10,14 +10,15 @@ use crate::Pt;
 #[derive(Clone, Debug)]
 pub struct AAPt<T> {
     /// First point
-    a: Pt<T>,
+    pub a: Pt<T>,
     /// Second point
-    b: Pt<T>,
+    pub b: Pt<T>,
     /// Point `a`'s opacity (distance to a) - range 0..=1.0
-    ob: f64,
+    pub ob: f64,
     /// Point `b`'s opacity (distance to b) range 0..=1.0
-    oa: f64,
+    pub oa: f64,
 }
+
 impl<T> AAPt<T> {
     /// Create a new antialiased point.
     fn new(a: Pt<T>, b: Pt<T>, ob: f64) -> Self {

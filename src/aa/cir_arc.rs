@@ -7,20 +7,75 @@ use crate::Pt;
 ///
 /// If the angles are floating-point numbers they are interpreted as radians.
 /// Otherwise the angles are interpreted as degrees.
-pub fn antialiased_arc<A, C, I>(
+///
+/// ```
+/// use image::{RgbaImage, Rgba};
+/// use freehand::conics::antialiased_arc;
+
+/// let bg = Rgba([255, 255, 255, 255]); // white
+/// let color = Rgba([255, 0, 0, 255]); // red
+/// let mut image = RgbaImage::from_pixel(400, 400, bg);
+///
+/// let radius = 190;
+/// let center = (200, 200);
+/// let start = 0; // 0°
+/// let end = 180; // 180°
+///
+/// antialiased_arc(&mut image, start, end, radius, center, color);
+///
+/// ```
+///
+/// Integer numbers for angles are treated as degrees while floating-point numbers
+/// are treated as radians.
+///
+/// This will draw the same image as above using radians (PI = 180°):
+///
+/// ```
+/// # use image::{RgbaImage, Rgba};
+/// # use freehand::conics::antialiased_arc;
+/// # let bg = Rgba([255, 255, 255, 255]); // white
+/// # let color = Rgba([255, 0, 0, 255]); // red
+/// # let mut image = RgbaImage::from_pixel(400, 400, bg);
+/// # let radius = 190;
+/// # let center = (200, 200);
+/// let start = 0.0;
+/// let end = std::f64::consts::PI;
+/// antialiased_arc(&mut image, start, end, radius, center, color);
+/// ```
+pub fn antialiased_arc<A, C, T>(
     image: &mut image::RgbaImage,
     start_angle: A,
     end_angle: A,
-    radius: f64,
+    radius: T,
     center: C,
     color: image::Rgba<u8>,
 ) where
     A: crate::Angle,
-    C: crate::pt::Point<f64>,
+    C: crate::pt::Point<T>,
+    T: Into<f64>,
 {
-    AntialiasedArc::new(start_angle, end_angle, radius, center.pt()).draw(image, color);
+    AntialiasedArc::new(start_angle, end_angle, radius, center).draw(image, color);
 }
 
+/// An antialiased arc.  Implements [`Iterator`] and returns coordinates in order from the starting point.
+///
+/// ```
+/// use image::{RgbaImage, Rgba};
+/// use freehand::conics::AntialiasedArc;
+
+/// let bg = Rgba([255, 255, 255, 255]); // white
+/// let color = Rgba([255, 0, 0, 255]); // red
+/// let mut image = RgbaImage::from_pixel(400, 400, bg);
+///
+/// let radius = 190;
+/// let center = (200, 200);
+/// let start = 0; // 0°
+/// let end = 180; // 180°
+///
+/// let arc = AntialiasedArc::new(start, end, radius, center);
+///
+/// arc.draw(&mut image, color);
+/// ```
 #[derive(Clone, Debug)]
 pub struct AntialiasedArc {
     /// Current local x coordinate (not the same as the final pixel coordinates)
@@ -57,6 +112,23 @@ impl AntialiasedArc {
     /// # Panic
     ///
     /// Will panic if `radius` is negative.
+    ///
+    /// An antialiased arc.  Implements [`Iterator`] and returns coordinates in order from the starting point.
+    ///
+    /// ```
+    /// # use image::{RgbaImage, Rgba};
+    /// # use freehand::conics::AntialiasedArc;
+
+    /// # let bg = Rgba([255, 255, 255, 255]); // white
+    /// # let mut image = RgbaImage::from_pixel(400, 400, bg);
+    ///
+    /// let radius = 190;
+    /// let center = (200, 200);
+    /// let start = 0; // 0°
+    /// let end = 180; // 180°
+    ///
+    /// let arc = AntialiasedArc::new(start, end, radius, center);
+    /// ```
     pub fn new<A, P, T>(start: A, end: A, radius: T, center: P) -> Self
     where
         A: crate::Angle,
@@ -77,6 +149,24 @@ impl AntialiasedArc {
         }
 
         Self::arc(start, end, radius, center)
+    }
+
+    /// Draw an antialiased arc by iterating over all of its pixels
+    ///
+    /// ```
+    /// # use image::{RgbaImage, Rgba};
+    /// # use freehand::conics::AntialiasedArc;
+
+    /// # let bg = Rgba([255, 255, 255, 255]); // white
+    /// # let mut image = RgbaImage::from_pixel(400, 400, bg);
+    ///
+    /// let arc = AntialiasedArc::new(0, 180, 190, (200, 200));
+    /// arc.draw(&mut image, Rgba([255, 0, 0, 255]))
+    /// ```
+    pub fn draw(self, image: &mut image::RgbaImage, color: image::Rgba<u8>) {
+        for pt in self {
+            pt.draw(image, color);
+        }
     }
 
     /// An internal function to create a new [`AntialiasedArc`] without normalizing
@@ -188,13 +278,6 @@ impl AntialiasedArc {
         self.y = self.r;
         self.fast_x = true;
         self.quad = self.quad % 4 + 1;
-    }
-
-    /// Draw an antialiased arc by iterating over all of its pixels
-    pub fn draw(self, image: &mut image::RgbaImage, color: image::Rgba<u8>) {
-        for pt in self {
-            pt.draw(image, color);
-        }
     }
 
     /// Calculate the slow coordinate from the fast coordinate

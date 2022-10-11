@@ -28,9 +28,11 @@ log = "0.4"
 debug = 1
 
 [[bench]]
-name = "arc_bench"
+path = "benches/arc_bench.rs"
+name = "arcs"
 harness = false
 
-# [[bench]]
-# name = "basics_bench"
-# harness = false
+[[bench]]
+path = "benches/basics_bench.rs"
+name = "basics"
+harness = false

@@ -86,6 +86,30 @@ impl Angle for u64 {
     }
 }
 
+impl Angle for i16 {
+    fn f64(&self) -> f64 {
+        (self % 360) as f64
+    }
+}
+
+impl Angle for i32 {
+    fn f64(&self) -> f64 {
+        (self % 360) as f64
+    }
+}
+
+impl Angle for isize {
+    fn f64(&self) -> f64 {
+        (self % 360) as f64
+    }
+}
+
+impl Angle for i64 {
+    fn f64(&self) -> f64 {
+        (self % 360) as f64
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

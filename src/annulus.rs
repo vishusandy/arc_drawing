@@ -11,6 +11,46 @@ use pos::Pos;
 ///
 /// If the angles are floating-point numbers they are interpreted as radians.
 /// Otherwise the angles are interpreted as degrees.
+///
+/// # Examples
+///
+/// This will draw a 50px wide annulus that goes across the top half of the image (0° to 180°):
+///
+/// ```
+/// use image::{RgbaImage, Rgba};
+/// use freehand::conics::annulus;
+///
+/// let bg = Rgba([255, 255, 255, 255]); // white
+/// let color = Rgba([255, 0, 0, 255]); // red
+/// let mut image = RgbaImage::from_pixel(400, 400, bg);
+///
+/// let inner_radius = 150;
+/// let outer_radius = 190;
+/// let center = (200, 200);
+/// let start = 0; // 0°
+/// let end = 180; // 180°
+///
+/// annulus(&mut image, start, end, inner_radius, outer_radius, center, color);
+/// ```
+///
+/// Integer numbers for angles are treated as degrees while floating-point numbers
+/// are treated as radians.
+///
+/// This will draw the same image as above using radians (PI = 180°):
+///
+/// ```
+/// # use image::{RgbaImage, Rgba};
+/// # use freehand::conics::annulus;
+/// # let bg = Rgba([255, 255, 255, 255]); // white
+/// # let color = Rgba([255, 0, 0, 255]); // red
+/// # let mut image = RgbaImage::from_pixel(400, 400, bg);
+/// # let inner_radius = 150;
+/// # let outer_radius = 190;
+/// # let center = (200, 200);
+/// let start = 0.0; // 0°
+/// let end = std::f64::consts::PI; // 180°
+/// annulus(&mut image, start, end, inner_radius, outer_radius, center, color);
+/// ```
 pub fn annulus<A, C, I>(
     image: &mut I,
     start_angle: A,
@@ -35,6 +75,25 @@ pub fn annulus<A, C, I>(
 }
 
 /// Represents an annulus (part of a filled donut shape) from a start angle to an end angle.
+///
+/// ```
+/// use image::{RgbaImage, Rgba};
+/// use freehand::conics::Annulus;
+///
+/// let bg = Rgba([255, 255, 255, 255]); // white
+/// let color = Rgba([255, 0, 0, 255]); // red
+/// let mut image = RgbaImage::from_pixel(400, 400, bg);
+///
+/// /// A 50px wide annulus that goes across the top half of the image (0° to 180°)
+/// let inner_radius = 150;
+/// let outer_radius = 190;
+/// let center = (200, 200);
+/// let start = 0; // 0°
+/// let end = 180; // 180°
+///
+/// let annulus = Annulus::new(start, end, inner_radius, outer_radius, center);
+/// annulus.draw(&mut image, color);
+/// ```
 #[derive(Clone, Debug)]
 pub struct Annulus {
     end: Edge,
@@ -60,6 +119,18 @@ impl Annulus {
     /// # Panic
     ///
     /// Will panic if either of the radii are negative.
+    ///
+    ///
+    /// ```
+    /// # use image::{RgbaImage, Rgba};
+    /// # use freehand::conics::Annulus;
+    ///
+    /// # let bg = Rgba([255, 255, 255, 255]); // white
+    /// # let color = Rgba([255, 0, 0, 255]); // red
+    /// # let mut image = RgbaImage::from_pixel(400, 400, bg);
+    ///
+    /// let annulus = Annulus::new(0, 180, 150, 190, (200, 200));
+    /// ```
     pub fn new<A, P>(
         start_angle: A,
         end_angle: A,
@@ -76,7 +147,8 @@ impl Annulus {
         if (start_angle - end_angle).abs() <= std::f64::EPSILON {
             end_angle = crate::angle::normalize(end_angle - crate::TINY);
         }
-        Self::check_radii(&mut inner_radius, &mut outer_radius);
+
+        Self::validate_radii(&mut inner_radius, &mut outer_radius);
 
         let end_oct = angle::angle_to_octant(end_angle);
         let start_oct = angle::angle_to_octant(start_angle);
@@ -96,6 +168,36 @@ impl Annulus {
         );
         a.end = Edge::blank(end_angle);
         a
+    }
+
+    /// Draw the annulus
+    ///
+    /// ```
+    /// # use image::{RgbaImage, Rgba};
+    /// # use freehand::conics::Annulus;
+    ///
+    /// # let bg = Rgba([255, 255, 255, 255]); // white
+    /// let color = Rgba([255, 0, 0, 255]); // red
+    /// # let mut image = RgbaImage::from_pixel(400, 400, bg);
+    ///
+    /// let annulus = Annulus::new(0, 180, 150, 190, (190, 190));
+    /// annulus.draw(&mut image, color);
+    /// ```
+    pub fn draw<I>(mut self, image: &mut I, color: I::Pixel)
+    where
+        I: image::GenericImage,
+    {
+        loop {
+            if self.end() {
+                return;
+            }
+            if self.next_octant() {
+                continue;
+            }
+            let (x, y1, y2) = self.step();
+            let (x, y1, y2) = (x, y1.max(x), y2.max(x));
+            self.put_line(x, y1, y2, image, color);
+        }
     }
 
     #[allow(clippy::self_named_constructors)]
@@ -132,26 +234,30 @@ impl Annulus {
         }
     }
 
+    /// Returns the inner end coordinate
     pub fn inner_end(&self) -> Pt<i32> {
         Pt::new(self.inr.ex, self.inr.ey)
     }
 
+    /// Returns the outer end coordinate
     pub fn outer_end(&self) -> Pt<i32> {
         Pt::new(self.otr.ex, self.otr.ey)
     }
 
+    /// Returns the inner start coordinate
     pub fn inner_start(&self) -> Pt<i32> {
         Pt::new(self.inr.x, self.inr.y)
     }
 
+    /// Returns the outer start coordinate
     pub fn outer_start(&self) -> Pt<i32> {
         Pt::new(self.otr.x, self.otr.y)
     }
 
     /// Verify radii are not negative and swap if `inner < outer`.
-    fn check_radii(inner: &mut i32, outer: &mut i32) {
+    fn validate_radii(inner: &mut i32, outer: &mut i32) {
         if inner.is_negative() | outer.is_negative() {
-            panic!("Radii must not be negative");
+            panic!("Invalid radius: cannot be negative");
         }
         if inner > outer {
             std::mem::swap(inner, outer);
@@ -234,24 +340,6 @@ impl Annulus {
             if x < width && y < height {
                 image.put_pixel(x, y, color)
             }
-        }
-    }
-
-    /// Draw the annulus
-    pub fn draw<I>(mut self, image: &mut I, color: I::Pixel)
-    where
-        I: image::GenericImage,
-    {
-        loop {
-            if self.end() {
-                return;
-            }
-            if self.next_octant() {
-                continue;
-            }
-            let (x, y1, y2) = self.step();
-            let (x, y1, y2) = (x, y1.max(x), y2.max(x));
-            self.put_line(x, y1, y2, image, color);
         }
     }
 }

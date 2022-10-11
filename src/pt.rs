@@ -92,7 +92,9 @@ where
 /// public in order for convenience when working with this crate.
 #[derive(Clone, Debug)]
 pub struct Pt<T> {
+    /// The x coordinate
     pub x: T,
+    /// The y coordinate
     pub y: T,
 }
 
