@@ -131,7 +131,6 @@ fn bench_imageproc_blend(c: &mut Criterion) {
             let mut image = blank();
             let color = image::Rgba([255, 0, 0, 127]);
             for (x, y) in (0..IMG_SIZE).zip(0..IMG_SIZE) {
-                let o = x as f32 / IMG_SIZE as f32;
                 image.get_pixel_mut(x, y).blend(&color);
             }
         })

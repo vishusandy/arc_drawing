@@ -1,22 +1,25 @@
 use crate::pt::Point;
 use image::GenericImage;
 
-pub fn horizontal_dashed_line<I, P>(image: &mut I, pt: P, mut x1: u32, width: u32, color: I::Pixel)
+/// Draws a dashed horizontal line.
+///
+/// A `width` of 0 will simply return.
+pub fn horizontal_dashed_line<I, P>(image: &mut I, pt: P, mut x2: u32, width: u32, color: I::Pixel)
 where
     I: GenericImage,
     P: Point<u32>,
 {
     let (mut x0, y) = pt.tuple();
 
-    if x0 > x1 {
-        std::mem::swap(&mut x0, &mut x1);
+    if x0 > x2 {
+        std::mem::swap(&mut x0, &mut x2);
     }
 
     if (width == 0) | (y >= image.height()) | (x0 >= image.width()) {
         return;
     }
 
-    let x1 = x1.min(image.width() - 1);
+    let x1 = x2.min(image.width() - 1);
     let mut x = x0.min(image.width() - 1);
     let mut i = 0;
 
@@ -30,22 +33,25 @@ where
     }
 }
 
-pub fn vertical_dashed_line<I, P>(image: &mut I, pt: P, mut y1: u32, width: u32, color: I::Pixel)
+/// Draws a dashed vertical line.
+///
+/// A `width` of 0 will simply return.
+pub fn vertical_dashed_line<I, P>(image: &mut I, pt: P, mut y2: u32, width: u32, color: I::Pixel)
 where
     I: GenericImage,
     P: Point<u32>,
 {
     let (x, mut y0) = pt.tuple();
 
-    if y0 > y1 {
-        std::mem::swap(&mut y0, &mut y1);
+    if y0 > y2 {
+        std::mem::swap(&mut y0, &mut y2);
     }
 
     if (width == 0) || (x >= image.width() || (y0 >= image.height())) {
         return;
     }
 
-    let y1 = y1.min(image.height() - 1);
+    let y1 = y2.min(image.height() - 1);
     let mut y = y0.min(image.height() - 1);
     let mut i = 0;
 
@@ -59,6 +65,9 @@ where
     }
 }
 
+/// Draws a dashed diagonal line between two points.
+///
+/// A `width` of 0 will simply return.
 pub fn diagonal_dashed_line<I, P>(image: &mut I, mut a: P, mut b: P, width: u32, color: I::Pixel)
 where
     I: GenericImage,

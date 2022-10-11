@@ -1,12 +1,11 @@
 # Freehand
 
-Freehand is a small Rust library with minimal dependencies that provides extra drawing utilities that utilize the [`image`](https://github.com/image-rs/image) crate.
+Freehand is a small Rust library with minimal dependencies that provides extra drawing utilities that utilize the [`image`](https://docs.rs/image/latest/image/) crate.
 
 ## Why?
 
-- only depends on the [`image`](https://github.com/image-rs/image) crate
-- faster blend function
-- provides some additional drawing functions not found in the [`imageproc`](https://docs.rs/imageproc/latest/imageproc/) (which also has many dependencies)
+- Only depends on the [`image`](https://docs.rs/image/latest/image/) crate.
+- Provides some additional drawing functions not found in the [`imageproc`](https://docs.rs/imageproc/latest/imageproc/) (which also has many dependencies).
 
 ## Drawing
 
@@ -16,10 +15,6 @@ It provides the following for drawing:
 - antialiased circular arcs
 - straight vertical, horizontal, and diagonal lines, with variants for dashed lines and alpha blended lines
 - filled rectangles
-
-## Performance
-
-The `blend_at_unchecked()` function for `Rgba<u8>` can be used over `Image`'s [blend()](https://docs.rs/image/latest/image/struct.Rgba.html#method.blend) method for extra performance.
 
 ## Unsafe
 

@@ -1,40 +1,45 @@
 use crate::RADS;
 
 #[inline]
+/// Find the octant that contains a given angle.
 pub(crate) fn angle_to_octant(angle: f64) -> u8 {
     (angle / RADS).floor() as u8 + 1
 }
 
-#[allow(dead_code)]
 #[inline]
-pub(crate) fn rev_angle(angle: f64, oct: u8) -> f64 {
-    RADS - (angle - octant_start_angle(oct))
-}
-
-#[inline]
+/// Retrieve the start angle of the specified octant.
 pub(crate) fn octant_start_angle(oct: u8) -> f64 {
     (oct - 1) as f64 * RADS
 }
 
 #[inline]
+/// Retrieve the end angle of the specified octant.
 pub(crate) fn octant_end_angle(oct: u8) -> f64 {
     // subtract a *very* tiny amount to prevent moving into the next octant
     oct as f64 * RADS - crate::TINY
 }
 
 #[inline]
+/// Normalize an angle.  Handles negative angles and angles larger than `2*PI`.
 pub(crate) fn normalize(angle: f64) -> f64 {
     use crate::PI2;
     (angle % PI2 + PI2) % PI2
 }
 
 #[inline]
+/// Find the quadrant that contains a given angle.
 pub(crate) fn angle_to_quad(angle: f64) -> u8 {
     (angle / crate::QUAD).floor() as u8 + 1
 }
 
+/// Represents a number that can be converted to a radian.
+///
+/// Floating-point numbers represent radians while integers represent degrees.
 pub trait Angle {
+    /// Convert the number into an f64
     fn f64(&self) -> f64;
+
+    /// Return the number as a radian
     fn radians(&self) -> f64 {
         self.f64().to_radians()
     }

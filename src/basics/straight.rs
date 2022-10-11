@@ -1,25 +1,27 @@
 use crate::pt::Point;
 use image::GenericImage;
 
-pub fn horizontal_line<I, P>(image: &mut I, pt: P, x1: u32, color: I::Pixel)
+/// Draws a straight horizontal line.
+pub fn horizontal_line<I, P>(image: &mut I, pt: P, x2: u32, color: I::Pixel)
 where
     I: GenericImage,
     P: Point<u32>,
 {
     if pt.y() < image.height() {
-        (pt.x().min(image.width() - 1)..=x1.min(image.width() - 1))
+        (pt.x().min(image.width() - 1)..=x2.min(image.width() - 1))
             // This is safe due to the min() calls above
             .for_each(|x| unsafe { image.unsafe_put_pixel(x, pt.y(), color) });
     }
 }
 
-pub fn vertical_line<I, P>(image: &mut I, pt: P, y1: u32, color: I::Pixel)
+/// Draws a straight vertical line.
+pub fn vertical_line<I, P>(image: &mut I, pt: P, y2: u32, color: I::Pixel)
 where
     I: GenericImage,
     P: Point<u32>,
 {
     if pt.x() < image.width() {
-        (pt.y().min(image.height() - 1)..=y1.min(image.height() - 1))
+        (pt.y().min(image.height() - 1)..=y2.min(image.height() - 1))
             // This is safe due to the min() calls above
             .for_each(|y| unsafe { image.unsafe_put_pixel(pt.x(), y, color) });
     }

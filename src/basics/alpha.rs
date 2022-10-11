@@ -2,33 +2,43 @@ use crate::ops::blend_at_unchecked;
 use crate::pt::Point;
 use image::{Rgba, RgbaImage};
 
+/// Draws a solid horizontal line by blending it into the image with a specified opacity.
+///
+/// Opacity should be in the range `0..=1`
 pub fn horizontal_line_alpha<P>(
     image: &mut RgbaImage,
     pt: P,
-    x1: u32,
+    x2: u32,
     opacity: f32,
     color: Rgba<u8>,
 ) where
     P: Point<u32>,
 {
     if pt.y() < image.height() {
-        (pt.x().min(image.width() - 1)..=x1.min(image.width() - 1))
+        (pt.x().min(image.width() - 1)..=x2.min(image.width() - 1))
             // This is safe due to the min() calls above
             .for_each(|x| unsafe { blend_at_unchecked(image, x, pt.y(), opacity, color) });
     }
 }
 
-pub fn vertical_line_alpha<P>(image: &mut RgbaImage, pt: P, y1: u32, opacity: f32, color: Rgba<u8>)
+/// Draws a solid vertical line by blending it into the image with a specified opacity.
+///
+/// Opacity should be in the range `0..=1`
+pub fn vertical_line_alpha<P>(image: &mut RgbaImage, pt: P, y2: u32, opacity: f32, color: Rgba<u8>)
 where
     P: Point<u32>,
 {
     if pt.x() < image.width() {
-        (pt.y().min(image.height() - 1)..=y1.min(image.height() - 1))
+        (pt.y().min(image.height() - 1)..=y2.min(image.height() - 1))
             // This is safe due to the min() calls above
             .for_each(|y| unsafe { blend_at_unchecked(image, pt.x(), y, opacity, color) });
     }
 }
 
+/// Draws a solid diagonal line between two points by blending it into the image
+/// with a specified opacity.
+///
+/// Opacity should be in the range `0..=1`
 pub fn diagonal_line_alpha<P>(
     image: &mut RgbaImage,
     mut a: P,
@@ -64,6 +74,11 @@ pub fn diagonal_line_alpha<P>(
     }
 }
 
+/// Draws a dashed vertical line by blending it into the image with a specified opacity.
+///
+/// Opacity should be in the range `0..=1`
+///
+/// A `width` of 0 will simply return.
 pub fn vertical_dashed_line_alpha<P>(
     image: &mut RgbaImage,
     pt: P,
@@ -98,6 +113,11 @@ pub fn vertical_dashed_line_alpha<P>(
     }
 }
 
+/// Draws a dashed horizontal line by blending it into the image with a specified opacity.
+///
+/// Opacity should be in the range `0..=1`
+///
+/// A `width` of 0 will simply return.
 pub fn horizontal_dashed_line_alpha<P>(
     image: &mut RgbaImage,
     pt: P,
@@ -132,6 +152,12 @@ pub fn horizontal_dashed_line_alpha<P>(
     }
 }
 
+/// Draws a dashed horizontal line between two points by blending it into the image
+/// with a specified opacity.
+///
+/// Opacity should be in the range `0..=1`
+///
+/// A `width` of 0 will simply return.
 pub fn diagonal_dashed_line_alpha<P>(
     image: &mut RgbaImage,
     mut a: P,

@@ -28,7 +28,7 @@ impl Pos {
     }
 
     /// Get `self.y` when `self.x` is the same as the specified `x`
-    pub(super) fn get_matching_y(&self, x: i32) -> Option<i32> {
+    pub(super) fn matching_y(&self, x: i32) -> Option<i32> {
         if x == self.x {
             Some(self.y)
         } else {

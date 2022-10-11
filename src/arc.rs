@@ -7,6 +7,10 @@ use bounds::Bounds;
 use edge::Edge;
 use pos::Pos;
 
+/// Draws an arc from a given start angle to an end angle.
+///
+/// A floating-point angle will represent an angle in radians.  Integer types
+/// will represent an angle in degrees.
 pub fn arc<A, C, I, T>(
     image: &mut I,
     start_angle: A,
@@ -23,18 +27,38 @@ pub fn arc<A, C, I, T>(
     Arc::new(start_angle, end_angle, radius, center).draw(image, color);
 }
 
+/// A structure for iterating over points in an arc.
+///
+/// Does not implement the `Iterator` trait because points for even octants would
+/// be returned in reverse order.
 #[derive(Clone, Debug)]
 pub struct Arc {
+    /// Current iteration position.
     pos: Pos,
+    /// Angle and octant of the start edge
     start: Edge,
+    /// Angle and octant of the end edge
     end: Edge,
+    /// Center of the circular arc
     c: Pt<i32>,
+    /// Radius of the arc
     r: i32,
+    /// Used to determine when to iterate over all octants and back to the original octant.
+    /// If `revisit` is true iteration will not immediately end when the octant is finished.
+    /// This is set to true for the first octant when `start.oct == end.oct` and `start.angle > end.angle`
     revisit: bool,
 }
 
 impl Arc {
-    pub fn new<A, T, C>(start_angle: A, end_angle: A, r: T, c: C) -> Self
+    /// Creates a new [`Arc`].
+    ///
+    /// Floating-point angles will represent an angle in radians.  Integer types
+    /// will represent an angle in degrees.
+    ///
+    /// Negative angles are supported as well as angles larger than 360° (or
+    /// larger than`2*PI` for radians).  Angles will be normalized into a range
+    /// of 0..PI*2.
+    pub fn new<A, T, C>(start_angle: A, end_angle: A, radius: T, center: C) -> Self
     where
         A: crate::Angle,
         T: Into<i32>,
@@ -43,7 +67,7 @@ impl Arc {
         let start = angle::normalize(start_angle.radians());
         let end = angle::normalize(end_angle.radians());
 
-        let mut arc = Self::blank(start, end, r, c);
+        let mut arc = Self::blank(start, end, radius, center);
         let bounds = Bounds::start_bounds(&arc.start, &arc.end, arc.revisit);
 
         arc.pos = Pos::new(arc.start.oct, bounds, arc.r, arc.c);
@@ -81,6 +105,7 @@ impl Arc {
         self.pos.oct == self.end.oct && !self.revisit
     }
 
+    /// Draw the specified arc by iterating over all points.
     pub fn draw<I>(mut self, image: &mut I, color: I::Pixel)
     where
         I: image::GenericImage,

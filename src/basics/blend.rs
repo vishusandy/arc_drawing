@@ -1,6 +1,9 @@
 /// Blend a specified color into an existing image coordinate.  This ignores `color`'s
 /// alpha value and instead uses `opac` which is a floating point number from 0.0 to 1.0.
 ///
+/// The resulting color's alpha channel will ignore the specified opacity and simply
+/// mix the two alpha channels together.
+///
 /// A few safety checks are skipped here for performance
 ///
 /// # Safety
@@ -30,6 +33,9 @@ pub unsafe fn blend_at_unchecked(
 
 /// Blend a specified color into an existing image coordinate.  This ignores `color`'s
 /// alpha value and instead uses `opac` which is a floating point number from 0.0 to 1.0.
+///
+/// The resulting color's alpha channel will ignore the specified opacity and simply
+/// mix the two alpha channels together.
 pub fn blend_at(
     image: &mut image::RgbaImage,
     x: u32,

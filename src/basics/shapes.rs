@@ -1,5 +1,7 @@
 use image::GenericImage;
 
+/// Draws a filled rectangle.  The specified point represents the upper left cordner
+/// of the rectangle, and will be drawn using the given `height` and `width`.
 pub fn rectangle_filled<I: GenericImage, P: crate::pt::Point<u32>>(
     image: &mut I,
     pt: P,

@@ -67,7 +67,7 @@ fn bench_partial_annulus(c: &mut Criterion) {
         b.iter_batched(
             blank,
             |mut image| {
-                let arc = freehand::Annulus::new(START, END, RADIUS - 10, RADIUS, CENTER);
+                let arc = freehand::conics::Annulus::new(START, END, RADIUS - 10, RADIUS, CENTER);
                 arc.draw(&mut image, image::Rgba([255, 0, 0, 255]));
             },
             BatchSize::SmallInput,
@@ -84,7 +84,7 @@ fn bench_aa_partial_arc(c: &mut Criterion) {
             || {
                 (
                     blank(),
-                    freehand::AntialiasedArc::new(START, END, RADIUS_F as f64, CENTER_F),
+                    freehand::conics::AntialiasedArc::new(START, END, RADIUS_F as f64, CENTER_F),
                 )
             },
             |(mut image, arc)| {
@@ -100,8 +100,8 @@ fn bench_aa_multiple_arcs(c: &mut Criterion) {
     const SIZE: u32 = 600;
     const C: freehand::Pt<f64> = freehand::Pt::new(300.0, 300.0);
     let base = image::RgbaImage::from_pixel(SIZE, SIZE, image::Rgba([255, 255, 255, 255]));
-    let arcs: Vec<freehand::AntialiasedArc> = (0..50)
-        .map(|i| freehand::AntialiasedArc::new(STARTS[i], ENDS[i], RADII[i], C))
+    let arcs: Vec<freehand::conics::AntialiasedArc> = (0..50)
+        .map(|i| freehand::conics::AntialiasedArc::new(STARTS[i], ENDS[i], RADII[i], C))
         .collect();
 
     c.bench_function("50_aa_arcs", |b| {
@@ -125,7 +125,7 @@ fn bench_arc(c: &mut Criterion) {
         b.iter_batched(
             blank,
             |mut image| {
-                freehand::Arc::new(START, END, RADIUS, CENTER)
+                freehand::conics::Arc::new(START, END, RADIUS, CENTER)
                     .draw(&mut image, image::Rgba([255, 0, 0, 255]));
             },
             BatchSize::SmallInput,
@@ -151,4 +151,5 @@ criterion_group!(annulus, bench_partial_annulus);
 criterion_group!(arcs, bench_arc);
 
 // criterion_main!(warmup, stock, arc, annulus, antialias);
-criterion_main!(warmup, fp, bres_iterators, stock, arcs, antialias);
+// criterion_main!(warmup, fp, bres_iterators, stock, arcs, antialias);
+criterion_main!(warmup, antialias);

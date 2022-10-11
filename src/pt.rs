@@ -1,12 +1,43 @@
+//! Simple point manipulations.
+//!
+//! # [`Point`] trait
+//! The [`Point`] trait helps make functions easier to use.  Functions can take a
+//! generic argument implementing [`Point`] instead of a function that takes an
+//! explicit [`Pt`].  This will allow the functions to be called with an `(x, y)`
+//! tuple as well.
+//!
+//! # [`Pt`] struct
+//!
+//! The [`Pt`] struct represents an x, y coordinate while also providing some
+//! basic manipulation.
+//!
+//!
+//!
+
+/// Represents x, y coordinates for a type.  Allows functions to be generic over
+/// types that represent x, y coordinates.
 pub trait Point<T> {
+    /// Return a [`Pt`]
     fn pt(&self) -> Pt<T> {
         Pt::new(self.x(), self.y())
     }
+
+    /// Return an `(x, y)` tuple
     fn tuple(&self) -> (T, T) {
         (self.x(), self.y())
     }
+
+    /// Return the x coordinate
     fn x(&self) -> T;
+
+    /// Return the y coordinate
     fn y(&self) -> T;
+
+    /// Replace the x coordinate
+    fn set_x(&mut self, x: T);
+
+    /// Replace the y coordinate
+    fn set_y(&mut self, y: T);
 }
 
 impl<T> Point<T> for (T, T)
@@ -16,8 +47,17 @@ where
     fn x(&self) -> T {
         self.0
     }
+
     fn y(&self) -> T {
         self.1
+    }
+
+    fn set_x(&mut self, x: T) {
+        self.0 = x;
+    }
+
+    fn set_y(&mut self, y: T) {
+        self.1 = y;
     }
 }
 
@@ -25,14 +65,31 @@ impl<T> Point<T> for Pt<T>
 where
     T: Copy,
 {
+    fn pt(&self) -> Self {
+        *self
+    }
+
     fn x(&self) -> T {
         self.x()
     }
+
     fn y(&self) -> T {
         self.y()
     }
+
+    fn set_x(&mut self, x: T) {
+        self.x = x;
+    }
+
+    fn set_y(&mut self, y: T) {
+        self.y = y;
+    }
 }
 
+/// Represents an x, y point and provides basic manipulation.
+///
+/// This is mostly intended for use within the crate, however it is provided as
+/// public in order for convenience when working with this crate.
 #[derive(Clone, Debug)]
 pub struct Pt<T> {
     pub x: T,
@@ -42,11 +99,13 @@ pub struct Pt<T> {
 impl<T> Copy for Pt<T> where T: Copy {}
 
 impl<T> Pt<T> {
+    /// Create a new `Pt` from x, y coordinates
     pub const fn new(x: T, y: T) -> Self {
         Self { x, y }
     }
 
     #[inline]
+    /// Return the x coordinate
     pub const fn x(&self) -> T
     where
         T: Copy,
@@ -55,6 +114,7 @@ impl<T> Pt<T> {
     }
 
     #[inline]
+    /// Return the y coordinate
     pub const fn y(&self) -> T
     where
         T: Copy,
@@ -62,6 +122,7 @@ impl<T> Pt<T> {
         self.y
     }
 
+    /// Add a number to the x and y coordinates
     pub fn add(&self, value: T) -> Self
     where
         T: Copy + std::ops::Add<Output = T>,
@@ -72,6 +133,7 @@ impl<T> Pt<T> {
         }
     }
 
+    /// Subtract a number from the x and y coordinates
     pub fn sub(&self, value: T) -> Self
     where
         T: Copy + std::ops::Sub<Output = T>,
@@ -82,6 +144,7 @@ impl<T> Pt<T> {
         }
     }
 
+    /// Multiply a number with the x and y coordinates
     pub fn mul(&self, value: T) -> Self
     where
         T: Copy + std::ops::Mul<Output = T>,
@@ -92,6 +155,7 @@ impl<T> Pt<T> {
         }
     }
 
+    /// Divide both of the x and y coordinates by a number
     pub fn div(&self, value: T) -> Self
     where
         T: Copy + std::ops::Div<Output = T>,
@@ -102,6 +166,7 @@ impl<T> Pt<T> {
         }
     }
 
+    /// Convert real image coordinates to those used by an iterator in octant 7.
     pub(crate) fn real_to_iter(mut self, oct: u8, c: Pt<T>) -> Pt<T>
     where
         T: Copy + std::ops::Neg<Output = T> + std::ops::SubAssign,
@@ -121,6 +186,7 @@ impl<T> Pt<T> {
         }
     }
 
+    /// Convert iterator coordinates in quadrant 4 (octants 7 & 8) to those used by an image.
     pub(crate) fn iter_to_quad(&self, quad: u8, c: Pt<T>) -> Self
     where
         T: Copy + std::ops::Add<Output = T> + std::ops::Neg<Output = T>,
@@ -134,6 +200,7 @@ impl<T> Pt<T> {
         }
     }
 
+    /// Convert real image coordinates to those used in an iterator in quadrant 4 (octants 7 & 8)
     pub(crate) fn quad_to_iter(&self, quad: u8, c: Pt<T>) -> Self
     where
         T: Copy + std::ops::Sub<Output = T> + std::ops::Neg<Output = T> + std::fmt::Debug,
@@ -151,6 +218,7 @@ impl<T> Pt<T> {
 }
 
 impl Pt<f64> {
+    /// Calculates a point on a circle using the given angle, radius, and circle center.
     pub fn from_radian<T, P>(angle: f64, radius: T, center: P) -> Self
     where
         T: Into<f64> + Copy,
@@ -162,6 +230,23 @@ impl Pt<f64> {
         Self { x, y }
     }
 
+    /// Calculates a point on a circle using an angle, radius, and circle center.
+    ///
+    /// Floating-point numbers will be treated as radians while other numbers will be
+    /// treated as degrees.
+    pub fn from_angle<A, P, T>(angle: A, radius: T, center: P) -> Self
+    where
+        A: crate::angle::Angle,
+        P: crate::pt::Point<T>,
+        T: Into<f64> + Copy,
+    {
+        let x = center.x().into() + radius.into() * angle.radians().cos();
+        let y = center.y().into() - radius.into() * angle.radians().sin();
+
+        Self { x, y }
+    }
+
+    /// Round and cast to a `Pt<i32>`.
     pub fn i32(&self) -> Pt<i32> {
         Pt {
             x: self.x.round() as i32,
@@ -170,6 +255,7 @@ impl Pt<f64> {
     }
 
     #[allow(dead_code)]
+    /// Casts to a `Pt<u32>` with `abs()` and `round()`
     pub fn u32(&self) -> Pt<u32> {
         Pt {
             x: self.x.abs().round() as u32,
@@ -179,41 +265,47 @@ impl Pt<f64> {
 }
 
 impl Pt<i32> {
-    pub fn u32(&self) -> Pt<u32> {
+    /// Casts to a `Pt<u32>`
+    pub const fn u32(&self) -> Pt<u32> {
         Pt {
             x: self.x as u32,
             y: self.y as u32,
         }
     }
 
-    pub fn abs_u32(&self) -> Pt<u32> {
+    /// A safer conversion to a `Pt<u32>` using `unsigned_abs()`
+    pub const fn abs_u32(&self) -> Pt<u32> {
         Pt {
             x: self.x.unsigned_abs(),
             y: self.y.unsigned_abs(),
         }
     }
 
-    pub fn is_negative(&self) -> bool {
+    /// Returns whether both coordinates are negative
+    pub const fn is_negative(&self) -> bool {
         self.x.is_negative() | self.y.is_negative()
     }
 }
 
 impl Pt<u32> {
-    pub fn i32(&self) -> Pt<i32> {
+    /// Cast to a `Pt<i32>`
+    pub const fn i32(&self) -> Pt<i32> {
         Pt {
             x: self.x as i32,
             y: self.y as i32,
         }
     }
 
-    pub fn f32(&self) -> Pt<f32> {
+    /// Cast to a `Pt<f32>`
+    pub const fn f32(&self) -> Pt<f32> {
         Pt {
             x: self.x as f32,
             y: self.y as f32,
         }
     }
 
-    pub fn f64(&self) -> Pt<f64> {
+    /// Cast to a `Pt<f64>`
+    pub const fn f64(&self) -> Pt<f64> {
         Pt {
             x: self.x as f64,
             y: self.y as f64,

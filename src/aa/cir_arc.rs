@@ -1,3 +1,4 @@
+use super::end::End;
 use super::AAPt;
 use crate::angle::angle_to_quad;
 use crate::Pt;
@@ -37,25 +38,49 @@ pub struct AntialiasedArc {
     /// Whether to increment x (true) or y (false) every iteration.  Only used to make forty-five degree edges look nicer
     fast_x: bool,
     /// Used when start_angle > end_angle and start_quad == end_quad.  This allows it to  loop back around the circle
-    skip: bool,
+    revisit: bool,
     /// Where to stop
     end: End,
     /// Center coordinates
     c: Pt<f64>,
 }
 impl AntialiasedArc {
-    pub fn new<A>(start: A, end: A, r: f64, c: Pt<f64>) -> Self
+    /// Creates a new [`AntialiasedArc`].
+    ///
+    /// If the angles are floating-point numbers they are interpreted as radians.
+    /// Otherwise the angles are interpreted as degrees.
+    ///
+    /// Negative angles are supported as well as angles larger than 360° (or
+    /// larger than`2*PI` for radians).  Angles will be normalized into a range
+    /// of 0..PI*2.
+    ///
+    /// # Panic
+    ///
+    /// Will panic if `radius` is negative.
+    pub fn new<A, P, T>(start: A, end: A, radius: T, center: P) -> Self
     where
         A: crate::Angle,
+        P: crate::Point<T>,
+        T: Into<f64>,
     {
+        let radius = radius.into();
+        let center = Pt::new(center.x().into(), center.y().into());
+
+        if radius < 0.0 {
+            panic!("Cannot specify a negative radius");
+        }
+
         let start = crate::angle::normalize(start.radians());
         let mut end = crate::angle::normalize(end.radians());
         if (start - end).abs() <= std::f64::EPSILON {
             end = crate::angle::normalize(start - crate::TINY);
         }
-        Self::arc(start, end, r, c)
+
+        Self::arc(start, end, radius, center)
     }
 
+    /// An internal function to create a new [`AntialiasedArc`] without normalizing
+    /// angles or checking the radius.
     fn arc<T>(start_angle: T, end_angle: T, r: f64, c: Pt<f64>) -> Self
     where
         T: crate::Angle + std::fmt::Display,
@@ -80,13 +105,14 @@ impl AntialiasedArc {
             r2: r * r,
             quad,
             end_quad,
-            skip: start_angle > end_angle && quad == end_quad,
+            revisit: start_angle > end_angle && quad == end_quad,
             fast_x: inc_x,
             end: End::new(end),
             c,
         }
     }
 
+    /// Advance in the x direction
     fn step_x(&mut self) -> Option<AAPt<i32>> {
         if (self.end_quad == self.quad) & self.end.match_x(self.x) {
             return None;
@@ -103,6 +129,7 @@ impl AntialiasedArc {
         Some(rst)
     }
 
+    /// Advance in the y direction
     fn step_y(&mut self) -> Option<AAPt<i32>> {
         if (self.end_quad == self.quad) & self.end.match_y(self.y) {
             return None;
@@ -127,7 +154,7 @@ impl AntialiasedArc {
             // This is to handle the forty-five degree edge case
             self.fast_x = false;
             self.y = self.y.ceil();
-            self.step_y().map(|o| o.mult_opac_b(0.5))
+            self.step_y().map(|o| o.mult_opac_a(0.5))
         } else {
             self.step_y()
         }
@@ -146,8 +173,8 @@ impl AntialiasedArc {
     /// Check if iteration should end
     fn end(&mut self) -> bool {
         let last = (self.quad == self.end_quad) & (self.y <= 0.0);
-        if self.skip & last {
-            self.skip = false;
+        if self.revisit & last {
+            self.revisit = false;
             self.reset();
             false
         } else {
@@ -163,7 +190,7 @@ impl AntialiasedArc {
         self.quad = self.quad % 4 + 1;
     }
 
-    /// Draw by iterating over the arc
+    /// Draw an antialiased arc by iterating over all of its pixels
     pub fn draw(self, image: &mut image::RgbaImage, color: image::Rgba<u8>) {
         for pt in self {
             pt.draw(image, color);
@@ -196,46 +223,6 @@ impl Iterator for AntialiasedArc {
             return self.next();
         }
         self.step()
-    }
-}
-
-#[derive(Copy, Clone, Debug)]
-enum End {
-    X(f64),
-    Y(f64),
-}
-impl End {
-    fn new(p: Pt<f64>) -> Self {
-        if p.x() <= p.y() {
-            Self::X(p.x())
-        } else {
-            Self::Y(p.y())
-        }
-    }
-
-    /// Check if the end point has been reached
-    #[allow(dead_code)]
-    fn r#match(&self, p: Pt<f64>) -> bool {
-        match self {
-            Self::X(x) => *x <= p.x,
-            Self::Y(y) => *y >= p.y,
-        }
-    }
-
-    /// Check if an X end point has been reached
-    fn match_x(&self, p: f64) -> bool {
-        match self {
-            Self::X(x) => *x <= p,
-            _ => false,
-        }
-    }
-
-    /// Check if an Y end point has been reached
-    fn match_y(&self, p: f64) -> bool {
-        match self {
-            Self::Y(y) => *y >= p,
-            _ => false,
-        }
     }
 }
 

@@ -6,6 +6,7 @@ use crate::pt::Point;
 use crate::{angle, Pt};
 use edges::Edge;
 use pos::Pos;
+
 /// Draws a partial annulus (filled donut).
 ///
 /// If the angles are floating-point numbers they are interpreted as radians.
@@ -33,6 +34,7 @@ pub fn annulus<A, C, I>(
     .draw(image, color);
 }
 
+/// Represents an annulus (part of a filled donut shape) from a start angle to an end angle.
 #[derive(Clone, Debug)]
 pub struct Annulus {
     end: Edge,
@@ -46,7 +48,25 @@ pub struct Annulus {
 }
 
 impl Annulus {
-    pub fn new<A, P>(start_angle: A, end_angle: A, mut ri: i32, mut ro: i32, c: P) -> Self
+    /// Creates a new [`Annulus`].
+    ///
+    /// A floating-point angle will represent an angle in radians.  Integer types
+    /// will represent an angle in degrees.
+    ///
+    /// Negative angles are supported as well as angles larger than 360° (or
+    /// larger than`2*PI` for radians).  Angles will be normalized into a range
+    /// of 0..PI*2.
+    ///
+    /// # Panic
+    ///
+    /// Will panic if either of the radii are negative.
+    pub fn new<A, P>(
+        start_angle: A,
+        end_angle: A,
+        mut inner_radius: i32,
+        mut outer_radius: i32,
+        center: P,
+    ) -> Self
     where
         A: crate::Angle,
         P: crate::pt::Point<i32>,
@@ -56,7 +76,7 @@ impl Annulus {
         if (start_angle - end_angle).abs() <= std::f64::EPSILON {
             end_angle = crate::angle::normalize(end_angle - crate::TINY);
         }
-        Self::check_radii(&mut ri, &mut ro);
+        Self::check_radii(&mut inner_radius, &mut outer_radius);
 
         let end_oct = angle::angle_to_octant(end_angle);
         let start_oct = angle::angle_to_octant(start_angle);
@@ -67,12 +87,20 @@ impl Annulus {
             end_angle
         };
 
-        let mut a = Self::annulus(start_angle, cur_end, ri, ro, c.pt());
+        let mut a = Self::annulus(
+            start_angle,
+            cur_end,
+            inner_radius,
+            outer_radius,
+            center.pt(),
+        );
         a.end = Edge::blank(end_angle);
         a
     }
 
     #[allow(clippy::self_named_constructors)]
+    /// An internal function used to create a new [`Annulus`].  The `new()` function
+    /// should be used externally, which will also normalize angles and check the radii.
     fn annulus(start_angle: f64, end_angle: f64, ri: i32, ro: i32, c: Pt<i32>) -> Self {
         let end_oct = angle::angle_to_octant(end_angle);
         let start_oct = angle::angle_to_octant(start_angle);
@@ -120,15 +148,17 @@ impl Annulus {
         Pt::new(self.otr.x, self.otr.y)
     }
 
-    fn check_radii(a: &mut i32, b: &mut i32) {
-        if a.is_negative() | b.is_negative() {
+    /// Verify radii are not negative and swap if `inner < outer`.
+    fn check_radii(inner: &mut i32, outer: &mut i32) {
+        if inner.is_negative() | outer.is_negative() {
             panic!("Radii must not be negative");
         }
-        if a > b {
-            std::mem::swap(a, b);
+        if inner > outer {
+            std::mem::swap(inner, outer);
         }
     }
 
+    /// Switch to the next octant
     fn next_octant(&mut self) -> bool {
         if self.x > self.inr.ex && self.x > self.otr.ex {
             self.oct = self.oct % 8 + 1; // Increment octant.  Wraps around to 1 if oct == 8
@@ -140,6 +170,7 @@ impl Annulus {
         }
     }
 
+    /// Checks to see if the end has been reached
     fn end(&self) -> bool {
         match self.oct == self.end.oct && self.x > self.inr.ex && self.x > self.otr.ex {
             true => self.cur_start.angle <= self.end.angle,
@@ -147,11 +178,15 @@ impl Annulus {
         }
     }
 
+    /// Retrieve the next points in the annulus.
+    ///
+    /// Returns a local x coordinate and two y coordinates (in iterator
+    /// coordinates not image coordinates).
     fn step(&mut self) -> (i32, i32, i32) {
         let x = self.x;
         self.x += 1;
 
-        match (self.inr.get_matching_y(x), self.otr.get_matching_y(x)) {
+        match (self.inr.matching_y(x), self.otr.matching_y(x)) {
             (Some(inr), Some(otr)) => {
                 self.inr.inc();
                 self.otr.inc();
@@ -183,6 +218,7 @@ impl Annulus {
         }
     }
 
+    /// Draw a line from the given iterator coordinates onto an image.
     fn put_line<I: image::GenericImage>(
         &self,
         x: i32,
@@ -201,6 +237,7 @@ impl Annulus {
         }
     }
 
+    /// Draw the annulus
     pub fn draw<I>(mut self, image: &mut I, color: I::Pixel)
     where
         I: image::GenericImage,
