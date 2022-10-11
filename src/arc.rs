@@ -131,7 +131,7 @@ impl Arc {
         C: crate::pt::Point<T>,
     {
         let start = angle::normalize(start_angle.radians());
-        let end = angle::normalize(end_angle.radians());
+        let end = angle::normalize(end_angle.radians() - crate::TINY);
 
         let mut arc = Self::blank(start, end, radius, center);
         let bounds = Bounds::start_bounds(&arc.start, &arc.end, arc.revisit);

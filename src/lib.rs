@@ -15,7 +15,7 @@
 //!     - [Antialiased arcs]
 //!     - [Annuli] (filled donut shape - see [Annulus - Wikipedia])
 //! - [Shapes]:
-//!     - [Filled Rectangles]
+//!     - Rectangles
 //!
 //![`image`]: https://docs.rs/image/latest/image/
 //! [Straight lines]: lines/index.html
@@ -25,11 +25,12 @@
 //! [Antialiased arcs]: conics/fn.antialiased_arc.html
 //! [Solid arcs]: conics/fn.arc.html
 //! [Shapes]: shapes/index.html
-//! [Filled Rectangles]: shapes/fn.rectangle_filled.html
 //!
 //! # Examples
 //!
 //! #### Arcs
+//!
+//! Draw an arc over the top half of the image:
 //!
 //! ```
 //! use freehand::conics::arc;
@@ -47,18 +48,16 @@
 //! arc(&mut image, start, end, radius, center, Rgba([255, 0, 0, 255]));
 //! ```
 //!
-//!
 //! #### Antialiased arcs
+//!
+//! Draw an antialiased arc over the top half of an image:
 //!
 //! ```
 //! use freehand::conics::antialiased_arc;
 //! # use image::{RgbaImage, Rgba};
 //! # let mut image = RgbaImage::from_pixel(400, 400, Rgba([255, 255, 255, 255]));
-//!
-//! /// Note: integers are treated as degrees while floating-point
-//! ///  numbers are treated as radians
-//! let start = 0; // 0°
-//! let end = 180; // 180°
+//! # let start = 0; // 0°
+//! # let end = 180; // 180°
 //! # let radius = 190;
 //! # let center = (200, 200);
 //!
@@ -67,6 +66,8 @@
 //!
 //! #### Annuli (filled donut)
 //!
+//! Draw a 50px wide annulus over the top half of the image:
+//!
 //! ```
 //! use freehand::conics::annulus;
 //! # use image::{RgbaImage, Rgba};
@@ -74,8 +75,6 @@
 //! # let color = Rgba([255, 0, 0, 255]); // red
 //! # let mut image = RgbaImage::from_pixel(400, 400, bg);
 //!
-//! /// Note: integers are treated as degrees while floating-point
-//! ///  numbers are treated as radians
 //! let start = 0.0; // equivalent to 0° in radians
 //! let end = std::f64::consts::PI; // equivalent to 180° in radians
 //!
@@ -99,8 +98,8 @@ mod pt;
 #[cfg(test)]
 mod test;
 
-/// Horizontal, vertical, and diagonal lines with support for solid, dashed, and
-/// alpha blended lines.
+/// Horizontal, vertical, and diagonal lines with variations for solid, dashed,
+/// and alpha blended lines.
 pub mod lines {
     pub use crate::basics::alpha::{
         diagonal_dashed_line_alpha, diagonal_line_alpha, horizontal_dashed_line_alpha,
@@ -118,6 +117,8 @@ pub mod lines {
 ///
 /// #### Arcs
 ///
+/// Draw an arc over the top half of the image:
+///
 /// ```
 /// use freehand::conics::arc;
 /// # use image::{RgbaImage, Rgba};
@@ -134,18 +135,16 @@ pub mod lines {
 /// arc(&mut image, start, end, radius, center, Rgba([255, 0, 0, 255]));
 /// ```
 ///
-///
 /// #### Antialiased arcs
+///
+/// Draw an antialiased arc over the top half of an image:
 ///
 /// ```
 /// use freehand::conics::antialiased_arc;
 /// # use image::{RgbaImage, Rgba};
 /// # let mut image = RgbaImage::from_pixel(400, 400, Rgba([255, 255, 255, 255]));
-///
-/// /// Note: integers are treated as degrees while floating-point
-/// ///  numbers are treated as radians
-/// let start = 0; // 0°
-/// let end = 180; // 180°
+/// # let start = 0; // 0°
+/// # let end = 180; // 180°
 /// # let radius = 190;
 /// # let center = (200, 200);
 ///
@@ -154,6 +153,8 @@ pub mod lines {
 ///
 /// #### Annuli (filled donut)
 ///
+/// Draw a 50px wide annulus over the top half of the image:
+///
 /// ```
 /// use freehand::conics::annulus;
 /// # use image::{RgbaImage, Rgba};
@@ -161,8 +162,6 @@ pub mod lines {
 /// # let color = Rgba([255, 0, 0, 255]); // red
 /// # let mut image = RgbaImage::from_pixel(400, 400, bg);
 ///
-/// /// Note: integers are treated as degrees while floating-point
-/// ///  numbers are treated as radians
 /// let start = 0.0; // equivalent to 0° in radians
 /// let end = std::f64::consts::PI; // equivalent to 180° in radians
 ///
@@ -179,9 +178,11 @@ pub mod conics {
     pub use crate::arc::{arc, Arc};
 }
 
-/// Functions for drawing shapes
+/// Functions for drawing basic shapes
 pub mod shapes {
-    pub use crate::basics::shapes::rectangle_filled;
+    pub use crate::basics::shapes::{
+        rectangle, rectangle_alpha, rectangle_filled, rectangle_filled_alpha,
+    };
 }
 
 /// Helper functions for image operations

@@ -179,3 +179,40 @@ macro_rules! test_no_color {
         }
     };
 }
+
+#[macro_export]
+macro_rules! test_only_color {
+    ( $test_name:ident, $f:ident( $($a:expr),+ ), $size:literal, $color:expr, $only_color:expr ) => {
+        #[test]
+        fn $test_name() {
+            $crate::logger($crate::LOG_LEVEL);
+            let mut image = $crate::test::img::blank(($size, $size));
+            let img_name = format!("images/tests/failed_{}.png", stringify! {$test_name});
+            let color = $color;
+            super::$f(&mut image, $($a),+, color);
+            let image_test = image.clone();
+
+            for (x, y, p) in image_test.enumerate_pixels() {
+                if *p != $only_color {
+                    image.save(&img_name).unwrap();
+                    eprintln!(
+                        "\nTEST FAILED\n  Test: {}\n  A pixel {:?} besides the specified color was unexpectedly found at ({},{}) with color: {:?}\n  saving: '{}'\n",
+                        stringify! {$test_name},
+                        p.0,
+                        x,
+                        y,
+                        p.0,
+                        &img_name
+                    );
+                    panic!(
+                        "The specified color was not found at ({}, {})",
+                        x,
+                        y
+                    );
+                }
+            }
+
+            let _ = std::fs::remove_file(img_name);
+        }
+    };
+}

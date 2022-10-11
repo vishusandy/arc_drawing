@@ -61,11 +61,22 @@ mod tests {
             Rgba([174, 252, 178, 255]),
         );
 
+        crate::shapes::rectangle(&mut image, Pt::new(0, 0), 100, 100, Rgba([255, 0, 0, 255]));
+
         crate::shapes::rectangle_filled(
             &mut image,
             Pt::new(300, 300),
             150,
             150,
+            Rgba([255, 0, 0, 255]),
+        );
+
+        crate::shapes::rectangle_filled_alpha(
+            &mut image,
+            Pt::new(0, 300),
+            100,
+            100,
+            0.2,
             Rgba([255, 0, 0, 255]),
         );
 
