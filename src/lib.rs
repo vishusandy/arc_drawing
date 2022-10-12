@@ -2,31 +2,39 @@
 //!
 //! A lightweight drawing library for use with the [`image`] crate that only depends on the [`image`] crate.
 //!
-//! #### Drawing
-//!
-//! The following drawing functions are provided:
-//! - [Straight lines]:
-//!     - Solid lines
-//!     - Alpha blended solid lines
-//!     - Dashed lines
-//!     - Alpha blended dashed lines
-//! - [Conics/circles]:
-//!     - [Solid arcs]
-//!     - [Antialiased arcs]
-//!     - [Annuli] (filled donut shape - see [Annulus - Wikipedia])
-//! - [Shapes]:
-//!     - Rectangles
+//! The following types of drawing functions are provided:
+//! - [Lines]
+//! - [Conics/circles]
+//! - [Shapes]
 //!
 //![`image`]: https://docs.rs/image/latest/image/
-//! [Straight lines]: lines/index.html
+//! [Lines]: lines/index.html
 //! [Conics/circles]: conics/index.html
-//! [Annulus - Wikipedia]: https://en.wikipedia.org/wiki/Annulus_(mathematics)
-//! [Annuli]: conics/fn.annulus.html
-//! [Antialiased arcs]: conics/fn.antialiased_arc.html
-//! [Solid arcs]: conics/fn.arc.html
 //! [Shapes]: shapes/index.html
 //!
 //! # Examples
+//!
+//! #### Lines
+//!
+//! Solid line between two points:
+//! ```
+//! # use image::{RgbaImage, Rgba};
+//! use freehand::lines::line;
+//! # let mut image = RgbaImage::from_pixel(400, 400, Rgba([255, 255, 255, 255]));
+//!
+//! line(&mut image, (0, 0), (399, 399), Rgba([255, 0, 0, 255]));
+//! ```
+//!
+//! Dashed line between two points:
+//!
+//! ```
+//! # use image::{RgbaImage, Rgba};
+//! use freehand::lines::dashed_line;
+//! # let mut image = RgbaImage::from_pixel(400, 400, Rgba([255, 255, 255, 255]));
+//!
+//! let dash: u8 = 2;
+//! dashed_line(&mut image, (0, 0), (399, 399), dash, Rgba([255, 0, 0, 255]));
+//! ```
 //!
 //! #### Arcs
 //!
@@ -100,6 +108,14 @@ mod test;
 
 /// Horizontal, vertical, and diagonal lines with variations for solid, dashed,
 /// and alpha blended lines.
+///
+/// ```
+/// # use image::{RgbaImage, Rgba};
+/// use freehand::lines::line;
+/// # let mut image = RgbaImage::from_pixel(400, 400, Rgba([255, 255, 255, 255]));
+///
+/// line(&mut image, (0, 0), (399, 399), Rgba([255, 0, 0, 255]));
+/// ```
 pub mod lines {
     pub use crate::basics::alpha::{
         diagonal_dashed_line_alpha, diagonal_line_alpha, horizontal_dashed_line_alpha,
@@ -108,7 +124,9 @@ pub mod lines {
     pub use crate::basics::dashed::{
         diagonal_dashed_line, horizontal_dashed_line, vertical_dashed_line,
     };
-    pub use crate::basics::straight::{diagonal_line, horizontal_line, vertical_line};
+    pub use crate::basics::straight::{
+        dashed_line, diagonal_line, horizontal_line, line, vertical_line, BresIter,
+    };
 }
 
 /// Conic/circular functions.  Arcs, antialiased arcs, and annuli (filled-donut shapes).
@@ -235,12 +253,6 @@ where
     for p in iter {
         image.put_pixel(p.x().into(), p.y().into(), color);
     }
-}
-
-/// Returns true if the conversion is safe, false otherwise
-fn size_check_u32_to_i32(x: u32, y: u32) -> bool {
-    let max = std::i32::MAX as u32;
-    x <= max && y <= max
 }
 
 /// Determine the offset in a byte array for a specified pixel given an image with a specified width.
