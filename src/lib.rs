@@ -87,7 +87,7 @@
 //!
 //!
 
-#![deny(missing_docs)]
+#![warn(missing_docs)]
 
 mod aa;
 mod angle;
@@ -235,6 +235,12 @@ where
     for p in iter {
         image.put_pixel(p.x().into(), p.y().into(), color);
     }
+}
+
+/// Returns true if the conversion is safe, false otherwise
+fn size_check_u32_to_i32(x: u32, y: u32) -> bool {
+    let max = std::i32::MAX as u32;
+    x <= max && y <= max
 }
 
 /// Determine the offset in a byte array for a specified pixel given an image with a specified width.

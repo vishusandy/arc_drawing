@@ -124,6 +124,75 @@ impl<T> Pt<T> {
         self.y
     }
 
+    /// Swap the x and y values
+    pub fn transpose(&mut self) {
+        std::mem::swap(&mut self.x, &mut self.y);
+    }
+
+    /// Add to the x value
+    pub fn add_x(&mut self, x: T)
+    where
+        T: std::ops::AddAssign,
+    {
+        self.x += x;
+    }
+
+    /// Add to the y value
+    pub fn add_y(&mut self, y: T)
+    where
+        T: std::ops::AddAssign,
+    {
+        self.y += y;
+    }
+
+    /// Subtract a value from the x value
+    pub fn sub_x(&mut self, x: T)
+    where
+        T: std::ops::SubAssign,
+    {
+        self.x -= x;
+    }
+
+    /// Subtract a value from the y value
+    pub fn sub_y(&mut self, y: T)
+    where
+        T: std::ops::SubAssign,
+    {
+        self.y -= y;
+    }
+
+    /// Multiply the x value
+    pub fn mul_x(&mut self, x: T)
+    where
+        T: std::ops::MulAssign,
+    {
+        self.x *= x;
+    }
+
+    /// Multiply the y value
+    pub fn mul_y(&mut self, y: T)
+    where
+        T: std::ops::MulAssign,
+    {
+        self.y *= y;
+    }
+
+    /// Divide the x value
+    pub fn div_x(&mut self, x: T)
+    where
+        T: std::ops::DivAssign,
+    {
+        self.x /= x;
+    }
+
+    /// Divide the y value
+    pub fn div_y(&mut self, y: T)
+    where
+        T: std::ops::DivAssign,
+    {
+        self.y /= y;
+    }
+
     /// Add a number to the x and y coordinates
     pub fn add(&self, value: T) -> Self
     where
@@ -280,6 +349,14 @@ impl Pt<i32> {
         Pt {
             x: self.x.unsigned_abs(),
             y: self.y.unsigned_abs(),
+        }
+    }
+
+    /// Converts an i32 to u32 by changing negatives to 0
+    pub fn min_u32(&self) -> Pt<u32> {
+        Pt {
+            x: self.x.max(0) as u32,
+            y: self.y.max(0) as u32,
         }
     }
 
