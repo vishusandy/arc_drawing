@@ -125,7 +125,8 @@ pub mod lines {
         diagonal_dashed_line, horizontal_dashed_line, vertical_dashed_line,
     };
     pub use crate::basics::straight::{
-        dashed_line, diagonal_line, horizontal_line, line, vertical_line, BresIter,
+        dashed_line, dashed_line_alpha, diagonal_line, horizontal_line, line, line_alpha, path,
+        vertical_line, BresIter,
     };
 }
 

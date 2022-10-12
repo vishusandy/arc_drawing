@@ -26,6 +26,8 @@ pub fn horizontal_line_alpha<P>(
 ) where
     P: Point<u32>,
 {
+    debug_assert!((0.0..=1.0).contains(&opacity));
+
     if pt.y() < image.height() {
         (pt.x().min(image.width() - 1)..=x2.min(image.width() - 1))
             // This is safe due to the min() calls above
@@ -52,6 +54,8 @@ pub fn vertical_line_alpha<P>(image: &mut RgbaImage, pt: P, y2: u32, opacity: f3
 where
     P: Point<u32>,
 {
+    debug_assert!((0.0..=1.0).contains(&opacity));
+
     if pt.x() < image.width() {
         (pt.y().min(image.height() - 1)..=y2.min(image.height() - 1))
             // This is safe due to the min() calls above
@@ -86,6 +90,8 @@ pub fn diagonal_line_alpha<P>(
 ) where
     P: Point<u32>,
 {
+    debug_assert!((0.0..=1.0).contains(&opacity));
+
     if a.x() > b.x() {
         std::mem::swap(&mut a, &mut b);
     }
@@ -139,6 +145,8 @@ pub fn vertical_dashed_line_alpha<P>(
 ) where
     P: Point<u32>,
 {
+    debug_assert!((0.0..=1.0).contains(&opacity));
+
     if width == 0 {
         vertical_line_alpha(image, pt, y2, opacity, color);
         return;
@@ -195,6 +203,8 @@ pub fn horizontal_dashed_line_alpha<P>(
 ) where
     P: Point<u32>,
 {
+    debug_assert!((0.0..=1.0).contains(&opacity));
+
     if width == 0 {
         horizontal_line_alpha(image, pt, x2, opacity, color);
         return;
@@ -255,6 +265,8 @@ pub fn diagonal_dashed_line_alpha<P>(
 ) where
     P: Point<u32>,
 {
+    debug_assert!((0.0..=1.0).contains(&opacity));
+
     if width == 0 {
         diagonal_line_alpha(image, a, b, opacity, color);
         return;

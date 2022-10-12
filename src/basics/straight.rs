@@ -168,6 +168,135 @@ where
     }
 }
 
+/// Draws a straight line between two points using a specified opacity.
+/// Ignores points that are outside of the image bounds.
+///
+/// Uses the Bresenham line drawing algorithm.
+///
+/// ```
+/// # use image::{RgbaImage, Rgba};
+/// use freehand::lines::line_alpha;
+/// # let mut image = RgbaImage::from_pixel(400, 400, Rgba([255, 255, 255, 255]));
+///
+/// line_alpha(&mut image, (0, 0), (399, 399), 0.5, Rgba([255, 0, 0, 255]));
+/// ```
+pub fn line_alpha<P>(image: &mut image::RgbaImage, a: P, b: P, opacity: f32, color: image::Rgba<u8>)
+where
+    P: Point<i32>,
+{
+    use crate::ops::blend_at_unchecked;
+
+    debug_assert!((0.0..=1.0).contains(&opacity));
+
+    let width = image.width().min((std::i32::MAX) as u32) as i32;
+    let height = image.height().min((std::i32::MAX) as u32) as i32;
+
+    for Pt { x, y } in BresIter::new(a, b) {
+        if (0..width).contains(&x) && (0..height).contains(&y) {
+            // Avoid double checking bounds
+            // This is safe because the bounds have already been checked
+            unsafe {
+                blend_at_unchecked(image, x as u32, y as u32, opacity, color);
+            }
+        }
+    }
+}
+
+/// Draws a dashed straight line between two points.
+/// Points that are outside of the image bounds are ignored.
+///
+/// If the width is 0 then a solid line is drawn between the two points.
+///
+/// Uses the Bresenham line drawing algorithm.
+///
+/// ```
+/// # use image::{RgbaImage, Rgba};
+/// use freehand::lines::dashed_line_alpha;
+/// # let mut image = RgbaImage::from_pixel(400, 400, Rgba([255, 255, 255, 255]));
+///
+/// let dash: u8 = 2;
+/// let opacity: f32 = 0.5;
+/// dashed_line_alpha(&mut image, (0, 0), (399, 399), dash, opacity, Rgba([255, 0, 0, 255]));
+/// ```
+pub fn dashed_line_alpha<P, W>(
+    image: &mut image::RgbaImage,
+    a: P,
+    b: P,
+    dash_width: W,
+    opacity: f32,
+    color: image::Rgba<u8>,
+) where
+    P: Point<i32>,
+    W: Into<u16>,
+{
+    use crate::ops::blend_at_unchecked;
+
+    debug_assert!((0.0..=1.0).contains(&opacity));
+
+    let dash_width = dash_width.into() as usize;
+    let w = dash_width as usize * 2;
+
+    if dash_width == 0 {
+        line(image, a, b, color);
+        return;
+    }
+
+    let width = image.width().min((std::i32::MAX) as u32) as i32;
+    let height = image.height().min((std::i32::MAX) as u32) as i32;
+
+    for (i, Pt { x, y }) in BresIter::new(a, b).enumerate() {
+        if (0..width).contains(&x) && (0..height).contains(&y) && i % w < dash_width {
+            // Avoid double checking
+            // This is safe because the bounds have already been checked
+            unsafe {
+                blend_at_unchecked(image, x as u32, y as u32, opacity, color);
+            }
+        }
+    }
+}
+
+/// Draws a path using straight lines from one point to the next.
+/// The start and end points are not connected.
+///
+/// ```
+/// # use image::{RgbaImage, Rgba};
+/// use freehand::lines::path;
+/// # let mut image = RgbaImage::from_pixel(400, 400, Rgba([255, 255, 255, 255]));
+///
+/// let lines = [(0, 0), (399, 0), (399, 399), (0, 399)];
+/// path(&mut image, &lines, Rgba([255, 0, 0, 255]));
+/// ```
+pub fn path<I, P>(image: &mut I, mut points: &[P], color: I::Pixel)
+where
+    I: GenericImage,
+    P: Point<i32>,
+{
+    let mut a;
+    let mut b;
+
+    match points.split_first() {
+        Some((first, rest)) => {
+            a = first;
+            points = rest;
+        }
+        None => return,
+    }
+
+    while !points.is_empty() {
+        match points.split_first() {
+            Some((first, rest)) => {
+                b = first;
+                points = rest;
+            }
+            None => return,
+        }
+
+        line(image, a.pt(), b.pt(), color);
+
+        a = b;
+    }
+}
+
 #[derive(Clone, Debug)]
 /// An iterator between two points on a line.
 ///
@@ -309,7 +438,7 @@ mod tests {
     use crate::test_pixels_changed;
 
     #[test]
-    fn basic_drawing() -> Result<(), image::ImageError> {
+    fn path() -> Result<(), image::ImageError> {
         crate::logger(crate::LOG_LEVEL);
         let height = 400;
         let width = 400;
@@ -317,14 +446,9 @@ mod tests {
         let mut image =
             image::RgbaImage::from_pixel(width, height, image::Rgba([255, 255, 255, 255]));
 
-        dashed_line(
-            &mut image,
-            (0, 0),
-            (399, 399),
-            10u16,
-            image::Rgba([255, 0, 0, 255]),
-        );
-        image.save("images/dashed_bres.png")
+        let lines = [(0, 0), (399, 0), (399, 399), (0, 399)];
+        super::path(&mut image, &lines, image::Rgba([255, 0, 0, 255]));
+        image.save("images/path.png")
     }
 
     mod line {
