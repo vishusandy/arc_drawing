@@ -1,18 +1,20 @@
 const CENTER_F: freehand::Pt<f64> = freehand::Pt::new(300.0, 300.0);
 const IMG_SIZE: u32 = 600;
 
-mod test_consts;
+mod consts {
+    include!("test/consts.rs");
+}
 
 fn main() -> Result<(), image::ImageError> {
     let mut image = image::RgbaImage::new(IMG_SIZE, IMG_SIZE);
 
     // DRAW MULTIPLE ANTIALIASED CIRCLES
-    (0..test_consts::STARTS.len())
+    (0..consts::STARTS.len())
         .map(|i| {
             freehand::conics::AntialiasedArc::new(
-                test_consts::STARTS[i],
-                test_consts::ENDS[i],
-                test_consts::RADII[i],
+                consts::STARTS[i],
+                consts::ENDS[i],
+                consts::RADII[i],
                 CENTER_F,
             )
         })

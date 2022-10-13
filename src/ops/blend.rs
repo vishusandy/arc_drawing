@@ -9,7 +9,17 @@
 /// # Safety
 /// The x and y coordinates must be less than the image width and height, respectively.
 ///
-/// Also, `opac` must be in the range `(0..=1.0)`.
+/// Also, `opac` should be in the range `(0..=1.0)`.
+///
+/// ```
+/// # use image::{RgbaImage, Rgba};
+/// use freehand::ops::blend_at_unchecked;
+///
+/// let mut image = RgbaImage::from_pixel(10, 10, Rgba([255, 255, 255, 255]));
+/// unsafe {
+///     blend_at_unchecked(&mut image, 0, 0, 0.5, Rgba([255, 255, 255, 255]))
+/// }
+/// ```
 pub unsafe fn blend_at_unchecked(
     image: &mut image::RgbaImage,
     x: u32,
@@ -34,23 +44,24 @@ pub unsafe fn blend_at_unchecked(
 /// Blend a specified color into an existing image coordinate.  This ignores `color`'s
 /// alpha value and instead uses `opac` which is a floating point number from 0.0 to 1.0.
 ///
+/// Returns true if successful.
+///
 /// The resulting color's alpha channel will ignore the specified opacity and simply
 /// mix the two alpha channels together.
-pub fn blend_at(
-    image: &mut image::RgbaImage,
-    x: u32,
-    y: u32,
-    opac: f32,
-    color: image::Rgba<u8>,
-) -> bool {
-    if x < image.width() && y < image.height() && opac >= 0.0 && opac <= 1.0 {
+///
+/// ```
+/// # use image::{RgbaImage, Rgba};
+/// use freehand::ops::blend_at;
+///
+/// let mut image = RgbaImage::from_pixel(10, 10, Rgba([255, 255, 255, 255]));
+/// blend_at(&mut image, 0, 0, 0.5, Rgba([255, 255, 255, 255]))
+/// ```
+pub fn blend_at(image: &mut image::RgbaImage, x: u32, y: u32, opac: f32, color: image::Rgba<u8>) {
+    if x < image.width() && y < image.height() && (0.0..1.0).contains(&opac) {
         // this is safe because of the bounds checks
         unsafe {
             blend_at_unchecked(image, x, y, opac, color);
         }
-        true
-    } else {
-        false
     }
 }
 
@@ -87,12 +98,12 @@ mod tests {
     fn safe_blend() {
         let color = image::Rgba([255, 0, 0, 255]);
         let mut image = image::RgbaImage::from_pixel(1, 1, image::Rgba([255, 255, 255, 255]));
-        assert!(blend_at(&mut image, 0, 0, 0.5, color));
+        blend_at(&mut image, 0, 0, 0.5, color);
         assert_eq!(*image.get_pixel(0, 0), image::Rgba([255, 127, 127, 255]));
-        assert!(!blend_at(&mut image, 2, 0, 0.5, color));
-        assert!(!blend_at(&mut image, 0, 2, 0.5, color));
-        assert!(!blend_at(&mut image, 2, 2, 0.5, color));
-        assert!(!blend_at(&mut image, 0, 0, 1.1, color));
-        assert!(!blend_at(&mut image, 0, 0, -1.1, color));
+        blend_at(&mut image, 2, 0, 0.5, color);
+        blend_at(&mut image, 0, 2, 0.5, color);
+        blend_at(&mut image, 2, 2, 0.5, color);
+        blend_at(&mut image, 0, 0, 1.1, color);
+        blend_at(&mut image, 0, 0, -1.1, color);
     }
 }

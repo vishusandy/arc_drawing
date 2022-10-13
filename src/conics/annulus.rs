@@ -1,11 +1,11 @@
 mod edges;
 mod pos;
 
-pub(crate) mod translate;
-use crate::pt::Point;
-use crate::{angle, Pt};
 use edges::Edge;
 use pos::Pos;
+
+use crate::translate;
+use crate::{angle, Point, Pt};
 
 /// Draws a partial annulus (filled donut).
 ///
@@ -124,11 +124,9 @@ impl Annulus {
     /// ```
     /// # use image::{RgbaImage, Rgba};
     /// # use freehand::conics::Annulus;
-    ///
     /// # let bg = Rgba([255, 255, 255, 255]); // white
     /// # let color = Rgba([255, 0, 0, 255]);
     /// # let mut image = RgbaImage::from_pixel(400, 400, bg);
-    ///
     /// let annulus = Annulus::new(0, 180, 150, 190, (200, 200));
     /// ```
     pub fn new<A, P>(

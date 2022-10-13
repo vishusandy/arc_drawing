@@ -1,5 +1,3 @@
-#![allow(dead_code)]
-
 pub(crate) const STARTS: [f64; 50] = [
     0.8436733512438749f64,
     4.458530644200751f64,

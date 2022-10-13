@@ -4,6 +4,7 @@
 #[cfg(test)]
 pub(crate) mod img;
 
+#[cfg(test)]
 pub(crate) fn color_in_image<P, C>(image: &image::ImageBuffer<P, C>, color: P) -> Option<(u32, u32)>
 where
     P: image::Pixel + std::cmp::PartialEq,
@@ -17,6 +18,7 @@ where
     None
 }
 
+#[cfg(test)]
 #[macro_export]
 macro_rules! test_pixels_changed {
     ( $test_name:ident, $f:ident( $($a:expr),+ ), $size:literal, $m:expr ) => {
@@ -78,6 +80,7 @@ macro_rules! test_pixels_changed {
     };
 }
 
+#[cfg(test)]
 #[macro_export]
 macro_rules! test_pixel_colors {
     ( $test_name:ident, $f:ident( $($a:expr),+ ), $size:literal, $color:expr, $pixels:expr, $colors:expr ) => {
@@ -143,6 +146,7 @@ macro_rules! test_pixel_colors {
     };
 }
 
+#[cfg(test)]
 #[macro_export]
 macro_rules! test_no_color {
     ( $test_name:ident, $f:ident( $($a:expr),+ ), $size:literal, $color:expr, $no_color:expr ) => {
@@ -180,6 +184,7 @@ macro_rules! test_no_color {
     };
 }
 
+#[cfg(test)]
 #[macro_export]
 macro_rules! test_only_color {
     ( $test_name:ident, $f:ident( $($a:expr),+ ), $size:literal, $color:expr, $only_color:expr ) => {

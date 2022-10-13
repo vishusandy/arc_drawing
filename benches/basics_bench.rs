@@ -153,4 +153,4 @@ criterion_group!(
     bench_imageproc_blend
 );
 
-criterion_main!(ops);
+criterion_main!(ops, lines);

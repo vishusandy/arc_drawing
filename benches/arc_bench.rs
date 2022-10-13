@@ -1,6 +1,8 @@
 use criterion::{criterion_group, criterion_main, BatchSize, Criterion};
-mod consts;
-mod old_code;
+mod consts {
+    include!("../src/test/consts.rs");
+}
+mod misc;
 
 const IMG_SIZE: u32 = 600;
 const RADIUS: i32 = 240;
@@ -29,31 +31,11 @@ fn bench_imageproc_circle(c: &mut Criterion) {
     });
 }
 
-fn bench_arc_midpoint(c: &mut Criterion) {
-    c.bench_function("arc_floats", |b| {
-        b.iter_batched(
-            blank,
-            |image| old_code::arc_midpoint(image, RADIUS, CENTER),
-            BatchSize::SmallInput,
-        )
-    });
-}
-
-fn bench_arc_integer(c: &mut Criterion) {
-    c.bench_function("arc_integer", |b| {
-        b.iter_batched(
-            blank,
-            |image| old_code::arc_integer(image, RADIUS, CENTER),
-            BatchSize::SmallInput,
-        )
-    });
-}
-
 fn bench_warmup(c: &mut Criterion) {
     c.bench_function("warmup", |b| {
         b.iter_batched(
             blank,
-            |image| old_code::arc_integer(image, RADIUS, CENTER),
+            |image| misc::warmup_arc(image, RADIUS, CENTER),
             BatchSize::SmallInput,
         )
     });
@@ -133,13 +115,8 @@ fn bench_arc(c: &mut Criterion) {
     });
 }
 
-// Old
-criterion_group!(fp, bench_arc_midpoint);
-criterion_group!(bres_iterators, bench_arc_integer);
-
 criterion_group!(stock, bench_imageproc_circle); // For comparison - benchmarks default image library crate
-
-criterion_group!(warmup, bench_warmup); // somehow improves performance
+criterion_group!(warmup, bench_warmup); // somehow improves performance ???? 🤦
 
 criterion_group! {
     name = antialias;
@@ -150,6 +127,5 @@ criterion_group! {
 criterion_group!(annulus, bench_partial_annulus);
 criterion_group!(arcs, bench_arc);
 
-// criterion_main!(warmup, stock, arc, annulus, antialias);
-// criterion_main!(warmup, fp, bres_iterators, stock, arcs, antialias);
-criterion_main!(warmup, antialias);
+criterion_main!(warmup, stock, arcs, annulus, antialias);
+// criterion_main!(warmup, antialias);

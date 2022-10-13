@@ -1,7 +1,9 @@
-use super::end::End;
-use super::AAPt;
+mod end;
+
+use crate::antialias::AAPt;
 use crate::angle::angle_to_quad;
 use crate::Pt;
+use end::End;
 
 /// Draws an antialiased circular arc.
 ///

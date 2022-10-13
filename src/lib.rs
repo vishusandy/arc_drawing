@@ -1,223 +1,38 @@
 //! # Overview
 //!
-//! A lightweight drawing library for use with the [`image`] crate that only depends on the [`image`] crate.
+//! A lightweight drawing library for use with the [`image`] crate that only
+//! depends on the [`image`] crate.  The provided functions operate on mutable
+//! images.
 //!
-//! The following types of drawing functions are provided:
-//! - [Lines]
-//! - [Conics/circles]
-//! - [Shapes]
+//! In some cases structs are also provided where it may be appropriate to build
+//! a list of drawable objects and handle rendering separately.
+//!
+//!
 //!
 //![`image`]: https://docs.rs/image/latest/image/
-//! [Lines]: lines/index.html
-//! [Conics/circles]: conics/index.html
-//! [Shapes]: shapes/index.html
-//!
-//! # Examples
-//!
-//! #### Lines
-//!
-//! Solid line between two points:
-//! ```
-//! # use image::{RgbaImage, Rgba};
-//! use freehand::lines::line;
-//! # let mut image = RgbaImage::from_pixel(400, 400, Rgba([255, 255, 255, 255]));
-//!
-//! line(&mut image, (0, 0), (399, 399), Rgba([255, 0, 0, 255]));
-//! ```
-//!
-//! Dashed line between two points:
-//!
-//! ```
-//! # use image::{RgbaImage, Rgba};
-//! use freehand::lines::dashed_line;
-//! # let mut image = RgbaImage::from_pixel(400, 400, Rgba([255, 255, 255, 255]));
-//!
-//! let dash: u8 = 2;
-//! dashed_line(&mut image, (0, 0), (399, 399), dash, Rgba([255, 0, 0, 255]));
-//! ```
-//!
-//! #### Arcs
-//!
-//! Draw an arc over the top half of the image:
-//!
-//! ```
-//! use freehand::conics::arc;
-//! # use image::{RgbaImage, Rgba};
-//! # let mut image = RgbaImage::from_pixel(400, 400, Rgba([255, 255, 255, 255]));
-//!
-//! /// Note: integers are treated as degrees while floating-point
-//! ///  numbers are treated as radians
-//! let start = 0; // 0°
-//! let end = 180; // 180°
-//!
-//! let radius = 190;
-//! let center = (200, 200);
-//!
-//! arc(&mut image, start, end, radius, center, Rgba([255, 0, 0, 255]));
-//! ```
-//!
-//! #### Antialiased arcs
-//!
-//! Draw an antialiased arc over the top half of an image:
-//!
-//! ```
-//! use freehand::conics::antialiased_arc;
-//! # use image::{RgbaImage, Rgba};
-//! # let mut image = RgbaImage::from_pixel(400, 400, Rgba([255, 255, 255, 255]));
-//! # let start = 0; // 0°
-//! # let end = 180; // 180°
-//! # let radius = 190;
-//! # let center = (200, 200);
-//!
-//! antialiased_arc(&mut image, start, end, radius, center, Rgba([255, 0, 0, 255]));
-//! ```
-//!
-//! #### Annuli (filled donut)
-//!
-//! Draw a 50px wide annulus over the top half of the image:
-//!
-//! ```
-//! use freehand::conics::annulus;
-//! # use image::{RgbaImage, Rgba};
-//! # let bg = Rgba([255, 255, 255, 255]); // white
-//! # let color = Rgba([255, 0, 0, 255]);
-//! # let mut image = RgbaImage::from_pixel(400, 400, bg);
-//!
-//! let start = 0.0; // equivalent to 0° in radians
-//! let end = std::f64::consts::PI; // equivalent to 180° in radians
-//!
-//! let inner_radius = 150;
-//! let outer_radius = 190;
-//! # let center = (200, 200);
-//!
-//! annulus(&mut image, start, end, inner_radius, outer_radius, center, color);
-//! ```
-//!
 //!
 
 #![warn(missing_docs)]
 
-mod aa;
 mod angle;
-mod annulus;
-mod arc;
-mod basics;
+mod antialias;
 mod pt;
-#[cfg(test)]
-mod test;
+pub(crate) mod translate;
+pub(crate) use angle::Angle;
 
-/// Horizontal, vertical, and diagonal lines with variations for solid, dashed,
-/// and alpha blended lines.
-///
-/// ```
-/// # use image::{RgbaImage, Rgba};
-/// use freehand::lines::line;
-/// # let mut image = RgbaImage::from_pixel(400, 400, Rgba([255, 255, 255, 255]));
-///
-/// line(&mut image, (0, 0), (399, 399), Rgba([255, 0, 0, 255]));
-/// ```
-pub mod lines {
-    pub use crate::basics::alpha::{
-        diagonal_dashed_line_alpha, diagonal_line_alpha, horizontal_dashed_line_alpha,
-        horizontal_line_alpha, vertical_dashed_line_alpha, vertical_line_alpha,
-    };
-    pub use crate::basics::dashed::{
-        diagonal_dashed_line, horizontal_dashed_line, vertical_dashed_line,
-    };
-    pub use crate::basics::straight::{
-        dashed_line, dashed_line_alpha, diagonal_line, horizontal_line, line, line_alpha, path,
-        vertical_line, BresIter,
-    };
-}
-
-/// Conic/circular functions.  Arcs, antialiased arcs, and annuli (filled-donut shapes).
-///
-/// # Examples
-///
-/// #### Arcs
-///
-/// Draw an arc over the top half of the image:
-///
-/// ```
-/// use freehand::conics::arc;
-/// # use image::{RgbaImage, Rgba};
-/// # let mut image = RgbaImage::from_pixel(400, 400, Rgba([255, 255, 255, 255]));
-///
-/// /// Note: integers are treated as degrees while floating-point
-/// ///  numbers are treated as radians
-/// let start = 0; // 0°
-/// let end = 180; // 180°
-///
-/// let radius = 190;
-/// let center = (200, 200);
-///
-/// arc(&mut image, start, end, radius, center, Rgba([255, 0, 0, 255]));
-/// ```
-///
-/// #### Antialiased arcs
-///
-/// Draw an antialiased arc over the top half of an image:
-///
-/// ```
-/// use freehand::conics::antialiased_arc;
-/// # use image::{RgbaImage, Rgba};
-/// # let mut image = RgbaImage::from_pixel(400, 400, Rgba([255, 255, 255, 255]));
-/// # let start = 0; // 0°
-/// # let end = 180; // 180°
-/// # let radius = 190;
-/// # let center = (200, 200);
-///
-/// antialiased_arc(&mut image, start, end, radius, center, Rgba([255, 0, 0, 255]));
-/// ```
-///
-/// #### Annuli (filled donut)
-///
-/// Draw a 50px wide annulus over the top half of the image:
-///
-/// ```
-/// use freehand::conics::annulus;
-/// # use image::{RgbaImage, Rgba};
-/// # let bg = Rgba([255, 255, 255, 255]); // white
-/// # let color = Rgba([255, 0, 0, 255]);
-/// # let mut image = RgbaImage::from_pixel(400, 400, bg);
-///
-/// let start = 0.0; // equivalent to 0° in radians
-/// let end = std::f64::consts::PI; // equivalent to 180° in radians
-///
-/// let inner_radius = 150;
-/// let outer_radius = 190;
-/// # let center = (200, 200);
-///
-/// annulus(&mut image, start, end, inner_radius, outer_radius, center, color);
-/// ```
-///
-pub mod conics {
-    pub use crate::aa::cir_arc::{antialiased_arc, AntialiasedArc};
-    pub use crate::annulus::{annulus, Annulus};
-    pub use crate::arc::{arc, Arc};
-}
-
-/// Functions for drawing basic shapes
-pub mod shapes {
-    pub use crate::basics::shapes::{
-        rectangle, rectangle_alpha, rectangle_filled, rectangle_filled_alpha,
-    };
-}
-
-/// Helper functions for image operations
-pub mod ops {
-    pub use crate::basics::blend::{blend_at, blend_at_unchecked};
-}
-
+pub mod conics;
+pub mod lines;
+pub mod ops;
+pub mod shapes;
 pub use pt::{Point, Pt};
 
-pub(crate) use angle::Angle;
-pub(crate) use annulus::translate;
+#[cfg(test)]
+mod test;
 #[cfg(test)]
 pub(crate) use test::img::{guidelines, setup};
 
 // TODO:
-// add diagonal lines and alpha lines to benchmarks
+// add tests for rectangles
 
 #[cfg(test)]
 const LOG_LEVEL: log::LevelFilter = log::LevelFilter::Debug;

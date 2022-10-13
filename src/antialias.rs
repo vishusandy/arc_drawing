@@ -1,8 +1,4 @@
-pub(crate) mod cir_arc;
-pub(crate) mod end;
-
-mod ellipse_arc;
-use crate::basics::blend::blend_at_unchecked;
+use crate::ops::blend_at_unchecked;
 
 use crate::Pt;
 
@@ -21,7 +17,7 @@ pub struct AAPt<T> {
 
 impl<T> AAPt<T> {
     /// Create a new antialiased point.
-    fn new(a: Pt<T>, b: Pt<T>, ob: f64) -> Self {
+    pub(crate) fn new(a: Pt<T>, b: Pt<T>, ob: f64) -> Self {
         Self {
             a,
             b,
@@ -31,7 +27,7 @@ impl<T> AAPt<T> {
     }
 
     /// Used to adjust the opacity of the first pixel.
-    fn mult_opac_a(self, i: f64) -> Self {
+    pub(crate) fn mult_opac_a(self, i: f64) -> Self {
         Self {
             a: self.a,
             b: self.b,
@@ -43,7 +39,7 @@ impl<T> AAPt<T> {
 
 impl AAPt<i32> {
     /// Draw an antialiased point by blending the two pixels into an image.
-    fn draw(&self, image: &mut image::RgbaImage, color: image::Rgba<u8>) {
+    pub(crate) fn draw(&self, image: &mut image::RgbaImage, color: image::Rgba<u8>) {
         let (width, height) = image.dimensions();
         let a = self.a.u32();
         let b = self.b.u32();

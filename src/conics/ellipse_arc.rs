@@ -2,6 +2,9 @@
 use crate::Pt;
 
 /*
+
+Ughhh.
+
 https://www.includehelp.com/computer-graphics/mid-point-ellipse-algorithm.aspx
 https://www.javatpoint.com/computer-graphics-midpoint-ellipse-algorithm
 https://www.geeksforgeeks.org/midpoint-ellipse-drawing-algorithm/
