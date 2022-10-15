@@ -515,8 +515,8 @@ mod tests {
 
         let ri = 80;
         let ro = 100;
-        let start = RADS * 7.01;
-        let end = RADS * 7.2;
+        let start = RADS * 6.0;
+        let end = RADS * 6.2;
         let center = Pt::new(200, 200);
         // let center = Pt::new(0, 0);
         let mut image = crate::circle_guides(ro);
@@ -535,13 +535,14 @@ mod tests {
 
         log::debug!("{dbg:#?}");
 
-        // let a = translate::iter_to_real(dbg.inr.ex, dbg.inr.ey, 8, center);
-        // let b = translate::iter_to_real(dbg.otr.ex, dbg.otr.ey, 8, center);
-        // crate::lines::line(&mut image, a, b, crate::YELLOW);
+        // let a = translate::iter_to_real(dbg.inr.ex, dbg.inr.ey, 7, center);
+        // let b = translate::iter_to_real(dbg.otr.ex, dbg.otr.ey, 7, center);
+        // crate::lines::line_alpha(&mut image, a, b, 0.4, crate::YELLOW);
 
-        let a = translate::iter_to_real(dbg.inr.x, dbg.inr.y, 8, center);
-        let b = translate::iter_to_real(dbg.otr.x, dbg.otr.y, 8, center);
-        crate::lines::line_alpha(&mut image, a, b, 0.4, crate::YELLOW);
+        // let a = translate::iter_to_real(dbg.inr.x, dbg.inr.y, 7, center);
+        // let b = translate::iter_to_real(dbg.otr.x, dbg.otr.y, 7, center);
+        // log::debug!("{:?} {:?}", a, b);
+        // crate::lines::line_alpha(&mut image, a, b, 0.4, crate::YELLOW);
 
         image.save("images/annulus.png")
     }

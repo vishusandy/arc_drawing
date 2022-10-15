@@ -35,5 +35,6 @@ impl Edge {
 }
 
 pub(super) fn calc_line(slope: f64, int: i32, x: i32) -> i32 {
-    (x as f64 * slope).round() as i32 + int
+    // looks better with .floor() rather than .round()
+    (x as f64 * slope).floor() as i32 + int
 }
