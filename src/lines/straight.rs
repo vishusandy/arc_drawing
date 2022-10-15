@@ -306,7 +306,7 @@ mod tests {
             let mut image =
                 image::RgbaImage::from_pixel(width, height, image::Rgba([255, 255, 255, 255]));
 
-            let lines = [(0, 0), (399, 0), (399, 399), (0, 399)];
+            let lines = [(0, 50), (350, 50), (50, 350), (399, 350)];
             super::super::path(&mut image, &lines, image::Rgba([255, 0, 0, 255]));
             image.save("images/path.png")
         }

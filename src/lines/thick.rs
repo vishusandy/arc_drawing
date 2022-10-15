@@ -196,6 +196,6 @@ mod tests {
             safe_plot(&mut image, dbg.end.bot, PURPLE);
         }
 
-        image.save("images/thick_line2.png")
+        image.save("images/thick_line.png")
     }
 }

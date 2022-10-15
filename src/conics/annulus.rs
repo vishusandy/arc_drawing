@@ -619,7 +619,7 @@ mod tests {
         super::thick_circle(
             &mut image,
             crate::RADIUS,
-            2,
+            8,
             center,
             image::Rgba([255, 0, 0, 255]),
         );
