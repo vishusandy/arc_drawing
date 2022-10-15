@@ -80,7 +80,7 @@ impl Ellipse {
         self.x += 1.0;
         ret
     }
-    fn draw(&mut self, image: &mut image::RgbaImage, color: image::Rgba<u8>) {
+    fn draw(mut self, image: &mut image::RgbaImage, color: image::Rgba<u8>) {
         let c = self.c;
         for Pt { x, y } in self {
             image.put_pixel((x + c.x()) as u32, (y + c.y()) as u32, color);

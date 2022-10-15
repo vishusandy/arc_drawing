@@ -279,36 +279,6 @@ impl Annulus {
         a
     }
 
-    /// Draw the annulus
-    ///
-    /// ```
-    /// # use image::{RgbaImage, Rgba};
-    /// # use freehand::conics::Annulus;
-    ///
-    /// # let bg = Rgba([255, 255, 255, 255]); // white
-    /// let color = Rgba([255, 0, 0, 255]);
-    /// # let mut image = RgbaImage::from_pixel(400, 400, bg);
-    ///
-    /// let annulus = Annulus::new(0, 180, 150, 190, (190, 190));
-    /// annulus.draw(&mut image, color);
-    /// ```
-    pub fn draw<I>(mut self, image: &mut I, color: I::Pixel)
-    where
-        I: image::GenericImage,
-    {
-        loop {
-            if self.end() {
-                return;
-            }
-            if self.next_octant() {
-                continue;
-            }
-            let (x, y1, y2) = self.step();
-            let (x, y1, y2) = (x, y1.max(x), y2.max(x));
-            self.put_line(x, y1, y2, self.oct, image, color);
-        }
-    }
-
     #[allow(clippy::self_named_constructors)]
     /// An internal function used to create a new [`Annulus`].  The `new()` function
     /// should be used externally, which will also normalize angles and check the radii.
@@ -373,6 +343,10 @@ impl Annulus {
         }
     }
 
+    // fn stop(&self) -> bool {
+    //     self.x > self.
+    // }
+
     /// Switch to the next octant
     fn next_octant(&mut self) -> bool {
         if self.x > self.inr.ex && self.x > self.otr.ex {
@@ -401,7 +375,12 @@ impl Annulus {
         let x = self.x;
         self.x += 1;
 
-        match (self.inr.matching_y(x), self.otr.matching_y(x)) {
+        let rst = (self.inr.matching_y(x), self.otr.matching_y(x));
+
+        #[cfg(test)]
+        log::debug!("{rst:?}");
+
+        match rst {
             (Some(inr), Some(otr)) => {
                 self.inr.inc();
                 self.otr.inc();
@@ -433,6 +412,47 @@ impl Annulus {
         }
     }
 
+    /// Draw the annulus
+    ///
+    /// ```
+    /// # use image::{RgbaImage, Rgba};
+    /// # use freehand::conics::Annulus;
+    ///
+    /// # let bg = Rgba([255, 255, 255, 255]); // white
+    /// let color = Rgba([255, 0, 0, 255]);
+    /// # let mut image = RgbaImage::from_pixel(400, 400, bg);
+    ///
+    /// let annulus = Annulus::new(0, 180, 150, 190, (190, 190));
+    /// annulus.draw(&mut image, color);
+    /// ```
+    pub fn draw<I>(mut self, image: &mut I, color: I::Pixel)
+    where
+        I: image::GenericImage,
+    {
+        loop {
+            if self.end() {
+                return;
+            }
+            if self.next_octant() {
+                continue;
+            }
+            let (x, y1, y2) = self.step();
+
+            #[cfg(test)]
+            log::debug!("x={} y1={y1} y2={y2}  y={}..={}", x, y1.max(x), y2.max(x),);
+
+            if y1 < x || y2 < x {
+                #[cfg(test)]
+                log::debug!("Skipping x={x} y1={y1} y2={y2}");
+                continue;
+            }
+
+            let (x, y1, y2) = (x, y1.max(x), y2.max(x));
+
+            self.put_line(x, y1, y2, self.oct, image, color);
+        }
+    }
+
     /// Draw a line from the given iterator coordinates onto an image.
     fn put_line<I: image::GenericImage>(
         &self,
@@ -445,7 +465,20 @@ impl Annulus {
     ) {
         let width = image.width();
         let height = image.height();
-        for y in yo.min(yi)..=yo.max(yi) {
+
+        // #[cfg(test)]
+        // log::debug!(
+        //     "x={} yi={yi} yo={yo}  y={}..={} oct={}",
+        //     x,
+        //     yo.min(yi),
+        //     yo.max(yi),
+        //     oct
+        // );
+
+        let min = yo.min(yi);
+        let max = yo.max(yi);
+
+        for y in min..=max {
             let Pt { x, y } = translate::iter_to_real(x, y, oct, self.c).u32();
             if x < width && y < height {
                 image.put_pixel(x, y, color)
@@ -461,14 +494,15 @@ mod tests {
     use crate::RADS;
 
     #[test]
-    fn annulus() -> Result<(), image::ImageError> {
+    fn annulus_test() -> Result<(), image::ImageError> {
         crate::logger(crate::LOG_LEVEL);
 
         let ri = 0;
         let ro = 100;
-        let start = RADS * 6.0;
-        let end = RADS * 8.0;
+        let start = RADS * 0.8;
+        let end = RADS * 7.2;
         let center = Pt::new(200, 200);
+        // let center = Pt::new(0, 0);
         let mut image = crate::circle_guides(ro);
 
         imageproc::drawing::draw_hollow_circle_mut(
@@ -479,7 +513,11 @@ mod tests {
         );
 
         let an: Annulus = Annulus::new(start, end, ri, ro, center);
+        let dbg = an.clone();
+
         an.draw(&mut image, image::Rgba([255, 0, 0, 255]));
+
+        // log::debug!("{dbg:#?}");
 
         image.save("images/annulus.png")
     }
