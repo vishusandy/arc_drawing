@@ -107,43 +107,6 @@ pub struct Arc {
 }
 
 impl Arc {
-    /// Create an iterator over a single circular octant
-    ///
-    /// # Panic
-    ///
-    /// Panics if radius is less than or equal to 0
-    ///
-    pub fn octant<T, C>(oct: u8, r: T, c: C) -> Self
-    where
-        C: crate::pt::Point<T>,
-        T: Into<i32>,
-    {
-        let c = Pt::new(c.x().into(), c.y().into());
-        let r = r.into();
-
-        if r <= 0 {
-            panic!("Radius be must larger than 0");
-        }
-
-        if !(1..=8).contains(&oct) {
-            panic!("Invalid octant.  Valid octants are 1 through 8");
-        }
-
-        let pos = Pos::start(oct, r);
-
-        let start = Edge::new(angle::octant_start_angle(oct), oct);
-        let end = Edge::new(angle::octant_end_angle(oct), oct);
-
-        Self {
-            pos,
-            start,
-            end,
-            c,
-            r,
-            revisit: false,
-        }
-    }
-
     /// Creates a new [`Arc`].
     ///
     /// Floating-point angles will represent an angle in radians.  Integer types
@@ -203,6 +166,43 @@ impl Arc {
             c,
             r,
             revisit: start_oct == end_oct && start_angle > end_angle,
+        }
+    }
+
+    /// Create an iterator over a single circular octant
+    ///
+    /// # Panic
+    ///
+    /// Panics if radius is less than or equal to 0
+    ///
+    pub fn octant<T, C>(oct: u8, r: T, c: C) -> Self
+    where
+        C: crate::pt::Point<T>,
+        T: Into<i32>,
+    {
+        let c = Pt::new(c.x().into(), c.y().into());
+        let r = r.into();
+
+        if r <= 0 {
+            panic!("Radius be must larger than 0");
+        }
+
+        if !(1..=8).contains(&oct) {
+            panic!("Invalid octant.  Valid octants are 1 through 8");
+        }
+
+        let pos = Pos::start(oct, r);
+
+        let start = Edge::new(angle::octant_start_angle(oct), oct);
+        let end = Edge::new(angle::octant_end_angle(oct), oct);
+
+        Self {
+            pos,
+            start,
+            end,
+            c,
+            r,
+            revisit: false,
         }
     }
 

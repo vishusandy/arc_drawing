@@ -91,19 +91,20 @@ pub fn thick_arc<A, C, I>(
     I: image::GenericImage,
 {
     let thickness: i32 = thickness.into();
+    let thickness = thickness - 1;
 
-    if thickness == 0 {
+    if thickness.is_negative() {
         return;
     }
 
     let inr = thickness / 2;
     let otr = thickness - inr;
 
+    let outer_radius = radius + otr;
     let inner_radius = match (radius - inr).is_negative() {
         true => 1,
         false => radius - inr,
     };
-    let outer_radius = radius + otr;
 
     Annulus::new(
         start_angle,
@@ -113,6 +114,75 @@ pub fn thick_arc<A, C, I>(
         center.pt(),
     )
     .draw(image, color);
+}
+
+pub fn pie_slice<A, C, I>(
+    image: &mut I,
+    start_angle: A,
+    end_angle: A,
+    radius: i32,
+    center: C,
+    color: I::Pixel,
+) where
+    A: crate::Angle,
+    C: Point<i32>,
+    I: image::GenericImage,
+{
+    let inner_radius = 0;
+    let outer_radius = radius;
+
+    Annulus::new(
+        start_angle,
+        end_angle,
+        inner_radius,
+        outer_radius,
+        center.pt(),
+    )
+    .draw(image, color);
+}
+
+pub fn thick_circle<C, I>(image: &mut I, radius: i32, thickness: i16, center: C, color: I::Pixel)
+where
+    C: Point<i32>,
+    I: image::GenericImage,
+{
+    let thickness: i32 = thickness.into();
+    let thickness = thickness - 1;
+
+    if thickness.is_negative() {
+        return;
+    }
+
+    let inr = thickness / 2;
+    let otr = thickness - inr;
+
+    let outer_radius = radius + otr;
+    let inner_radius = match (radius - inr).is_negative() {
+        true => 1,
+        false => radius - inr,
+    };
+
+    let mut octant = Annulus::new(
+        0.0,
+        angle::octant_end_angle(1),
+        inner_radius,
+        outer_radius,
+        center.pt(),
+    );
+
+    loop {
+        if octant.end() {
+            return;
+        }
+        if octant.next_octant() {
+            continue;
+        }
+        let (x, y1, y2) = octant.step();
+        let (x, y1, y2) = (x, y1.max(x), y2.max(x));
+        for oct in 1..=8 {
+            octant.put_line(x, y1, y2, oct, image, color);
+        }
+    }
 }
 
 /// Represents an annulus (part of a filled donut shape) from a start angle to an end angle.
@@ -235,7 +305,7 @@ impl Annulus {
             }
             let (x, y1, y2) = self.step();
             let (x, y1, y2) = (x, y1.max(x), y2.max(x));
-            self.put_line(x, y1, y2, image, color);
+            self.put_line(x, y1, y2, self.oct, image, color);
         }
     }
 
@@ -369,13 +439,14 @@ impl Annulus {
         x: i32,
         yi: i32,
         yo: i32,
+        oct: u8,
         image: &mut I,
         color: I::Pixel,
     ) {
         let width = image.width();
         let height = image.height();
         for y in yo.min(yi)..=yo.max(yi) {
-            let Pt { x, y } = translate::iter_to_real(x, y, self.oct, self.c).u32();
+            let Pt { x, y } = translate::iter_to_real(x, y, oct, self.c).u32();
             if x < width && y < height {
                 image.put_pixel(x, y, color)
             }
@@ -392,13 +463,13 @@ mod tests {
     #[test]
     fn annulus() -> Result<(), image::ImageError> {
         crate::logger(crate::LOG_LEVEL);
-        let mut image = crate::circle_guides(crate::RADIUS);
 
-        let ri = crate::RADIUS - 40;
-        let ro = crate::RADIUS;
+        let ri = 0;
+        let ro = 100;
         let start = RADS * 6.0;
         let end = RADS * 8.0;
         let center = Pt::new(200, 200);
+        let mut image = crate::circle_guides(ro);
 
         imageproc::drawing::draw_hollow_circle_mut(
             &mut image,
@@ -452,5 +523,43 @@ mod tests {
         );
 
         image.save("images/thick_arc.png")
+    }
+
+    #[test]
+    fn pie_slice() -> Result<(), image::ImageError> {
+        crate::logger(crate::LOG_LEVEL);
+
+        let radius = 100;
+        let start = RADS * 0.0;
+        let end = RADS * 8.0;
+        let center = Pt::new(200, 200);
+        let mut image = crate::circle_guides(radius);
+
+        super::pie_slice(
+            &mut image,
+            start,
+            end,
+            radius,
+            center,
+            image::Rgba([255, 0, 0, 255]),
+        );
+
+        image.save("images/pie_slice.png")
+    }
+    #[test]
+    fn thick_circle() -> Result<(), image::ImageError> {
+        crate::logger(crate::LOG_LEVEL);
+        let mut image = crate::circle_guides(crate::RADIUS);
+        let center = Pt::new(200, 200);
+
+        super::thick_circle(
+            &mut image,
+            crate::RADIUS,
+            2,
+            center,
+            image::Rgba([255, 0, 0, 255]),
+        );
+
+        image.save("images/thick_circle.png")
     }
 }
