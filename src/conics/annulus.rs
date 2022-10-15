@@ -74,6 +74,47 @@ pub fn annulus<A, C, I>(
     .draw(image, color);
 }
 
+/// Draws an arc with a specified thickness.
+///
+/// This is just a wrapper around [`Annulus`] for convenience.
+pub fn thick_arc<A, C, I>(
+    image: &mut I,
+    start_angle: A,
+    end_angle: A,
+    radius: i32,
+    thickness: i16,
+    center: C,
+    color: I::Pixel,
+) where
+    A: crate::Angle,
+    C: Point<i32>,
+    I: image::GenericImage,
+{
+    let thickness: i32 = thickness.into();
+
+    if thickness == 0 {
+        return;
+    }
+
+    let inr = thickness / 2;
+    let otr = thickness - inr;
+
+    let inner_radius = match (radius - inr).is_negative() {
+        true => 1,
+        false => radius - inr,
+    };
+    let outer_radius = radius + otr;
+
+    Annulus::new(
+        start_angle,
+        end_angle,
+        inner_radius,
+        outer_radius,
+        center.pt(),
+    )
+    .draw(image, color);
+}
+
 /// Represents an annulus (part of a filled donut shape) from a start angle to an end angle.
 ///
 /// ```
@@ -351,7 +392,7 @@ mod tests {
     #[test]
     fn annulus() -> Result<(), image::ImageError> {
         crate::logger(crate::LOG_LEVEL);
-        let mut image = crate::setup(crate::RADIUS);
+        let mut image = crate::circle_guides(crate::RADIUS);
 
         let ri = crate::RADIUS - 40;
         let ro = crate::RADIUS;
@@ -389,5 +430,27 @@ mod tests {
             let _ = image.save("images/tests/failed_annulus_overwrite_circles.png");
             panic!("{:?} found in image at ({}, {})", error.0, x, y);
         }
+    }
+
+    #[test]
+    fn thick_arc() -> Result<(), image::ImageError> {
+        crate::logger(crate::LOG_LEVEL);
+        let mut image = crate::circle_guides(crate::RADIUS);
+
+        let start = RADS * 6.0;
+        let end = RADS * 8.0;
+        let center = Pt::new(200, 200);
+
+        super::thick_arc(
+            &mut image,
+            start,
+            end,
+            crate::RADIUS,
+            10,
+            center,
+            image::Rgba([255, 0, 0, 255]),
+        );
+
+        image.save("images/thick_arc.png")
     }
 }

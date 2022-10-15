@@ -17,7 +17,7 @@ impl Edge {
     }
 
     pub(super) fn set_slope(&mut self, x1: i32, y1: i32, x2: i32, y2: i32) {
-        self.slope = calc_slope(x1, y1, x2, y2);
+        self.slope = crate::calc_slope(x1, y1, x2, y2);
         self.int = (self.slope * (-x1 as f64) + y1 as f64).round() as i32;
     }
 
@@ -36,8 +36,4 @@ impl Edge {
 
 pub(super) fn calc_line(slope: f64, int: i32, x: i32) -> i32 {
     (x as f64 * slope).round() as i32 + int
-}
-
-pub(super) fn calc_slope(x1: i32, y1: i32, x2: i32, y2: i32) -> f64 {
-    (y2 as f64 - y1 as f64) / (x2 as f64 - x1 as f64)
 }

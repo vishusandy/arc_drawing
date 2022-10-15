@@ -2,20 +2,18 @@ use crate::ops::blend_at_unchecked;
 use crate::pt::Point;
 use image::{GenericImage, Rgba, RgbaImage};
 
-/// Draws a straight diagonal line between two points.
+/// A straight diagonal line.
 ///
+/// Only points within the image are drawn.
 /// ```
-/// use image::{RgbaImage, Rgba};
 /// use freehand::lines::diagonal_line;
-///
-/// let bg = Rgba([255, 255, 255, 255]); // white
-/// let color = Rgba([255, 0, 0, 255]);
-/// let mut image = RgbaImage::from_pixel(400, 400, bg);
+/// # use image::{RgbaImage, Rgba};
+/// # let mut image = RgbaImage::from_pixel(400, 400, Rgba([255, 255, 255, 255]));
 ///
 /// /// Downwards diagonal line across the image
-/// diagonal_line(&mut image, (0, 0), (399, 399), color);
+/// diagonal_line(&mut image, (0, 0), (399, 399), Rgba([255, 0, 0, 255]));
 /// /// Upwards diagonal line across the image
-/// diagonal_line(&mut image, (0, 399), (399, 0), color);
+/// diagonal_line(&mut image, (0, 399), (399, 0), Rgba([255, 0, 0, 255]));
 /// ```
 pub fn diagonal_line<I, P>(image: &mut I, mut a: P, mut b: P, color: I::Pixel)
 where
@@ -46,22 +44,21 @@ where
     }
 }
 
-/// Draws a dashed diagonal line between two points.
+/// A dashed diagonal line.
 ///
 /// A `width` of 0 will draw a solid diagonal line.
 ///
-/// ```
-/// use image::{RgbaImage, Rgba};
-/// use freehand::lines::diagonal_dashed_line;
+/// Only points within the image are drawn.
 ///
-/// let bg = Rgba([255, 255, 255, 255]); // white
-/// let color = Rgba([255, 0, 0, 255]);
-/// let mut image = RgbaImage::from_pixel(400, 400, bg);
+/// ```
+/// use freehand::lines::diagonal_dashed_line;
+/// # use image::{RgbaImage, Rgba};
+/// # let mut image = RgbaImage::from_pixel(400, 400, Rgba([255, 255, 255, 255]));
 ///
 /// /// Downards dashed diagonal line across the image with a 2px dash
-/// diagonal_dashed_line(&mut image, (0, 0), (399, 399), 2, color);
+/// diagonal_dashed_line(&mut image, (0, 0), (399, 399), 2, Rgba([255, 0, 0, 255]));
 /// /// Upwards dashed diagonal line across the image with a 2px dash
-/// diagonal_dashed_line(&mut image, (0, 399), (399, 0), 2, color);
+/// diagonal_dashed_line(&mut image, (0, 399), (399, 0), 2, Rgba([255, 0, 0, 255]));
 /// ```
 pub fn diagonal_dashed_line<I, P>(image: &mut I, mut a: P, mut b: P, width: u32, color: I::Pixel)
 where
@@ -112,23 +109,21 @@ where
     }
 }
 
-/// Draws a solid diagonal line between two points by blending it into the image
-/// with a specified opacity.
+/// A diagonal line with opacity.
 ///
 /// Opacity should be in the range `0..=1`.
 ///
-/// ```
-/// use image::{RgbaImage, Rgba};
-/// use freehand::lines::diagonal_line_alpha;
+/// Only points within the image are drawn.
 ///
-/// let bg = Rgba([255, 255, 255, 255]); // white
-/// let color = Rgba([255, 0, 0, 255]);
-/// let mut image = RgbaImage::from_pixel(400, 400, bg);
+/// ```
+/// use freehand::lines::diagonal_line_alpha;
+/// # use image::{RgbaImage, Rgba};
+/// # let mut image = RgbaImage::from_pixel(400, 400, Rgba([255, 255, 255, 255]));
 ///
 /// /// Downwards diagonal line across the image with 50% opacity
-/// diagonal_line_alpha(&mut image, (0, 0), (399, 399), 0.5, color);
+/// diagonal_line_alpha(&mut image, (0, 0), (399, 399), 0.5, Rgba([255, 0, 0, 255]));
 /// /// Upwards diagonal line across the image with 50% opacity
-/// diagonal_line_alpha(&mut image, (0, 399), (399, 0), 0.5, color);
+/// diagonal_line_alpha(&mut image, (0, 399), (399, 0), 0.5, Rgba([255, 0, 0, 255]));
 /// ```
 pub fn diagonal_line_alpha<P>(
     image: &mut RgbaImage,
@@ -167,25 +162,23 @@ pub fn diagonal_line_alpha<P>(
     }
 }
 
-/// Draws a dashed diagonal line between two points by blending it into the image
-/// with a specified opacity.
+/// A dashed diagonal line with opacity.
 ///
 /// Opacity should be in the range `0..=1`.
 ///
 /// A `width` of 0 will draw a solid diagonal line.
 ///
-/// ```
-/// use image::{RgbaImage, Rgba};
-/// use freehand::lines::diagonal_dashed_line_alpha;
+/// Only points within the image are drawn.
 ///
-/// let bg = Rgba([255, 255, 255, 255]); // white
-/// let color = Rgba([255, 0, 0, 255]);
-/// let mut image = RgbaImage::from_pixel(400, 400, bg);
+/// ```
+/// use freehand::lines::diagonal_dashed_line_alpha;
+/// # use image::{RgbaImage, Rgba};
+/// # let mut image = RgbaImage::from_pixel(400, 400, Rgba([255, 255, 255, 255]));
 ///
 /// /// Downards dashed diagonal line across the image with a 2px dash and 50% opacity
-/// diagonal_dashed_line_alpha(&mut image, (0, 0), (399, 399), 2, 0.5, color);
+/// diagonal_dashed_line_alpha(&mut image, (0, 0), (399, 399), 2, 0.5, Rgba([255, 0, 0, 255]));
 /// /// Upwards dashed diagonal line across the image with a 2px dash and 50% opacity
-/// diagonal_dashed_line_alpha(&mut image, (0, 399), (399, 0), 2, 0.5, color);
+/// diagonal_dashed_line_alpha(&mut image, (0, 399), (399, 0), 2, 0.5, Rgba([255, 0, 0, 255]));
 /// ```
 pub fn diagonal_dashed_line_alpha<P>(
     image: &mut RgbaImage,

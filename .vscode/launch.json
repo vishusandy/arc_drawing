@@ -1,0 +1,173 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Cargo test",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib"
+                ]
+            },
+            "args": []
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug thick_iterator2'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=freehand",
+                    "thick_iterator2"
+                ],
+                "filter": {
+                    "name": "freehand",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'freehand'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=freehand"
+                ],
+                "filter": {
+                    "name": "freehand",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'freehand'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=freehand",
+                    "--package=freehand"
+                ],
+                "filter": {
+                    "name": "freehand",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'freehand'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=freehand",
+                    "--package=freehand"
+                ],
+                "filter": {
+                    "name": "freehand",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'basic_drawing'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=basic_drawing",
+                    "--package=freehand"
+                ],
+                "filter": {
+                    "name": "basic_drawing",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug benchmark 'arcs'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bench=arcs",
+                    "--package=freehand"
+                ],
+                "filter": {
+                    "name": "arcs",
+                    "kind": "bench"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug benchmark 'basics'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bench=basics",
+                    "--package=freehand"
+                ],
+                "filter": {
+                    "name": "basics",
+                    "kind": "bench"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug benchmark 'misc'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bench=misc",
+                    "--package=freehand"
+                ],
+                "filter": {
+                    "name": "misc",
+                    "kind": "bench"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}

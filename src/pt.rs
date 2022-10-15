@@ -38,6 +38,27 @@ pub trait Point<T> {
 
     /// Replace the y coordinate
     fn set_y(&mut self, y: T);
+
+    /// Creates a new [`Pt`] by switching the x and y coordinates
+    fn transpose(&self) -> Pt<T> {
+        Pt::new(self.y(), self.x())
+    }
+
+    /// Creates a new [`Pt`] by adding a value to x
+    fn plus_x(&self, x: T) -> Pt<T>
+    where
+        T: std::ops::Add<Output = T> + Copy,
+    {
+        Pt::new(self.x() + x, self.y())
+    }
+
+    /// Creates a new [`Pt`] by adding a value to y
+    fn plus_y(&self, y: T) -> Pt<T>
+    where
+        T: std::ops::Add<Output = T> + Copy,
+    {
+        Pt::new(self.x(), self.y() + y)
+    }
 }
 
 impl<T> Point<T> for (T, T)
@@ -125,7 +146,7 @@ impl<T> Pt<T> {
     }
 
     /// Swap the x and y values
-    pub fn transpose(&mut self) {
+    pub fn swap(&mut self) {
         std::mem::swap(&mut self.x, &mut self.y);
     }
 

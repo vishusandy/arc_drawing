@@ -21,6 +21,7 @@ pub(crate) mod translate;
 pub(crate) use angle::Angle;
 
 pub mod conics;
+pub mod draw;
 pub mod lines;
 pub mod ops;
 pub mod shapes;
@@ -29,7 +30,8 @@ pub use pt::{Point, Pt};
 #[cfg(test)]
 mod test;
 #[cfg(test)]
-pub(crate) use test::img::{guidelines, setup};
+#[allow(unused_imports)]
+pub(crate) use test::img::{circle_guides, guidelines, GREEN, PURPLE, YELLOW};
 
 // TODO:
 // add tests for rectangles
@@ -84,6 +86,15 @@ fn calc_error(pt: Pt<f64>, r: i32) -> i32 {
     ((pt.x().round() as f64 + 1.0).powi(2) + (pt.y().round() as f64 - 0.5).powi(2)
         - r.pow(2) as f64)
         .round() as i32
+}
+
+fn calc_slope(x1: i32, y1: i32, x2: i32, y2: i32) -> f64 {
+    (y2 as f64 - y1 as f64) / (x2 as f64 - x1 as f64)
+}
+
+#[allow(dead_code)]
+fn calc_intercept(x: i32, y: i32, slope: f64) -> f64 {
+    slope * (-x as f64) + y as f64
 }
 
 #[cfg(test)]

@@ -47,8 +47,8 @@ impl BresIter {
 
         let steep = (a.x() - b.x()).abs() < (a.y() - b.y()).abs();
         if steep {
-            a.transpose();
-            b.transpose();
+            a.swap();
+            b.swap();
         }
 
         if a.x() > b.x() {
@@ -128,7 +128,7 @@ impl Iterator for BresIter {
         }
 
         if self.steep {
-            pt.transpose();
+            pt.swap();
         }
 
         Some(pt)

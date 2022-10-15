@@ -1,4 +1,10 @@
 use crate::{Pt, CENTER, IMG_SIZE, RADS, SHOW_MARKERS};
+use image::Rgba;
+
+#[allow(dead_code)]
+pub(crate) const GREEN: Rgba<u8> = Rgba([0, 191, 16, 255]);
+pub(crate) const YELLOW: Rgba<u8> = Rgba([255, 217, 0, 255]);
+pub(crate) const PURPLE: Rgba<u8> = Rgba([174, 0, 255, 255]);
 
 pub fn blank<P>(size: P) -> image::RgbaImage
 where
@@ -22,7 +28,7 @@ pub fn setup_ellipse(h: i32, v: i32, c: (i32, i32)) -> image::RgbaImage {
     image
 }
 
-pub fn setup(r: i32) -> image::RgbaImage {
+pub fn circle_guides(r: i32) -> image::RgbaImage {
     let mut image = guidelines();
     let center = CENTER;
     imageproc::drawing::draw_hollow_circle_mut(

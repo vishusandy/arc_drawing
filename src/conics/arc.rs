@@ -107,6 +107,43 @@ pub struct Arc {
 }
 
 impl Arc {
+    /// Create an iterator over a single circular octant
+    ///
+    /// # Panic
+    ///
+    /// Panics if radius is less than or equal to 0
+    ///
+    pub fn octant<T, C>(oct: u8, r: T, c: C) -> Self
+    where
+        C: crate::pt::Point<T>,
+        T: Into<i32>,
+    {
+        let c = Pt::new(c.x().into(), c.y().into());
+        let r = r.into();
+
+        if r <= 0 {
+            panic!("Radius be must larger than 0");
+        }
+
+        if !(1..=8).contains(&oct) {
+            panic!("Invalid octant.  Valid octants are 1 through 8");
+        }
+
+        let pos = Pos::start(oct, r);
+
+        let start = Edge::new(angle::octant_start_angle(oct), oct);
+        let end = Edge::new(angle::octant_end_angle(oct), oct);
+
+        Self {
+            pos,
+            start,
+            end,
+            c,
+            r,
+            revisit: false,
+        }
+    }
+
     /// Creates a new [`Arc`].
     ///
     /// Floating-point angles will represent an angle in radians.  Integer types
@@ -115,6 +152,10 @@ impl Arc {
     /// Negative angles are supported as well as angles larger than 360° (or
     /// larger than`2*PI` for radians).  Angles will be normalized into a range
     /// of 0..PI*2.
+    ///
+    /// # Panic
+    ///
+    /// Panics if radius is less than or equal to 0
     ///
     /// ```
     /// # use image::{RgbaImage, Rgba};
@@ -147,6 +188,11 @@ impl Arc {
     {
         let c = Pt::new(c.x().into(), c.y().into());
         let r = r.into();
+
+        if r <= 0 {
+            panic!("Radius must be larger than 0");
+        }
+
         let start_oct = crate::angle::angle_to_octant(start_angle);
         let end_oct = crate::angle::angle_to_octant(end_angle);
 
@@ -160,14 +206,14 @@ impl Arc {
         }
     }
 
-    fn restart(&mut self) {
+    pub(super) fn restart(&mut self) {
         let oct = self.pos.oct % 8 + 1;
         let bounds = Bounds::bounds(oct, &self.start, &self.end, self.revisit);
         self.pos = Pos::new(oct, bounds, self.r, self.c);
         self.revisit = false;
     }
 
-    fn end(&self) -> bool {
+    pub(super) fn end(&self) -> bool {
         self.pos.oct == self.end.oct && !self.revisit
     }
 
@@ -181,8 +227,8 @@ impl Arc {
     ///
     /// let arc = Arc::new(0, 180, 190, (200, 200));
     /// arc.draw(&mut image, Rgba([255, 0, 0, 255]));
-    ///
     /// ```
+    ///
     pub fn draw<I>(mut self, image: &mut I, color: I::Pixel)
     where
         I: image::GenericImage,
@@ -203,9 +249,35 @@ impl Arc {
         }
     }
 
-    fn pt(&self) -> Pt<i32> {
+    /// Helper function to translate the current coordinates into a specified octant
+    pub(super) fn coords_oct(&self, oct: u8) -> Pt<i32> {
+        let pt = Pt::new(self.pos.x, self.pos.y);
+        translate::iter_to_real(pt.x(), pt.y(), oct, self.c)
+    }
+
+    pub(super) fn pt(&self) -> Pt<i32> {
         let pt = Pt::new(self.pos.x, self.pos.y);
         translate::iter_to_real(pt.x(), pt.y(), self.pos.oct, self.c)
+    }
+
+    /// Helper function for other modules
+    pub(super) fn stop(&self) -> bool {
+        self.pos.stop()
+    }
+
+    /// Helper function for other modules
+    pub(super) fn inc(&mut self) {
+        self.pos.inc();
+    }
+
+    /// Returns the center coordinates
+    pub fn center(&self) -> Pt<i32> {
+        self.c
+    }
+
+    /// Returns the radius
+    pub fn radius(&self) -> i32 {
+        self.r
     }
 }
 
@@ -223,11 +295,11 @@ mod tests {
         let start = RADS * 1.8;
         let end = RADS * 0.5;
 
-        let mut image = crate::setup(r);
+        let mut image = crate::circle_guides(r);
         let arc = Arc::new(start, end, r, c);
 
         arc.draw(&mut image, image::Rgba([255, 0, 0, 255]));
 
-        image.save("images/arc3.png")
+        image.save("images/arc.png")
     }
 }
