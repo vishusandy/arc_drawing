@@ -390,9 +390,6 @@ impl Annulus {
 
         let rst = (self.inr.matching_y(x), self.otr.matching_y(x));
 
-        #[cfg(test)]
-        log::debug!("{rst:?}");
-
         match rst {
             (Some(inr), Some(otr)) => {
                 self.inr.inc();
@@ -454,12 +451,7 @@ impl Annulus {
 
             let (x, y1, y2) = self.step();
 
-            #[cfg(test)]
-            log::debug!("x={} y1={y1} y2={y2}  y={}..={}", x, y1.max(x), y2.max(x),);
-
             if (self.x >= self.inr.ex && self.x >= self.otr.ex) && (y1 < x || y2 < x) {
-                #[cfg(test)]
-                log::debug!("Skipping x={x} y1={y1} y2={y2}");
                 continue;
             }
 
@@ -481,15 +473,6 @@ impl Annulus {
     ) {
         let width = image.width();
         let height = image.height();
-
-        // #[cfg(test)]
-        // log::debug!(
-        //     "x={} yi={yi} yo={yo}  y={}..={} oct={}",
-        //     x,
-        //     yo.min(yi),
-        //     yo.max(yi),
-        //     oct
-        // );
 
         let min = yo.min(yi);
         let max = yo.max(yi);
@@ -529,11 +512,11 @@ mod tests {
         );
 
         let an: Annulus = Annulus::new(start, end, ri, ro, center);
-        let dbg = an.clone();
+        // let dbg = an.clone();
 
         an.draw(&mut image, image::Rgba([255, 0, 0, 255]));
 
-        log::debug!("{dbg:#?}");
+        // log::debug!("{dbg:#?}");
 
         // let a = translate::iter_to_real(dbg.inr.ex, dbg.inr.ey, 7, center);
         // let b = translate::iter_to_real(dbg.otr.ex, dbg.otr.ey, 7, center);

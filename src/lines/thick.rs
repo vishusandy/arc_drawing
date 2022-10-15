@@ -179,7 +179,7 @@ mod tests {
         let steep = it.steep;
 
         let dbg = it.clone();
-        log::debug!("{:#?}", it);
+        // log::debug!("{:#?}", it);
 
         for (a, b) in it {
             if !steep {
