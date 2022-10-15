@@ -343,9 +343,22 @@ impl Annulus {
         }
     }
 
-    // fn stop(&self) -> bool {
-    //     self.x > self.
-    // }
+    fn stop(&self) -> bool {
+        self.x > self.inr.ex && self.x > self.otr.ex
+    }
+
+    fn is_end(&self) -> bool {
+        match self.oct == self.end.oct {
+            true => self.cur_start.angle <= self.end.angle,
+            false => false,
+        }
+    }
+
+    fn switch_octant(&mut self) {
+        self.oct = self.oct % 8 + 1; // Increment octant.  Wraps around to 1 if oct == 8
+        let start = angle::octant_start_angle(self.oct);
+        *self = Self::annulus(start, self.end.angle, self.inr.r, self.otr.r, self.c);
+    }
 
     /// Switch to the next octant
     fn next_octant(&mut self) -> bool {
@@ -430,18 +443,21 @@ impl Annulus {
         I: image::GenericImage,
     {
         loop {
-            if self.end() {
-                return;
+            if self.stop() {
+                if self.is_end() {
+                    return;
+                } else {
+                    self.switch_octant();
+                    continue;
+                }
             }
-            if self.next_octant() {
-                continue;
-            }
+
             let (x, y1, y2) = self.step();
 
             #[cfg(test)]
             log::debug!("x={} y1={y1} y2={y2}  y={}..={}", x, y1.max(x), y2.max(x),);
 
-            if y1 < x || y2 < x {
+            if (self.x >= self.inr.ex && self.x >= self.otr.ex) && (y1 < x || y2 < x) {
                 #[cfg(test)]
                 log::debug!("Skipping x={x} y1={y1} y2={y2}");
                 continue;
@@ -497,9 +513,9 @@ mod tests {
     fn annulus_test() -> Result<(), image::ImageError> {
         crate::logger(crate::LOG_LEVEL);
 
-        let ri = 0;
+        let ri = 80;
         let ro = 100;
-        let start = RADS * 0.8;
+        let start = RADS * 7.01;
         let end = RADS * 7.2;
         let center = Pt::new(200, 200);
         // let center = Pt::new(0, 0);
@@ -517,7 +533,15 @@ mod tests {
 
         an.draw(&mut image, image::Rgba([255, 0, 0, 255]));
 
-        // log::debug!("{dbg:#?}");
+        log::debug!("{dbg:#?}");
+
+        // let a = translate::iter_to_real(dbg.inr.ex, dbg.inr.ey, 8, center);
+        // let b = translate::iter_to_real(dbg.otr.ex, dbg.otr.ey, 8, center);
+        // crate::lines::line(&mut image, a, b, crate::YELLOW);
+
+        let a = translate::iter_to_real(dbg.inr.x, dbg.inr.y, 8, center);
+        let b = translate::iter_to_real(dbg.otr.x, dbg.otr.y, 8, center);
+        crate::lines::line_alpha(&mut image, a, b, 0.4, crate::YELLOW);
 
         image.save("images/annulus.png")
     }
@@ -542,6 +566,28 @@ mod tests {
     }
 
     #[test]
+    fn pie_slice() -> Result<(), image::ImageError> {
+        crate::logger(crate::LOG_LEVEL);
+
+        let radius = 100;
+        let start = RADS * 0.5;
+        let end = RADS * 1.5;
+        let center = Pt::new(200, 200);
+        let mut image = crate::circle_guides(radius);
+
+        super::pie_slice(
+            &mut image,
+            start,
+            end,
+            radius,
+            center,
+            image::Rgba([255, 0, 0, 255]),
+        );
+
+        image.save("images/pie_slice.png")
+    }
+
+    #[test]
     fn thick_arc() -> Result<(), image::ImageError> {
         crate::logger(crate::LOG_LEVEL);
         let mut image = crate::circle_guides(crate::RADIUS);
@@ -563,27 +609,6 @@ mod tests {
         image.save("images/thick_arc.png")
     }
 
-    #[test]
-    fn pie_slice() -> Result<(), image::ImageError> {
-        crate::logger(crate::LOG_LEVEL);
-
-        let radius = 100;
-        let start = RADS * 0.0;
-        let end = RADS * 8.0;
-        let center = Pt::new(200, 200);
-        let mut image = crate::circle_guides(radius);
-
-        super::pie_slice(
-            &mut image,
-            start,
-            end,
-            radius,
-            center,
-            image::Rgba([255, 0, 0, 255]),
-        );
-
-        image.save("images/pie_slice.png")
-    }
     #[test]
     fn thick_circle() -> Result<(), image::ImageError> {
         crate::logger(crate::LOG_LEVEL);
