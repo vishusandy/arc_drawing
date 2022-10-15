@@ -514,9 +514,9 @@ mod tests {
         crate::logger(crate::LOG_LEVEL);
 
         let ri = 80;
-        let ro = 100;
-        let start = RADS * 6.0;
-        let end = RADS * 6.2;
+        let ro = 180;
+        let start = RADS * 6.2;
+        let end = RADS * 6.5;
         let center = Pt::new(200, 200);
         // let center = Pt::new(0, 0);
         let mut image = crate::circle_guides(ro);
