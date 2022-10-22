@@ -7,7 +7,7 @@ use bounds::Bounds;
 use edge::Edge;
 use pos::Pos;
 
-/// Draws an arc from a given start angle to an end angle.
+/// Draws a circular arc from a given start angle to an end angle.
 ///
 /// A floating-point angle will represent an angle in radians.  Integer types
 /// will represent an angle in degrees.
@@ -63,7 +63,7 @@ pub fn arc<A, C, I, T>(
     Arc::new(start_angle, end_angle, radius, center).draw(image, color);
 }
 
-/// A structure for iterating over points in an arc.
+/// A structure for iterating over points in a circular arc.
 ///
 /// Does not implement the `Iterator` trait because points for even octants would
 /// be returned in reverse order.
@@ -243,8 +243,12 @@ impl Arc {
                 }
             }
 
-            let pt = self.pt();
-            image.put_pixel(pt.x() as u32, pt.y() as u32, color);
+            let pt: Result<Pt<u32>, &'static str> = self.pt().try_into();
+            if let Ok(pt) = pt {
+                if pt.x() < image.width() && pt.y() < image.height() {
+                    image.put_pixel(pt.x() as u32, pt.y() as u32, color);
+                }
+            }
             self.pos.inc();
         }
     }

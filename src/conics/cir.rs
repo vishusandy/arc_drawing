@@ -1,11 +1,16 @@
+use crate::conics;
+
+/// Draws a full circle.
 ///
+/// Uses [`conics::Arc`] to calculate a single octant and draw those pixels
+/// in all octants.
 pub fn circle<C, I, T>(image: &mut I, radius: T, center: C, color: I::Pixel)
 where
     C: crate::pt::Point<T>,
     I: image::GenericImage,
     T: Into<i32>,
 {
-    let mut octant = crate::conics::Arc::octant(1, radius, center);
+    let mut octant = conics::Arc::octant(1, radius, center);
 
     loop {
         if octant.stop() {
@@ -17,11 +22,14 @@ where
             }
         }
 
+        // draw the pixel in all 8 octants
         for i in 1..=8 {
-            let pt = octant.coords_oct(i);
-
-            image.put_pixel(pt.x() as u32, pt.y() as u32, color);
-            image.put_pixel(pt.x() as u32, pt.y() as u32, color);
+            let pt: Result<crate::Pt<u32>, &'static str> = octant.coords_oct(i).try_into();
+            if let Ok(pt) = pt {
+                if pt.x() < image.width() && pt.y() < image.height() {
+                    image.put_pixel(pt.x(), pt.y(), color);
+                }
+            }
         }
 
         octant.inc();

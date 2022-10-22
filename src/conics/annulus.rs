@@ -116,7 +116,12 @@ pub fn thick_arc<A, C, I>(
     .draw(image, color);
 }
 
-pub fn pie_slice<A, C, I>(
+/// Draws a pie slice.
+///
+/// Pie slice is drawn from the circle center to a given radius.
+///
+/// This is just a wrapper around [`Annulus`] for convenience.
+pub fn pie_slice_filled<A, C, I>(
     image: &mut I,
     start_angle: A,
     end_angle: A,
@@ -141,6 +146,10 @@ pub fn pie_slice<A, C, I>(
     .draw(image, color);
 }
 
+/// Draws a circle with a given thickness.
+///
+/// Internally this uses [`Annulus`] to calculate points in a single octet and
+/// draw them in all octants.
 pub fn thick_circle<C, I>(image: &mut I, radius: i32, thickness: i16, center: C, color: I::Pixel)
 where
     C: Point<i32>,
@@ -559,7 +568,7 @@ mod tests {
         let center = Pt::new(200, 200);
         let mut image = crate::circle_guides(radius);
 
-        super::pie_slice(
+        super::pie_slice_filled(
             &mut image,
             start,
             end,

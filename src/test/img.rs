@@ -3,7 +3,9 @@ use image::Rgba;
 
 #[allow(dead_code)]
 pub(crate) const GREEN: Rgba<u8> = Rgba([0, 191, 16, 255]);
+#[allow(dead_code)]
 pub(crate) const YELLOW: Rgba<u8> = Rgba([255, 217, 0, 255]);
+#[allow(dead_code)]
 pub(crate) const PURPLE: Rgba<u8> = Rgba([174, 0, 255, 255]);
 
 pub fn blank<P>(size: P) -> image::RgbaImage

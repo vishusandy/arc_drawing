@@ -24,7 +24,7 @@ pub unsafe fn blend_at_unchecked(
     image: &mut image::RgbaImage,
     x: u32,
     y: u32,
-    opac: f32,
+    opacity: f32,
     color: image::Rgba<u8>,
 ) {
     use image::Pixel;
@@ -33,8 +33,8 @@ pub unsafe fn blend_at_unchecked(
     let i = crate::rgba_array_index(image.width(), x, y);
     let bg = image.get_unchecked_mut(i..i + std::mem::size_of::<image::Rgba<u8>>());
     let [r1, g1, b1, a1] = mult_alpha(rgba_float(bg));
-    let [r2, g2, b2, a2] = mult_alpha(rgb_float(color.channels(), opac));
-    let o = 1.0 - opac;
+    let [r2, g2, b2, a2] = mult_alpha(rgb_float(color.channels(), opacity));
+    let o = 1.0 - opacity;
     bg[0] = (r1.mul_add(o, r2) * 255.0).to_int_unchecked(); // ((r2 + r1 * (1.0 - a2)) * 255.0);
     bg[1] = (g1.mul_add(o, g2) * 255.0).to_int_unchecked(); // ((g2 + g1 * (1.0 - a2)) * 255.0);
     bg[2] = (b1.mul_add(o, b2) * 255.0).to_int_unchecked(); // ((b2 + b1 * (1.0 - a2)) * 255.0);
@@ -42,7 +42,7 @@ pub unsafe fn blend_at_unchecked(
 }
 
 /// Blend a specified color into an existing image coordinate.  This ignores `color`'s
-/// alpha value and instead uses `opac` which is a floating point number from 0.0 to 1.0.
+/// alpha value and instead uses `opac` which expects a floating point number from 0.0 to 1.0.
 ///
 /// Returns true if successful.
 ///
@@ -56,11 +56,17 @@ pub unsafe fn blend_at_unchecked(
 /// let mut image = RgbaImage::from_pixel(10, 10, Rgba([255, 255, 255, 255]));
 /// blend_at(&mut image, 0, 0, 0.5, Rgba([255, 255, 255, 255]))
 /// ```
-pub fn blend_at(image: &mut image::RgbaImage, x: u32, y: u32, opac: f32, color: image::Rgba<u8>) {
-    if x < image.width() && y < image.height() && (0.0..1.0).contains(&opac) {
+pub fn blend_at(
+    image: &mut image::RgbaImage,
+    x: u32,
+    y: u32,
+    opacity: f32,
+    color: image::Rgba<u8>,
+) {
+    if x < image.width() && y < image.height() && (0.0..=1.0).contains(&opacity) {
         // this is safe because of the bounds checks
         unsafe {
-            blend_at_unchecked(image, x, y, opac, color);
+            blend_at_unchecked(image, x, y, opacity, color);
         }
     }
 }
@@ -98,12 +104,32 @@ mod tests {
     fn safe_blend() {
         let color = image::Rgba([255, 0, 0, 255]);
         let mut image = image::RgbaImage::from_pixel(1, 1, image::Rgba([255, 255, 255, 255]));
+
+        // opacity of 0.5
         blend_at(&mut image, 0, 0, 0.5, color);
         assert_eq!(*image.get_pixel(0, 0), image::Rgba([255, 127, 127, 255]));
+
+        // opacity of 1
+        image.put_pixel(0, 0, image::Rgba([255, 255, 255, 255]));
+        blend_at(&mut image, 0, 0, 1.0, color);
+        assert_eq!(*image.get_pixel(0, 0), image::Rgba([255, 0, 0, 255]));
+
+        // opacity of 0
+        image.put_pixel(0, 0, image::Rgba([0, 0, 0, 255]));
+        blend_at(&mut image, 0, 0, 0.0, color);
+        assert_eq!(*image.get_pixel(0, 0), image::Rgba([0, 0, 0, 255]));
+
+        // invalid opacities
+        image.put_pixel(0, 0, image::Rgba([255, 255, 255, 255]));
+        blend_at(&mut image, 0, 0, 1.1, color);
+        assert_eq!(*image.get_pixel(0, 0), image::Rgba([255, 255, 255, 255]));
+        blend_at(&mut image, 0, 0, -1.1, color);
+        assert_eq!(*image.get_pixel(0, 0), image::Rgba([255, 255, 255, 255]));
+
+        // Boundary tests - ensure these don't cause panics
+        blend_at(&mut image, 1, 0, 0.5, color);
         blend_at(&mut image, 2, 0, 0.5, color);
         blend_at(&mut image, 0, 2, 0.5, color);
         blend_at(&mut image, 2, 2, 0.5, color);
-        blend_at(&mut image, 0, 0, 1.1, color);
-        blend_at(&mut image, 0, 0, -1.1, color);
     }
 }

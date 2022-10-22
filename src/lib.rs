@@ -18,13 +18,15 @@ mod angle;
 mod antialias;
 mod pt;
 pub(crate) mod translate;
-pub(crate) use angle::Angle;
+pub use angle::Angle;
+pub(crate) mod draw;
 
 pub mod conics;
-pub mod draw;
 pub mod lines;
 pub mod ops;
 pub mod shapes;
+
+pub use draw::{new, Draw};
 pub use pt::{Point, Pt};
 
 #[cfg(test)]

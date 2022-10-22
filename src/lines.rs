@@ -9,12 +9,12 @@
 //! line(&mut image, (0, 0), (399, 399), Rgba([255, 0, 0, 255]));
 //! ```
 
-mod aa;
 mod bres;
 mod diagonal;
 mod horizontal;
 mod straight;
 mod thick;
+// mod thick;
 mod vertical;
 
 pub use bres::BresIter;
@@ -33,4 +33,4 @@ pub use vertical::{
 
 pub use straight::{dashed_line, dashed_line_alpha, line, line_alpha, path};
 
-pub use thick::ThickLine;
+pub use thick::thick_line;

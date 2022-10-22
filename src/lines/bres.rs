@@ -74,37 +74,53 @@ impl BresIter {
         }
     }
 
-    /// Returns the current position in the line
-    pub fn pt(&self) -> &Pt<i32> {
-        &self.pt
+    /// Returns the current position in the line.
+    pub fn pt(&self) -> Pt<i32> {
+        if self.steep {
+            self.pt.transpose()
+        } else {
+            self.pt
+        }
     }
 
-    /// Returns the end point of the line
-    pub fn end(&self) -> &Pt<i32> {
-        &self.end
+    /// Returns the end point of the line.
+    pub fn end(&self) -> Pt<i32> {
+        if self.steep {
+            self.end.transpose()
+        } else {
+            self.end
+        }
     }
 
-    /// Returns the decision parameter that decides whether to change y or not
+    /// Returns the decision parameter that decides whether to change y or not.
+    ///
+    /// If `steep` is `true` this represents whether to change x.
     pub fn d(&self) -> i32 {
         self.d
     }
 
-    /// Error amount added to the decision parameter every step
+    /// Error amount added to the decision parameter every step.
+    ///
+    /// Does not account for `steep == true` (which switches x and y)
     pub fn dy(&self) -> i32 {
         self.dy
     }
 
-    /// Error amount subtracted from the decision parameter when y changes
+    /// Error amount subtracted from the decision parameter when y changes.
+    ///
+    /// Does not account for `steep == true` (which switches x and y)
     pub fn dx(&self) -> i32 {
         self.dx
     }
 
-    /// Amount added to y on y steps
+    /// Amount added to y on y steps.
+    ///
+    /// Does not account for `steep == true` (which switches x and y)
     pub fn y_step(&self) -> i32 {
         self.y_step
     }
 
-    /// If steep is true the x, y coordinates are transposed
+    /// If steep is true the x, y coordinates will be transposed.
     pub fn steep(&self) -> bool {
         self.steep
     }
