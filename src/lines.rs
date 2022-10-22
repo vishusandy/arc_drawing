@@ -9,6 +9,7 @@
 //! line(&mut image, (0, 0), (399, 399), Rgba([255, 0, 0, 255]));
 //! ```
 
+mod aa;
 mod bres;
 mod diagonal;
 mod horizontal;

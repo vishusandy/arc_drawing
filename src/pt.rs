@@ -512,3 +512,27 @@ where
         }
     }
 }
+
+impl std::convert::TryFrom<Pt<i32>> for Pt<u32> {
+    type Error = &'static str;
+
+    fn try_from(pt: Pt<i32>) -> Result<Self, Self::Error> {
+        if pt.x().is_negative() || pt.y().is_negative() {
+            Err("Negative i32 values cannot be converted to u32")
+        } else {
+            Ok(Pt::new(pt.x() as u32, pt.y() as u32))
+        }
+    }
+}
+
+// impl std::convert::TryFrom<Pt<u32>> for Pt<i32> {
+//     type Error = &'static str;
+
+//     fn try_from(pt: Pt<u32>) -> Result<Self, Self::Error> {
+//         if pt.x() > std::i32::MAX as u32 || pt.y() > std::i32::MAX as u32 {
+//             Err("")
+//         } else {
+//             Ok(Pt::new(pt.x() as u32, pt.y() as u32))
+//         }
+//     }
+// }
