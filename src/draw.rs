@@ -541,7 +541,7 @@ impl<'i> Draw<'i, RgbaImage> {
     }
 }
 
-/// Creates a new wrapper around a mutable image.
+/// Creates a new [`Draw`] struct for a mutable image.
 ///
 /// This allows drawing functions to be called using method chaining.
 ///

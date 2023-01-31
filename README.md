@@ -40,7 +40,17 @@ The [`image`](https://docs.rs/image/latest/image/) crate should already be a dep
     draw.line((0, 0), (399,399), red);
     ```
 
+## Notes
 
+#### Angles
+
+Angles are treated differently based on their type. Floating-point types will be in radians, while integer types will be treated as degrees (and silently converted to radians).
+
+#### Opacity
+
+Anti-aliasing and alpha blending functions currently only work with [`RgbaImage`](https://docs.rs/image/latest/image/type.RgbaImage.html)s.
+
+Also note functions that have an explicit `opacity` parameter will not take an [`Rgba`](https://docs.rs/image/latest/image/struct.Rgba.html) value's alpha channel into account when blending (unless stated otherwise).
 
 ## Limitations
 

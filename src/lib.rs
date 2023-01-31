@@ -21,7 +21,7 @@
 //!
 //! # Usage
 //!
-//! Using the [`Draw`] struct is preferred over calling the functions directly.
+//! Using the [`Draw`] struct is preferred over calling the functions directly
 //! as it is slightly more ergonomic to work with.  The `Draw` struct can be
 //! created using the [`new()`] function or [`Draw::new()`].  Note: not all
 //! drawing functions have `Draw` methods; some of the less common functions
@@ -112,7 +112,7 @@ const QUAD: f64 = std::f64::consts::PI / 2.0;
 /// Tiny amount to subtract from an angle (in radians) to avoid different angles from appearing the same
 const TINY: f64 = std::f64::EPSILON * 10.0; // multiply by a number greater than 2.0 to avoid floating-point inaccuracy
 
-/// A simple helper function that plots `(x, y)` coordinates returned from an iterator.
+/// A simple helper function that draws `(x, y)` coordinates returned from an iterator.
 pub fn draw_iter<I, P, It, T>(image: &mut I, iter: It, color: I::Pixel)
 where
     I: image::GenericImage,
@@ -148,8 +148,8 @@ fn calc_slope(x1: i32, y1: i32, x2: i32, y2: i32) -> f64 {
     (y2 as f64 - y1 as f64) / (x2 as f64 - x1 as f64)
 }
 
-#[allow(dead_code)]
 /// Calculate the y intercept (y value for x=0)
+#[allow(dead_code)]
 fn calc_intercept(x: i32, y: i32, slope: f64) -> f64 {
     slope * (-x as f64) + y as f64
 }
