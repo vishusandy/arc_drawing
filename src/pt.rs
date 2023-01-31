@@ -16,7 +16,11 @@
 
 /// Represents x, y coordinates for a type.  Allows functions to be generic over
 /// types that represent x, y coordinates.
-pub trait Point<T> {
+pub trait Point<T>
+where
+    T: Copy,
+    Self: Copy,
+{
     /// Return a [`Pt`]
     fn pt(&self) -> Pt<T> {
         Pt::new(self.x(), self.y())
@@ -111,15 +115,13 @@ where
 ///
 /// This is mostly intended for use within the crate, however it is provided as
 /// public in order for convenience when working with this crate.
-#[derive(Clone, Debug)]
+#[derive(Copy, Clone, Debug)]
 pub struct Pt<T> {
     /// The x coordinate
     pub x: T,
     /// The y coordinate
     pub y: T,
 }
-
-impl<T> Copy for Pt<T> where T: Copy {}
 
 impl<T> Pt<T> {
     /// Create a new `Pt` from x, y coordinates
@@ -215,6 +217,7 @@ impl<T> Pt<T> {
     }
 
     /// Add a number to the x and y coordinates
+    #[must_use]
     pub fn add(&self, value: T) -> Self
     where
         T: Copy + std::ops::Add<Output = T>,
@@ -238,6 +241,7 @@ impl<T> Pt<T> {
     }
 
     /// Multiply a number with the x and y coordinates
+    #[must_use]
     pub fn mul(&self, value: T) -> Self
     where
         T: Copy + std::ops::Mul<Output = T>,
@@ -249,6 +253,7 @@ impl<T> Pt<T> {
     }
 
     /// Divide both of the x and y coordinates by a number
+    #[must_use]
     pub fn div(&self, value: T) -> Self
     where
         T: Copy + std::ops::Div<Output = T>,
@@ -340,6 +345,7 @@ impl Pt<f64> {
     }
 
     /// Round and cast to a `Pt<i32>`.
+    #[must_use]
     pub fn i32(&self) -> Pt<i32> {
         Pt {
             x: self.x.round() as i32,
@@ -347,8 +353,8 @@ impl Pt<f64> {
         }
     }
 
-    #[allow(dead_code)]
     /// Casts to a `Pt<u32>` with `abs()` and `round()`
+    #[must_use]
     pub fn u32(&self) -> Pt<u32> {
         Pt {
             x: self.x.abs().round() as u32,
@@ -359,6 +365,7 @@ impl Pt<f64> {
 
 impl Pt<i32> {
     /// Casts to a `Pt<u32>`
+    #[must_use]
     pub const fn u32(&self) -> Pt<u32> {
         Pt {
             x: self.x as u32,
@@ -367,6 +374,7 @@ impl Pt<i32> {
     }
 
     /// A safer conversion to a `Pt<u32>` using `unsigned_abs()`
+    #[must_use]
     pub const fn abs_u32(&self) -> Pt<u32> {
         Pt {
             x: self.x.unsigned_abs(),
@@ -375,6 +383,7 @@ impl Pt<i32> {
     }
 
     /// Converts an i32 to u32 by changing negatives to 0
+    #[must_use]
     pub fn min_u32(&self) -> Pt<u32> {
         Pt {
             x: self.x.max(0) as u32,
@@ -383,6 +392,7 @@ impl Pt<i32> {
     }
 
     /// Returns whether both coordinates are negative
+    #[must_use]
     pub const fn is_negative(&self) -> bool {
         self.x.is_negative() | self.y.is_negative()
     }
@@ -390,6 +400,7 @@ impl Pt<i32> {
 
 impl Pt<u32> {
     /// Cast to a `Pt<i32>`
+    #[must_use]
     pub const fn i32(&self) -> Pt<i32> {
         Pt {
             x: self.x as i32,
@@ -398,6 +409,7 @@ impl Pt<u32> {
     }
 
     /// Cast to a `Pt<f32>`
+    #[must_use]
     pub const fn f32(&self) -> Pt<f32> {
         Pt {
             x: self.x as f32,
@@ -406,6 +418,7 @@ impl Pt<u32> {
     }
 
     /// Cast to a `Pt<f64>`
+    #[must_use]
     pub const fn f64(&self) -> Pt<f64> {
         Pt {
             x: self.x as f64,

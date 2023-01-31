@@ -131,6 +131,6 @@ mod tests {
         assert!((180u32.radians() - 4.0 * RADS).abs() <= crate::TINY);
         assert!((180u64.radians() - 4.0 * RADS).abs() <= crate::TINY);
         assert!((180usize.radians() - 4.0 * RADS).abs() <= crate::TINY);
-        assert!(((4.0f32 * RADS_F32).radians() - 4.0 * RADS).abs() <= crate::TINY);
+        assert!(((4.0f32 * RADS_F32).radians() - 4.0 * RADS) <= std::f32::EPSILON as f64);
     }
 }

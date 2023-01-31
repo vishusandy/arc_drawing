@@ -4,9 +4,9 @@ use crate::pt::{Point, Pt};
 /// An iterator between two points on a line.  Uses Bresenham's algorithm.
 ///
 /// ```
-/// use freehand::lines::BresIter;
+/// use freehand::lines::LineIter;
 ///
-/// for freehand::Pt {x, y} in BresIter::new((0, 0), (399, 399)) {
+/// for freehand::Pt {x, y} in LineIter::new((0, 0), (399, 399)) {
 ///     // ...
 /// }
 /// ```
@@ -33,9 +33,9 @@ impl LineIter {
     ///
     ///
     /// ```
-    /// use freehand::lines::BresIter;
+    /// use freehand::lines::LineIter;
     ///
-    /// for freehand::Pt {x, y} in BresIter::new((0, 0), (399, 399)) {
+    /// for freehand::Pt {x, y} in LineIter::new((0, 0), (399, 399)) {
     ///     // ...
     /// }
     /// ```
@@ -57,6 +57,7 @@ impl LineIter {
 
         let d = 0;
 
+        #[allow(clippy::match_bool)]
         let y_step = match a.y() > b.y() {
             true => -1,
             false if a.y() == b.y() => 0,
@@ -75,6 +76,7 @@ impl LineIter {
     }
 
     /// Returns the current position in the line.
+    #[must_use]
     pub fn pt(&self) -> Pt<i32> {
         if self.steep {
             self.pt.transpose()
@@ -84,6 +86,7 @@ impl LineIter {
     }
 
     /// Returns the end point of the line.
+    #[must_use]
     pub fn end(&self) -> Pt<i32> {
         if self.steep {
             self.end.transpose()
@@ -95,6 +98,7 @@ impl LineIter {
     /// Returns the decision parameter that decides whether to change y or not.
     ///
     /// If `steep` is `true` this represents whether to change x.
+    #[must_use]
     pub fn d(&self) -> i32 {
         self.d
     }
@@ -102,6 +106,7 @@ impl LineIter {
     /// Error amount added to the decision parameter every step.
     ///
     /// Does not account for `steep == true` (which switches x and y)
+    #[must_use]
     pub fn dy(&self) -> i32 {
         self.dy
     }
@@ -109,6 +114,7 @@ impl LineIter {
     /// Error amount subtracted from the decision parameter when y changes.
     ///
     /// Does not account for `steep == true` (which switches x and y)
+    #[must_use]
     pub fn dx(&self) -> i32 {
         self.dx
     }
@@ -116,11 +122,13 @@ impl LineIter {
     /// Amount added to y on y steps.
     ///
     /// Does not account for `steep == true` (which switches x and y)
+    #[must_use]
     pub fn y_step(&self) -> i32 {
         self.y_step
     }
 
     /// If steep is true the x, y coordinates will be transposed.
+    #[must_use]
     pub fn steep(&self) -> bool {
         self.steep
     }

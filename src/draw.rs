@@ -3,6 +3,9 @@
 //! This is a simple wrapper around a mutable image reference for convenience.
 //!
 
+#![allow(clippy::return_self_not_must_use)]
+#![allow(clippy::must_use_candidate)]
+
 use crate::conics;
 use crate::lines;
 use crate::ops;
@@ -67,7 +70,7 @@ where
     pub fn line<P, T>(self, a: P, b: P, color: I::Pixel) -> Self
     where
         P: Point<T>,
-        T: Into<i32>,
+        T: Into<i32> + Copy,
     {
         let a = Pt::new(a.x().into(), a.y().into());
         let b = Pt::new(b.x().into(), b.y().into());
@@ -91,7 +94,7 @@ where
     pub fn dashed_line<P, T>(self, a: P, b: P, dash_width: u16, color: I::Pixel) -> Self
     where
         P: Point<T>,
-        T: Into<i32>,
+        T: Into<i32> + Copy,
     {
         let a = Pt::new(a.x().into(), a.y().into());
         let b = Pt::new(b.x().into(), b.y().into());
@@ -185,7 +188,7 @@ where
     where
         A: Angle,
         C: Point<T>,
-        T: Into<i32>,
+        T: Into<i32> + Copy,
     {
         conics::arc(self.image, start_angle, end_angle, radius, center, color);
         self
@@ -206,7 +209,7 @@ where
     pub fn circle<C, T>(self, radius: T, center: C, color: I::Pixel) -> Self
     where
         C: Point<T>,
-        T: Into<i32>,
+        T: Into<i32> + Copy,
     {
         conics::circle(self.image, radius, center, color);
         self
@@ -361,7 +364,7 @@ impl<'i> Draw<'i, RgbaImage> {
     where
         A: Angle,
         C: Point<T>,
-        T: Into<f64>,
+        T: Into<f64> + Copy,
     {
         conics::antialiased_arc(self.image, start_angle, end_angle, radius, center, color);
         self
@@ -430,7 +433,7 @@ impl<'i> Draw<'i, RgbaImage> {
     pub fn thick_line<P, T>(self, a: P, b: P, width: f32, color: Rgba<u8>) -> Self
     where
         P: Point<T>,
-        T: Into<i32>,
+        T: Into<i32> + Copy,
     {
         lines::thick_line(self.image, a, b, width, color);
         self

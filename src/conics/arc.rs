@@ -58,7 +58,7 @@ pub fn arc<A, C, I, T>(
     A: crate::Angle,
     C: crate::pt::Point<T>,
     I: image::GenericImage,
-    T: Into<i32>,
+    T: Into<i32> + Copy,
 {
     Arc::new(start_angle, end_angle, radius, center).draw(image, color);
 }
@@ -131,7 +131,7 @@ impl Arc {
     pub fn new<A, T, C>(start_angle: A, end_angle: A, radius: T, center: C) -> Self
     where
         A: crate::Angle,
-        T: Into<i32>,
+        T: Into<i32> + Copy,
         C: crate::pt::Point<T>,
     {
         let start = angle::normalize(start_angle.radians());
@@ -146,7 +146,7 @@ impl Arc {
 
     fn blank<T, C>(start_angle: f64, end_angle: f64, r: T, c: C) -> Self
     where
-        T: Into<i32>,
+        T: Into<i32> + Copy,
         C: crate::pt::Point<T>,
     {
         let c = Pt::new(c.x().into(), c.y().into());
@@ -176,7 +176,7 @@ impl Arc {
     pub fn octant<T, C>(oct: u8, r: T, c: C) -> Self
     where
         C: crate::pt::Point<T>,
-        T: Into<i32>,
+        T: Into<i32> + Copy,
     {
         let c = Pt::new(c.x().into(), c.y().into());
         let r = r.into();

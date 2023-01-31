@@ -1,3 +1,6 @@
+// These functions are exported publicly in a different module - keep the module prefix
+#![allow(clippy::module_name_repetitions)]
+
 use crate::ops::blend_at;
 use crate::{Point, Pt};
 
@@ -13,7 +16,7 @@ use crate::{Point, Pt};
 pub fn thick_line<P, T>(image: &mut image::RgbaImage, a: P, b: P, wd: f32, color: image::Rgba<u8>)
 where
     P: Point<T>,
-    T: Into<i32>,
+    T: Into<i32> + Copy,
 {
     let Pt {
         x: mut x0,
@@ -26,20 +29,15 @@ where
     let dy = (y1 - y0).abs(); // y difference
 
     // amount to added to x
-    let sx = match x0 < x1 {
-        true => 1,
-        false => -1,
-    };
+    let sx = if x0 < x1 { 1 } else { -1 };
     // amount added to y
-    let sy = match y0 < y1 {
-        true => 1,
-        false => -1,
-    };
+    let sy = if y0 < y1 { 1 } else { -1 };
 
     let mut err = dx - dy;
-    let ed = match dx + dy == 0 {
-        true => 1.0,
-        false => ((dx as f32 * dx as f32) + (dy as f32 * dy as f32)).sqrt(),
+    let ed = if dx + dy == 0 {
+        1.0
+    } else {
+        ((dx as f32 * dx as f32) + (dy as f32 * dy as f32)).sqrt()
     };
 
     let wd = (wd + 1.0) / 2.0;

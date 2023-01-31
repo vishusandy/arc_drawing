@@ -54,7 +54,7 @@ pub fn antialiased_arc<A, C, T>(
 ) where
     A: crate::Angle,
     C: crate::pt::Point<T>,
-    T: Into<f64>,
+    T: Into<f64> + Copy,
 {
     AntialiasedArc::new(start_angle, end_angle, radius, center).draw(image, color);
 }
@@ -135,7 +135,7 @@ impl AntialiasedArc {
     where
         A: crate::Angle,
         P: crate::Point<T>,
-        T: Into<f64>,
+        T: Into<f64> + Copy,
     {
         let radius = radius.into();
         let center = Pt::new(center.x().into(), center.y().into());

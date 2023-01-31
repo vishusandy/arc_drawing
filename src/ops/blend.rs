@@ -1,3 +1,6 @@
+// These functions are exported publicly in a different module - keep the module prefix
+#![allow(clippy::module_name_repetitions)]
+
 /// Blend a specified color into an existing image coordinate.  This ignores `color`'s
 /// alpha value and instead uses `opacity` which is a floating point number from 0.0 to 1.0.
 ///

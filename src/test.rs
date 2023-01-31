@@ -1,3 +1,6 @@
+// We don't really care about function names for testing purposes
+#![allow(clippy::module_name_repetitions)]
+
 //! Code for testing/benchmarking purposes
 
 /// Image functions for testing
@@ -29,7 +32,6 @@ pub(crate) const CENTER: (i32, i32) = (200, 200);
 pub(crate) const RADIUS_F: f64 = RADIUS as f64;
 #[cfg(test)]
 pub(crate) const SHOW_MARKERS: bool = false;
-
 
 #[cfg(test)]
 pub(crate) fn color_in_image<P, C>(image: &image::ImageBuffer<P, C>, color: P) -> Option<(u32, u32)>

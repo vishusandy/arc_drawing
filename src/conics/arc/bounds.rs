@@ -1,6 +1,6 @@
 use super::Edge;
 
-#[derive(Clone, Debug, Default)]
+#[derive(Copy, Clone, Debug, Default)]
 pub(super) struct Bounds {
     pub(super) start: Option<f64>,
     pub(super) end: Option<f64>,
@@ -33,19 +33,22 @@ impl Bounds {
             return Bounds::default();
         }
 
-        let start = match oct == start_edge.oct && start_edge.oct != end_edge.oct {
-            true => Some(start_edge.angle),
-            false => None,
+        let start = if oct == start_edge.oct && start_edge.oct != end_edge.oct {
+            Some(start_edge.angle)
+        } else {
+            None
         };
 
-        let end = match oct == end_edge.oct && !revisit {
-            true => Some(end_edge.angle),
-            false => None,
+        let end = if oct == end_edge.oct && !revisit {
+            Some(end_edge.angle)
+        } else {
+            None
         };
 
-        match oct % 2 == 0 {
-            true => Bounds::new(end, start),
-            false => Bounds::new(start, end),
+        if oct % 2 == 0 {
+            Bounds::new(end, start)
+        } else {
+            Bounds::new(start, end)
         }
     }
 }

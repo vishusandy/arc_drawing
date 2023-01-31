@@ -16,7 +16,7 @@ pub fn circle<C, I, T>(image: &mut I, radius: T, center: C, color: I::Pixel)
 where
     C: crate::pt::Point<T>,
     I: image::GenericImage,
-    T: Into<i32>,
+    T: Into<i32> + Copy,
 {
     let mut octant = conics::Arc::octant(1, radius, center);
 

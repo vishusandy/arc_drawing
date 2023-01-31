@@ -70,17 +70,17 @@
 //!
 
 #![warn(missing_docs)]
-// #![warn(clippy::pedantic)]
-// #![allow(clippy::cast_possible_truncation)]
-// #![allow(clippy::cast_lossless)]
-// #![allow(clippy::cast_possible_wrap)]
-// #![allow(clippy::cast_sign_loss)]
-// #![allow(clippy::cast_precision_loss)]
+#![warn(clippy::pedantic)]
+#![allow(clippy::cast_possible_truncation)]
+#![allow(clippy::cast_lossless)]
+#![allow(clippy::cast_possible_wrap)]
+#![allow(clippy::cast_sign_loss)]
+#![allow(clippy::cast_precision_loss)]
 // #![allow(clippy::needless_pass_by_value)]
 // #![allow(clippy::return_self_not_must_use)]
 // #![allow(clippy::must_use_candidate)]
 // #![allow(clippy::module_name_repetitions)]
-// #![allow(clippy::many_single_char_names)]
+#![allow(clippy::many_single_char_names)]
 // #![allow(clippy::match_bool)]
 
 mod angle;
@@ -124,7 +124,7 @@ where
     I: image::GenericImage,
     It: Iterator<Item = P>,
     P: crate::pt::Point<T>,
-    T: Into<u32>,
+    T: Into<u32> + Copy,
 {
     for p in iter {
         let (x, y) = p.tuple();

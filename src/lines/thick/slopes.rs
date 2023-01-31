@@ -1,4 +1,4 @@
-use crate::lines::BresIter;
+use crate::lines::LineIter;
 use crate::Pt;
 
 #[derive(Clone, Debug)]
@@ -17,11 +17,11 @@ impl Edge {
 #[derive(Clone, Debug)]
 pub(super) struct LineIter {
     pub(super) p: Pt<i32>,
-    pub(super) it: BresIter,
+    pub(super) it: LineIter,
 }
 
 impl LineIter {
-    pub(super) fn new(mut it: BresIter) -> Option<Self> {
+    pub(super) fn new(mut it: LineIter) -> Option<Self> {
         it.next().map(|p| Self { p, it })
     }
 
