@@ -18,7 +18,7 @@ It provides the following for drawing:
 
 ## Usage
 
-The [`image`] crate should already be a dependency, as this crate operates on its image types.
+The [`image`](https://docs.rs/image/latest/image/) crate should already be a dependency, as this crate operates on its image types.
 
 1. Add freehand to your `cargo.toml`'s dependencies:
 
@@ -40,7 +40,6 @@ The [`image`] crate should already be a dependency, as this crate operates on it
     draw.line((0, 0), (399,399), red);
     ```
 
-![`image`]: https://docs.rs/image/latest/image/
 
 
 ## Limitations
