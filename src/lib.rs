@@ -1,3 +1,11 @@
+#![warn(missing_docs)]
+#![warn(clippy::pedantic)]
+#![allow(clippy::cast_possible_truncation)]
+#![allow(clippy::cast_lossless)]
+#![allow(clippy::cast_possible_wrap)]
+#![allow(clippy::cast_sign_loss)]
+#![allow(clippy::cast_precision_loss)]
+
 //! # Overview
 //!
 //! A crate that provides various drawing functions for use with the [`image`]
@@ -69,20 +77,6 @@
 //![`image`]: https://docs.rs/image/latest/image/
 //!
 
-#![warn(missing_docs)]
-#![warn(clippy::pedantic)]
-#![allow(clippy::cast_possible_truncation)]
-#![allow(clippy::cast_lossless)]
-#![allow(clippy::cast_possible_wrap)]
-#![allow(clippy::cast_sign_loss)]
-#![allow(clippy::cast_precision_loss)]
-// #![allow(clippy::needless_pass_by_value)]
-// #![allow(clippy::return_self_not_must_use)]
-// #![allow(clippy::must_use_candidate)]
-// #![allow(clippy::module_name_repetitions)]
-#![allow(clippy::many_single_char_names)]
-// #![allow(clippy::match_bool)]
-
 mod angle;
 mod antialias;
 mod pt;
@@ -116,7 +110,7 @@ const PI2: f64 = std::f64::consts::PI * 2.0;
 /// Range of a single quadrant in radians
 const QUAD: f64 = std::f64::consts::PI / 2.0;
 /// Tiny amount to subtract from an angle (in radians) to avoid different angles from appearing the same
-const TINY: f64 = std::f64::EPSILON * 3.0; // multiply by a number greater than 2.0 to avoid floating-point inaccuracy
+const TINY: f64 = std::f64::EPSILON * 10.0; // multiply by a number greater than 2.0 to avoid floating-point inaccuracy
 
 /// A simple helper function that plots `(x, y)` coordinates returned from an iterator.
 pub fn draw_iter<I, P, It, T>(image: &mut I, iter: It, color: I::Pixel)

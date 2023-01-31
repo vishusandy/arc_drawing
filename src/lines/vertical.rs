@@ -1,5 +1,6 @@
 // These functions are exported publicly in a different module - keep the module prefix
 #![allow(clippy::module_name_repetitions)]
+#![allow(clippy::many_single_char_names)]
 
 use crate::ops::blend_at_unchecked;
 use crate::pt::Point;
