@@ -18,8 +18,7 @@ It provides the following for drawing:
 
 ## Unsafe
 
-A few unsafe functions are provided to improve performance by removing redundant bounds checks and eliminating unnecessary branches.
-This is useful when you have already checked the bounds or know the coordinates must be within the bounds.
+A few unsafe functions are offered to improve performance in cases where the bounds have already been checked.
 
 ## Limitations
 
