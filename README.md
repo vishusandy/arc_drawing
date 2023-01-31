@@ -16,9 +16,32 @@ It provides the following for drawing:
 - straight vertical, horizontal, and diagonal lines, with variants for dashed lines and alpha blended lines
 - filled rectangles
 
-## Unsafe
+## Usage
 
-A few unsafe functions are offered to improve performance in cases where the bounds have already been checked.
+The [`image`] crate should already be a dependency, as this crate operates on its image types.
+
+1. Add freehand to your `cargo.toml`'s dependencies:
+
+    ```toml
+    [dependencies]
+    freehand = "0.1.0"
+    ```
+
+2. Choose to either use the `Draw` struct, for convenience methods, or the regular funcitons (the `Draw` struct methods are recommended).
+
+    ```rust
+    // no `use` statements required here
+    // just pass in the image you wish to work on
+    let draw = freehand::new(&mut image);
+    
+    let red = image::Rgba([255, 0, 0, 255]);
+    
+    // draws a line diagonally across an a 400x400 pixel image in red
+    draw.line((0, 0), (399,399), red);
+    ```
+
+![`image`]: https://docs.rs/image/latest/image/
+
 
 ## Limitations
 
