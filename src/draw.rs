@@ -52,6 +52,116 @@ where
         Self { image }
     }
 
+    /// Draws a straight line.
+    ///
+    /// See: [`lines::line`]
+    ///
+    /// ```
+    /// # use image::{RgbaImage, Rgba};
+    /// # let mut image = RgbaImage::new(400, 400);
+    ///
+    /// let draw = freehand::new(&mut image);
+    /// // Draws a line between the two points
+    /// draw.line((10, 10), (120, 180), Rgba([255, 0, 0, 255]));
+    /// ```
+    pub fn line<P, T>(self, a: P, b: P, color: I::Pixel) -> Self
+    where
+        P: Point<T>,
+        T: Into<i32>,
+    {
+        let a = Pt::new(a.x().into(), a.y().into());
+        let b = Pt::new(b.x().into(), b.y().into());
+
+        lines::line(self.image, a, b, color);
+        self
+    }
+
+    /// Draws a dashed line between two points.
+    ///
+    /// See [`lines::dashed_line`]
+    ///
+    /// ```
+    /// # use image::{RgbaImage, Rgba};
+    /// # let mut image = RgbaImage::new(400, 400);
+    ///
+    /// let draw = freehand::new(&mut image);
+    /// // Draws a 3px dashed line between the two points
+    /// draw.dashed_line((10, 10), (120, 180), 3, Rgba([255, 0, 0, 255]));
+    /// ```
+    pub fn dashed_line<P, T>(self, a: P, b: P, dash_width: u16, color: I::Pixel) -> Self
+    where
+        P: Point<T>,
+        T: Into<i32>,
+    {
+        let a = Pt::new(a.x().into(), a.y().into());
+        let b = Pt::new(b.x().into(), b.y().into());
+
+        lines::dashed_line(self.image, a, b, dash_width, color);
+        self
+    }
+
+    /// Draws a line from each point to the next.
+    ///
+    /// Does not connect the start and end points.
+    ///
+    /// See [`lines::path`]
+    ///
+    /// ```
+    /// # use image::{RgbaImage, Rgba};
+    /// # let mut image = RgbaImage::new(400, 400);
+    ///
+    /// let draw = freehand::new(&mut image);
+    /// // Draws a line between each of the points
+    /// let points = [(10, 10), (120, 180)];
+    /// draw.path(points, Rgba([255, 0, 0, 255]));
+    /// ```
+    pub fn path<P, It>(self, points: It, color: I::Pixel) -> Self
+    where
+        P: Point<i32>,
+        It: IntoIterator<Item = P>,
+    {
+        lines::path(self.image, points, color);
+        self
+    }
+
+    /// Draws a rectangle.
+    ///
+    /// See [`shapes::rectangle`]
+    ///
+    /// ```
+    /// # use image::{RgbaImage, Rgba};
+    /// # let mut image = RgbaImage::new(400, 400);
+    ///
+    /// let draw = freehand::new(&mut image);
+    /// draw.rectangle((10, 10), 50, 50, Rgba([255, 0, 0, 255]));
+    /// ```
+    pub fn rectangle<P>(self, pt: P, height: u32, width: u32, color: I::Pixel) -> Self
+    where
+        P: Point<u32>,
+    {
+        shapes::rectangle(self.image, pt, height, width, color);
+        self
+    }
+
+    /// Draws a filled rectangle
+    ///
+    /// See [`shapes::rectangle_filled`]
+    ///
+    /// ```
+    /// # use image::{RgbaImage, Rgba};
+    /// # let mut image = RgbaImage::new(400, 400);
+    ///
+    /// let draw = freehand::new(&mut image);
+    /// draw.rectangle_filled((10, 10), 50, 50, Rgba([255, 0, 0, 255]));
+    /// ```
+    pub fn rectangle_filled<P>(self, pt: P, height: u32, width: u32, color: I::Pixel) -> Self
+    where
+        P: Point<u32>,
+    {
+        shapes::rectangle_filled(self.image, pt, height, width, color);
+        self
+    }
+
     /// Draws a circular arc.
     ///
     /// See [`conics::arc`]
@@ -224,112 +334,6 @@ where
         );
         self
     }
-
-    /// Draws a straight line.
-    ///
-    /// See: [`lines::line`]
-    ///
-    /// ```
-    /// # use image::{RgbaImage, Rgba};
-    /// # let mut image = RgbaImage::new(400, 400);
-    ///
-    /// let draw = freehand::new(&mut image);
-    /// // Draws a line between the two points
-    /// draw.line((10, 10), (120, 180), Rgba([255, 0, 0, 255]));
-    /// ```
-    pub fn line<P, T>(self, a: P, b: P, color: I::Pixel) -> Self
-    where
-        P: Point<T>,
-        T: Into<i32>,
-    {
-        let a = Pt::new(a.x().into(), a.y().into());
-        let b = Pt::new(b.x().into(), b.y().into());
-
-        lines::line(self.image, a, b, color);
-        self
-    }
-
-    /// Draws a dashed line between two points.
-    ///
-    /// See [`lines::dashed_line`]
-    ///
-    /// ```
-    /// # use image::{RgbaImage, Rgba};
-    /// # let mut image = RgbaImage::new(400, 400);
-    ///
-    /// let draw = freehand::new(&mut image);
-    /// // Draws a 3px dashed line between the two points
-    /// draw.dashed_line((10, 10), (120, 180), 3u8, Rgba([255, 0, 0, 255]));
-    /// ```
-    pub fn dashed_line<P, W>(self, a: P, b: P, dash_width: W, color: I::Pixel) -> Self
-    where
-        P: Point<i32>,
-        W: Into<u16>,
-    {
-        lines::dashed_line(self.image, a, b, dash_width, color);
-        self
-    }
-
-    /// Draws a line from each point to the next.
-    ///
-    /// Does not connect the start and end points.
-    ///
-    /// See [`lines::path`]
-    ///
-    /// ```
-    /// # use image::{RgbaImage, Rgba};
-    /// # let mut image = RgbaImage::new(400, 400);
-    ///
-    /// let draw = freehand::new(&mut image);
-    /// // Draws a line between each of the points
-    /// let points = [(10, 10), (120, 180)];
-    /// draw.path(&points, Rgba([255, 0, 0, 255]));
-    /// ```
-    pub fn path<P>(self, points: &[P], color: I::Pixel) -> Self
-    where
-        P: Point<i32>,
-    {
-        lines::path(self.image, points, color);
-        self
-    }
-
-    /// Draws a rectangle.
-    ///
-    /// See [`shapes::rectangle`]
-    ///
-    /// ```
-    /// # use image::{RgbaImage, Rgba};
-    /// # let mut image = RgbaImage::new(400, 400);
-    ///
-    /// let draw = freehand::new(&mut image);
-    /// draw.rectangle((10, 10), 50, 50, Rgba([255, 0, 0, 255]));
-    /// ```
-    pub fn rectangle<P>(self, pt: P, height: u32, width: u32, color: I::Pixel) -> Self
-    where
-        P: Point<u32>,
-    {
-        shapes::rectangle(self.image, pt, height, width, color);
-        self
-    }
-
-    /// Draws a filled rectangle
-    ///
-    /// See [`shapes::rectangle_filled`]
-    ///
-    /// ```
-    /// # use image::{RgbaImage, Rgba};
-    /// # let mut image = RgbaImage::new(400, 400);
-    ///
-    /// let draw = freehand::new(&mut image);
-    /// draw.rectangle_filled((10, 10), 50, 50, Rgba([255, 0, 0, 255]));
-    /// ```
-    pub fn rectangle_filled<P>(self, pt: P, height: u32, width: u32, color: I::Pixel) -> Self
-    where
-        P: Point<u32>,
-    {
-        shapes::rectangle_filled(self.image, pt, height, width, color);
-        self
-    }
 }
 
 /// Methods for working with [`RgbaImage`]s.
@@ -488,7 +492,9 @@ impl<'i> Draw<'i, RgbaImage> {
 
     /// Blends a color into an image.
     ///
-    /// The specified color's alpha channel is ignored and the specified opacity is used instead.
+    /// The resulting color's alpha channel will ignore the specified color's alpha
+    /// value and use `opacity` to blend the colors together.  The specified
+    /// color's alpha value will only be used for the final alpha channel value.
     ///
     /// See [`ops::blend_at`]
     ///
@@ -505,17 +511,18 @@ impl<'i> Draw<'i, RgbaImage> {
     }
 
     /// Blend a specified color into an existing image coordinate.  This ignores `color`'s
-    /// alpha value and instead uses `opac` which is a floating point number from 0.0 to 1.0.
+    /// alpha value and instead uses `opacity` which is a floating point number from 0.0 to 1.0.
     ///
-    /// The resulting color's alpha channel will ignore the specified opacity and simply
-    /// mix the two alpha channels together.
+    /// The resulting color's alpha channel will ignore the specified color's alpha
+    /// value and use `opacity` to blend the colors together.  The specified
+    /// color's alpha value will only be used for the final alpha channel value.
     ///
-    /// A few safety checks are skipped here for performance
+    /// A few safety checks are skipped here for performance.
     ///
     /// # Safety
     /// The x and y coordinates must be less than the image width and height, respectively.
     ///
-    /// Also, `opac` should be in the range `(0..=1.0)`.
+    /// Also, `opacity` should be in the range `(0..=1.0)`.
     ///
     /// ```
     /// # use image::{RgbaImage, Rgba};

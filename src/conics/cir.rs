@@ -2,6 +2,14 @@ use crate::conics;
 
 /// Draws a full circle.
 ///
+/// ```
+/// use freehand::conics::circle;
+/// # use image::{RgbaImage, Rgba};
+/// # let mut image = RgbaImage::new(400, 400);
+///
+/// circle(&mut image, 380, (200, 200), Rgba([255, 0, 0, 255]));
+/// ```
+///
 /// Uses [`conics::Arc`] to calculate a single octant and draw those pixels
 /// in all octants.
 pub fn circle<C, I, T>(image: &mut I, radius: T, center: C, color: I::Pixel)

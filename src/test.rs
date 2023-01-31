@@ -5,6 +5,33 @@
 pub(crate) mod img;
 
 #[cfg(test)]
+pub(crate) fn logger(level: log::LevelFilter) {
+    let _ = env_logger::Builder::new()
+        .filter_level(level)
+        .format_module_path(false)
+        .format_target(false)
+        .format_timestamp(None)
+        .format_level(false)
+        .try_init();
+}
+
+// #[cfg(test)]
+// use test::logger;
+#[cfg(test)]
+pub(crate) const LOG_LEVEL: log::LevelFilter = log::LevelFilter::Debug;
+#[cfg(test)]
+pub(crate) const IMG_SIZE: u32 = 400;
+#[cfg(test)]
+pub(crate) const RADIUS: i32 = 190;
+#[cfg(test)]
+pub(crate) const CENTER: (i32, i32) = (200, 200);
+#[cfg(test)]
+pub(crate) const RADIUS_F: f64 = RADIUS as f64;
+#[cfg(test)]
+pub(crate) const SHOW_MARKERS: bool = false;
+
+
+#[cfg(test)]
 pub(crate) fn color_in_image<P, C>(image: &image::ImageBuffer<P, C>, color: P) -> Option<(u32, u32)>
 where
     P: image::Pixel + std::cmp::PartialEq,

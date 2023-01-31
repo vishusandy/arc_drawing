@@ -1,4 +1,4 @@
-//! Conic/circular functions.  Arcs, antialiased arcs, and annuli (filled-donut shapes).
+//! Conic/circular functions: arcs, antialiased arcs, and annuli (filled-donut shapes).
 
 mod aa_arc;
 mod annulus;

@@ -44,6 +44,8 @@ pub trait Angle {
         self.f64().to_radians()
     }
 }
+
+/// Treat `f32` values as radians
 impl Angle for f32 {
     fn f64(&self) -> f64 {
         *self as f64
@@ -53,6 +55,7 @@ impl Angle for f32 {
     }
 }
 
+/// Treat `f64` values as radians
 impl Angle for f64 {
     fn f64(&self) -> f64 {
         *self
@@ -62,48 +65,56 @@ impl Angle for f64 {
     }
 }
 
+/// Treat `u16` values as degrees
 impl Angle for u16 {
     fn f64(&self) -> f64 {
         (self % 360) as f64
     }
 }
 
+/// Treat `u32` values as degrees
 impl Angle for u32 {
     fn f64(&self) -> f64 {
         (self % 360) as f64
     }
 }
 
+/// Treat `usize` values as degrees
 impl Angle for usize {
     fn f64(&self) -> f64 {
         (self % 360) as f64
     }
 }
 
+/// Treat `u64` values as degrees
 impl Angle for u64 {
     fn f64(&self) -> f64 {
         (self % 360) as f64
     }
 }
 
+/// Treat `i16` values as degrees
 impl Angle for i16 {
     fn f64(&self) -> f64 {
         (self % 360) as f64
     }
 }
 
+/// Treat `i32` values as degrees
 impl Angle for i32 {
     fn f64(&self) -> f64 {
         (self % 360) as f64
     }
 }
 
+/// Treat `isize` values as degrees
 impl Angle for isize {
     fn f64(&self) -> f64 {
         (self % 360) as f64
     }
 }
 
+/// Treat `i64` values as degrees
 impl Angle for i64 {
     fn f64(&self) -> f64 {
         (self % 360) as f64

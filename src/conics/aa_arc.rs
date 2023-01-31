@@ -1,7 +1,7 @@
 mod end;
 
-use crate::antialias::AAPt;
 use crate::angle::angle_to_quad;
+use crate::antialias::AAPt;
 use crate::Pt;
 use end::End;
 
@@ -311,39 +311,17 @@ impl Iterator for AntialiasedArc {
     }
 }
 
-/// Draw an arc by plotting each iteration on an image
-#[cfg(test)]
-fn draw(image: &mut image::RgbaImage, iter: AntialiasedArc, color: image::Rgba<u8>) {
-    iter.draw(image, color);
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
     #[test]
-    fn aa_partial_iter() -> Result<(), image::ImageError> {
-        use crate::RADS;
-        crate::logger(crate::LOG_LEVEL);
-        let mut image = crate::guidelines();
-
-        let start = RADS * 5.8;
-        let end = RADS * 7.4;
-        let color = image::Rgba([255, 0, 0, 255]);
-
-        let arc = AntialiasedArc::new(start, end, crate::RADIUS_F, crate::CENTER_F);
-        draw(&mut image, arc, color);
-
-        image.save("images/aa_partial.png")
-    }
-
-    #[test]
-    fn aa_partial_draw() -> Result<(), image::ImageError> {
+    fn arc_aa() -> Result<(), image::ImageError> {
         use crate::RADS;
         crate::logger(crate::LOG_LEVEL);
         let mut image = crate::test::img::blank(Pt::new(crate::IMG_SIZE, crate::IMG_SIZE));
 
-        let start = RADS * 0.0;
-        let end = RADS * 8.0;
+        let start = RADS * 0.8;
+        let end = RADS * 7.4;
         let r = crate::RADIUS_F;
         let c = Pt::new(200.0, 200.0);
         let color = image::Rgba([255, 0, 0, 255]);
@@ -351,6 +329,6 @@ mod tests {
         let arc = AntialiasedArc::new(start, end, r, c);
         arc.draw(&mut image, color);
 
-        image.save("images/aa_partial_draw.png")
+        image.save("images/arc_aa.png")
     }
 }

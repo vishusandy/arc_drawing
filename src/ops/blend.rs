@@ -1,23 +1,23 @@
 /// Blend a specified color into an existing image coordinate.  This ignores `color`'s
-/// alpha value and instead uses `opac` which is a floating point number from 0.0 to 1.0.
+/// alpha value and instead uses `opacity` which is a floating point number from 0.0 to 1.0.
 ///
-/// The resulting color's alpha channel will ignore the specified opacity and simply
-/// mix the two alpha channels together.
+/// The resulting color's alpha channel will ignore the specified color's alpha
+/// value and use `opacity` to blend the colors together.  The specified
+/// color's alpha value will only be used for the final alpha channel value.
 ///
-/// A few safety checks are skipped here for performance
+/// A few safety checks are skipped here for performance.
 ///
 /// # Safety
 /// The x and y coordinates must be less than the image width and height, respectively.
 ///
-/// Also, `opac` should be in the range `(0..=1.0)`.
+/// Also, `opacity` should be in the range `(0..=1.0)`.
 ///
 /// ```
-/// # use image::{RgbaImage, Rgba};
 /// use freehand::ops::blend_at_unchecked;
-///
-/// let mut image = RgbaImage::from_pixel(10, 10, Rgba([255, 255, 255, 255]));
+/// # use image::{RgbaImage, Rgba};
+/// # let mut image = RgbaImage::from_pixel(10, 10, Rgba([255, 255, 255, 255]));
 /// unsafe {
-///     blend_at_unchecked(&mut image, 0, 0, 0.5, Rgba([255, 255, 255, 255]))
+///     blend_at_unchecked(&mut image, 0, 0, 0.5, Rgba([255, 255, 255, 255]));
 /// }
 /// ```
 pub unsafe fn blend_at_unchecked(
@@ -42,19 +42,17 @@ pub unsafe fn blend_at_unchecked(
 }
 
 /// Blend a specified color into an existing image coordinate.  This ignores `color`'s
-/// alpha value and instead uses `opac` which expects a floating point number from 0.0 to 1.0.
+/// alpha value and instead uses `opacity` which expects a floating point number from 0.0 to 1.0.
 ///
-/// Returns true if successful.
-///
-/// The resulting color's alpha channel will ignore the specified opacity and simply
-/// mix the two alpha channels together.
+/// The resulting color's alpha channel will ignore the specified color's alpha
+/// value and use `opacity` to blend the colors together.  The specified
+/// color's alpha value will only be used for the final alpha channel value.
 ///
 /// ```
-/// # use image::{RgbaImage, Rgba};
 /// use freehand::ops::blend_at;
-///
-/// let mut image = RgbaImage::from_pixel(10, 10, Rgba([255, 255, 255, 255]));
-/// blend_at(&mut image, 0, 0, 0.5, Rgba([255, 255, 255, 255]))
+/// # use image::{RgbaImage, Rgba};
+/// # let mut image = RgbaImage::from_pixel(10, 10, Rgba([255, 255, 255, 255]));
+/// blend_at(&mut image, 0, 0, 0.5, Rgba([255, 255, 255, 255]));
 /// ```
 pub fn blend_at(
     image: &mut image::RgbaImage,

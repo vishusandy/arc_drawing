@@ -30,7 +30,7 @@ pub struct BresIter {
 impl BresIter {
     /// Creates an iterator between two points on a line.
     ///
-    /// Uses the Bresenham line drawing algorithm.
+    ///
     ///
     /// ```
     /// use freehand::lines::BresIter;

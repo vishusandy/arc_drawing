@@ -4,8 +4,6 @@ use image::GenericImage;
 
 /// Draws a straight line between two points.  Ignores points that are outside of the image bounds.
 ///
-/// Uses the Bresenham line drawing algorithm.
-///
 /// ```
 /// # use image::{RgbaImage, Rgba};
 /// use freehand::lines::line;
@@ -37,23 +35,21 @@ where
 ///
 /// If the width is 0 then a solid line is drawn between the two points.
 ///
-/// Uses the Bresenham line drawing algorithm.
+///
 ///
 /// ```
 /// # use image::{RgbaImage, Rgba};
 /// use freehand::lines::dashed_line;
 /// # let mut image = RgbaImage::from_pixel(400, 400, Rgba([255, 255, 255, 255]));
 ///
-/// let dash: u8 = 2;
-/// dashed_line(&mut image, (0, 0), (399, 399), dash, Rgba([255, 0, 0, 255]));
+/// dashed_line(&mut image, (0, 0), (399, 399), 2, Rgba([255, 0, 0, 255]));
 /// ```
-pub fn dashed_line<I, P, W>(image: &mut I, a: P, b: P, dash_width: W, color: I::Pixel)
+pub fn dashed_line<I, P>(image: &mut I, a: P, b: P, dash_width: u16, color: I::Pixel)
 where
     I: GenericImage,
     P: Point<i32>,
-    W: Into<u16>,
 {
-    let dash_width = dash_width.into() as usize;
+    let dash_width = dash_width as usize;
     let w = dash_width as usize * 2;
 
     if dash_width == 0 {
@@ -78,7 +74,7 @@ where
 /// Draws a straight line between two points using a specified opacity.
 /// Ignores points that are outside of the image bounds.
 ///
-/// Uses the Bresenham line drawing algorithm.
+///
 ///
 /// ```
 /// # use image::{RgbaImage, Rgba};
@@ -114,7 +110,7 @@ where
 ///
 /// If the width is 0 then a solid line is drawn between the two points.
 ///
-/// Uses the Bresenham line drawing algorithm.
+///
 ///
 /// ```
 /// # use image::{RgbaImage, Rgba};
@@ -162,7 +158,7 @@ pub fn dashed_line_alpha<P, W>(
     }
 }
 
-/// Draws a path using straight lines from one point to the next.
+/// Draws a path using straight solid lines from one point to the next.
 /// The start and end points are not connected.
 ///
 /// ```
@@ -171,35 +167,22 @@ pub fn dashed_line_alpha<P, W>(
 /// # let mut image = RgbaImage::from_pixel(400, 400, Rgba([255, 255, 255, 255]));
 ///
 /// let lines = [(0, 0), (399, 0), (399, 399), (0, 399)];
-/// path(&mut image, &lines, Rgba([255, 0, 0, 255]));
+/// path(&mut image, lines, Rgba([255, 0, 0, 255]));
 /// ```
-pub fn path<I, P>(image: &mut I, mut points: &[P], color: I::Pixel)
+pub fn path<I, P, It>(image: &mut I, points: It, color: I::Pixel)
 where
     I: GenericImage,
     P: Point<i32>,
+    It: IntoIterator<Item = P>,
 {
-    let mut a;
-    let mut b;
-
-    match points.split_first() {
-        Some((first, rest)) => {
-            a = first;
-            points = rest;
-        }
+    let mut points = points.into_iter();
+    let mut a = match points.next() {
+        Some(first) => first,
         None => return,
-    }
+    };
 
-    while !points.is_empty() {
-        match points.split_first() {
-            Some((first, rest)) => {
-                b = first;
-                points = rest;
-            }
-            None => return,
-        }
-
+    for b in points {
         line(image, a.pt(), b.pt(), color);
-
         a = b;
     }
 }
@@ -268,28 +251,28 @@ mod tests {
 
         test_pixels_changed!(
             dashed_line_steep_down_0px,
-            dashed_line((0, 0), (2, 5), 0u8),
+            dashed_line((0, 0), (2, 5), 0),
             6,
             &*vec![(0, 0), (0, 1), (1, 2), (1, 3), (2, 4), (2, 5)]
         );
 
         test_pixels_changed!(
             dashed_line_steep_down_1px,
-            dashed_line((0, 0), (2, 5), 1u8),
+            dashed_line((0, 0), (2, 5), 1),
             6,
             &*vec![(0, 0), (1, 2), (2, 4)]
         );
 
         test_pixels_changed!(
             dashed_line_steep_down_2px,
-            dashed_line((0, 0), (2, 5), 2u8),
+            dashed_line((0, 0), (2, 5), 2),
             6,
             &*vec![(0, 0), (0, 1), (2, 4), (2, 5)]
         );
 
         test_pixels_changed!(
             dashed_line_steep_down_5px,
-            dashed_line((0, 0), (2, 5), 5u8),
+            dashed_line((0, 0), (2, 5), 5),
             6,
             &*vec![(0, 0), (0, 1), (1, 2), (1, 3), (2, 4)]
         );
@@ -307,7 +290,7 @@ mod tests {
                 image::RgbaImage::from_pixel(width, height, image::Rgba([255, 255, 255, 255]));
 
             let lines = [(0, 50), (350, 50), (50, 350), (399, 350)];
-            super::super::path(&mut image, &lines, image::Rgba([255, 0, 0, 255]));
+            super::super::path(&mut image, lines, image::Rgba([255, 0, 0, 255]));
             image.save("images/path.png")
         }
     }

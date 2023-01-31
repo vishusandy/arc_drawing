@@ -1,8 +1,13 @@
 use crate::ops::blend_at;
 use crate::{Point, Pt};
 
-/// A thick anti-aliased line.
+/// ```
+/// # use image::{RgbaImage, Rgba};
+/// use freehand::lines::thick_line;
+/// # let mut image = RgbaImage::from_pixel(400, 400, Rgba([255, 255, 255, 255]));
 ///
+/// thick_line(&mut image, (0, 0), (399, 399), 4.5, Rgba([255, 0, 0, 255]));
+/// ```
 // http://members.chello.at/~easyfilter/bresenham.html
 // http://members.chello.at/~easyfilter/canvas.html
 pub fn thick_line<P, T>(image: &mut image::RgbaImage, a: P, b: P, wd: f32, color: image::Rgba<u8>)
@@ -84,7 +89,7 @@ where
 #[cfg(test)]
 mod tests {
     #[test]
-    fn aa_line() -> Result<(), image::ImageError> {
+    fn thick_aa_line() -> Result<(), image::ImageError> {
         let mut image = image::RgbaImage::from_pixel(400, 400, image::Rgba([255, 255, 255, 255]));
         super::thick_line(
             &mut image,
@@ -93,6 +98,6 @@ mod tests {
             5.5,
             image::Rgba([255, 0, 0, 255]),
         );
-        image.save("images/aa_line.png")
+        image.save("images/thick_aa_line.png")
     }
 }
