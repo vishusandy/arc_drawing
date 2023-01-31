@@ -30,4 +30,6 @@ Currently antialiasing and alpha blending are only supported when using an [`Rgb
 - Add elliptical arcs
 
 
+## License
 
+`SPDX-License-Identifier: Apache-2.0 OR MIT`
