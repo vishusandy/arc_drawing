@@ -21,7 +21,7 @@ image = { version = "0.24", default-features = false, features = ["png"] }
 [dev-dependencies]
 imageproc = "0.23"
 criterion = { version = "0.4", features = ["html_reports"] }
-env_logger = "0.9"
+env_logger = "0.10.0"
 log = "0.4"
 
 [profile.release]
