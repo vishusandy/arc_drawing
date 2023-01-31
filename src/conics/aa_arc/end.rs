@@ -30,7 +30,7 @@ impl End {
     pub(super) fn match_x(&self, p: f64) -> bool {
         match self {
             Self::X(x) => *x <= p,
-            _ => false,
+            Self::Y(_) => false,
         }
     }
 
@@ -38,7 +38,7 @@ impl End {
     pub(super) fn match_y(&self, p: f64) -> bool {
         match self {
             Self::Y(y) => *y >= p,
-            _ => false,
+            Self::X(_) => false,
         }
     }
 }

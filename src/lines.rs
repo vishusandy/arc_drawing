@@ -17,7 +17,7 @@ mod thick;
 // mod thick;
 mod vertical;
 
-pub use bres::BresIter;
+pub use bres::LineIter;
 
 pub use diagonal::{
     diagonal_dashed_line, diagonal_dashed_line_alpha, diagonal_line, diagonal_line_alpha,

@@ -226,6 +226,7 @@ impl<T> Pt<T> {
     }
 
     /// Subtract a number from the x and y coordinates
+    #[must_use]
     pub fn sub(&self, value: T) -> Self
     where
         T: Copy + std::ops::Sub<Output = T>,
@@ -272,7 +273,7 @@ impl<T> Pt<T> {
             4 => Pt::new(-self.y, -self.x),
             5 => Pt::new(self.y, -self.x),
             6 => Pt::new(-self.x, self.y),
-            7 => Pt::new(self.x, self.y),
+            // 7 => Pt::new(self.x, self.y),
             8 => Pt::new(self.y, self.x),
             _ => Pt::new(self.x, self.y),
         }

@@ -66,7 +66,7 @@ fn bench_aa_partial_arc(c: &mut Criterion) {
             || {
                 (
                     blank(),
-                    freehand::conics::AntialiasedArc::new(START, END, RADIUS_F as f64, CENTER_F),
+                    freehand::conics::AntialiasedArc::new(START, END, RADIUS_F, CENTER_F),
                 )
             },
             |(mut image, arc)| {

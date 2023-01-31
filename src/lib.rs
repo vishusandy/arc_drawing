@@ -70,6 +70,18 @@
 //!
 
 #![warn(missing_docs)]
+// #![warn(clippy::pedantic)]
+// #![allow(clippy::cast_possible_truncation)]
+// #![allow(clippy::cast_lossless)]
+// #![allow(clippy::cast_possible_wrap)]
+// #![allow(clippy::cast_sign_loss)]
+// #![allow(clippy::cast_precision_loss)]
+// #![allow(clippy::needless_pass_by_value)]
+// #![allow(clippy::return_self_not_must_use)]
+// #![allow(clippy::must_use_candidate)]
+// #![allow(clippy::module_name_repetitions)]
+// #![allow(clippy::many_single_char_names)]
+// #![allow(clippy::match_bool)]
 
 mod angle;
 mod antialias;
@@ -133,9 +145,8 @@ fn rgba_array_index(img_width: u32, x: u32, y: u32) -> usize {
 
 /// Calculate the error for a point in a circle.  Assumes octant 7.
 fn calc_error(pt: Pt<f64>, r: i32) -> i32 {
-    ((pt.x().round() as f64 + 1.0).powi(2) + (pt.y().round() as f64 - 0.5).powi(2)
-        - r.pow(2) as f64)
-        .round() as i32
+    ((pt.x().round() + 1.0).powi(2) + (pt.y().round() - 0.5).powi(2) - r.pow(2) as f64).round()
+        as i32
 }
 
 /// Calculate the slope of a line

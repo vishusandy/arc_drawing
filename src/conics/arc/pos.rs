@@ -31,7 +31,7 @@ impl Pos {
     }
 
     pub(super) fn stop(&self) -> bool {
-        self.x >= self.ex.map(|ex| ex + 1).unwrap_or(self.y)
+        self.x >= self.ex.map_or(self.y, |ex| ex + 1)
     }
 
     pub(super) fn start(oct: u8, r: i32) -> Self {

@@ -14,14 +14,16 @@ impl Bounds {
     pub(super) fn start_bounds(start_edge: &Edge, end_edge: &Edge, revisit: bool) -> Self {
         let start = Some(start_edge.angle);
 
-        let end = match start_edge.oct == end_edge.oct && !revisit {
-            true => Some(end_edge.angle),
-            false => None,
+        let end = if start_edge.oct == end_edge.oct && !revisit {
+            Some(end_edge.angle)
+        } else {
+            None
         };
 
-        match start_edge.oct % 2 == 0 {
-            true => Bounds::new(end, start),
-            false => Bounds::new(start, end),
+        if start_edge.oct % 2 == 0 {
+            Bounds::new(end, start)
+        } else {
+            Bounds::new(start, end)
         }
     }
 

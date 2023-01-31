@@ -1,4 +1,4 @@
-use super::bres::BresIter;
+use super::bres::LineIter;
 use crate::pt::{Point, Pt};
 use image::GenericImage;
 
@@ -19,7 +19,7 @@ where
     let width = image.width().min((std::i32::MAX) as u32) as i32;
     let height = image.height().min((std::i32::MAX) as u32) as i32;
 
-    for Pt { x, y } in BresIter::new(a, b) {
+    for Pt { x, y } in LineIter::new(a, b) {
         if (0..width).contains(&x) && (0..height).contains(&y) {
             // Avoid double checking bounds with unsafe_put_pixel()
             // This is safe because the bounds have already been checked
@@ -50,7 +50,7 @@ where
     P: Point<i32>,
 {
     let dash_width = dash_width as usize;
-    let w = dash_width as usize * 2;
+    let w = dash_width * 2;
 
     if dash_width == 0 {
         line(image, a, b, color);
@@ -60,7 +60,7 @@ where
     let width = image.width().min((std::i32::MAX) as u32) as i32;
     let height = image.height().min((std::i32::MAX) as u32) as i32;
 
-    for (i, Pt { x, y }) in BresIter::new(a, b).enumerate() {
+    for (i, Pt { x, y }) in LineIter::new(a, b).enumerate() {
         if (0..width).contains(&x) && (0..height).contains(&y) && i % w < dash_width {
             // Avoid double checking bounds with unsafe_put_pixel()
             // This is safe because the bounds have already been checked
@@ -94,7 +94,7 @@ where
     let width = image.width().min((std::i32::MAX) as u32) as i32;
     let height = image.height().min((std::i32::MAX) as u32) as i32;
 
-    for Pt { x, y } in BresIter::new(a, b) {
+    for Pt { x, y } in LineIter::new(a, b) {
         if (0..width).contains(&x) && (0..height).contains(&y) {
             // Avoid double checking bounds
             // This is safe because the bounds have already been checked
@@ -137,7 +137,7 @@ pub fn dashed_line_alpha<P, W>(
     debug_assert!((0.0..=1.0).contains(&opacity));
 
     let dash_width = dash_width.into() as usize;
-    let w = dash_width as usize * 2;
+    let w = dash_width * 2;
 
     if dash_width == 0 {
         line(image, a, b, color);
@@ -147,7 +147,7 @@ pub fn dashed_line_alpha<P, W>(
     let width = image.width().min((std::i32::MAX) as u32) as i32;
     let height = image.height().min((std::i32::MAX) as u32) as i32;
 
-    for (i, Pt { x, y }) in BresIter::new(a, b).enumerate() {
+    for (i, Pt { x, y }) in LineIter::new(a, b).enumerate() {
         if (0..width).contains(&x) && (0..height).contains(&y) && i % w < dash_width {
             // Avoid double checking
             // This is safe because the bounds have already been checked
@@ -176,6 +176,7 @@ where
     It: IntoIterator<Item = P>,
 {
     let mut points = points.into_iter();
+
     let mut a = match points.next() {
         Some(first) => first,
         None => return,

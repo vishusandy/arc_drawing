@@ -152,9 +152,7 @@ impl Arc {
         let c = Pt::new(c.x().into(), c.y().into());
         let r = r.into();
 
-        if r <= 0 {
-            panic!("Radius must be larger than 0");
-        }
+        assert!(r > 0);
 
         let start_oct = crate::angle::angle_to_octant(start_angle);
         let end_oct = crate::angle::angle_to_octant(end_angle);
@@ -171,7 +169,7 @@ impl Arc {
 
     /// Create an iterator over a single circular octant
     ///
-    /// # Panic
+    /// # Panics
     ///
     /// Panics if radius is less than or equal to 0
     ///
@@ -183,13 +181,12 @@ impl Arc {
         let c = Pt::new(c.x().into(), c.y().into());
         let r = r.into();
 
-        if r <= 0 {
-            panic!("Radius be must larger than 0");
-        }
+        assert!(r > 0, "Radius be must larger than 0");
 
-        if !(1..=8).contains(&oct) {
-            panic!("Invalid octant.  Valid octants are 1 through 8");
-        }
+        assert!(
+            (1..=8).contains(&oct),
+            "Invalid octant. Valid octants are 1 through 8"
+        );
 
         let pos = Pos::start(oct, r);
 
@@ -237,16 +234,15 @@ impl Arc {
             if self.pos.stop() {
                 if self.end() {
                     break;
-                } else {
-                    self.restart();
-                    continue;
                 }
+                self.restart();
+                continue;
             }
 
             let pt: Result<Pt<u32>, &'static str> = self.pt().try_into();
             if let Ok(pt) = pt {
                 if pt.x() < image.width() && pt.y() < image.height() {
-                    image.put_pixel(pt.x() as u32, pt.y() as u32, color);
+                    image.put_pixel(pt.x(), pt.y(), color);
                 }
             }
             self.pos.inc();
@@ -275,11 +271,13 @@ impl Arc {
     }
 
     /// Returns the center coordinates
+    #[must_use]
     pub fn center(&self) -> Pt<i32> {
         self.c
     }
 
     /// Returns the radius
+    #[must_use]
     pub fn radius(&self) -> i32 {
         self.r
     }

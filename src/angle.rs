@@ -35,7 +35,7 @@ pub(crate) fn angle_to_quad(angle: f64) -> u8 {
 /// Represents a number that can be converted to a radian.
 ///
 /// Floating-point numbers represent radians while integers represent degrees.
-pub trait Angle {
+pub trait Angle: Copy {
     /// Convert the number into an f64
     fn f64(&self) -> f64;
 
@@ -127,10 +127,10 @@ mod tests {
     const RADS_F32: f32 = std::f32::consts::PI / 4.0;
     #[test]
     fn angles() {
-        assert_eq!(180u16.radians(), 4.0 * RADS);
-        assert_eq!(180u32.radians(), 4.0 * RADS);
-        assert_eq!(180u64.radians(), 4.0 * RADS);
-        assert_eq!(180usize.radians(), 4.0 * RADS);
-        assert!(((4.0f32 * RADS_F32).radians() - 4.0 * RADS) <= std::f32::EPSILON as f64);
+        assert!((180u16.radians() - 4.0 * RADS).abs() <= crate::TINY);
+        assert!((180u32.radians() - 4.0 * RADS).abs() <= crate::TINY);
+        assert!((180u64.radians() - 4.0 * RADS).abs() <= crate::TINY);
+        assert!((180usize.radians() - 4.0 * RADS).abs() <= crate::TINY);
+        assert!(((4.0f32 * RADS_F32).radians() - 4.0 * RADS).abs() <= crate::TINY);
     }
 }

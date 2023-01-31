@@ -111,7 +111,7 @@ impl AntialiasedArc {
     /// larger than`2*PI` for radians).  Angles will be normalized into a range
     /// of 0..PI*2.
     ///
-    /// # Panic
+    /// # Panics
     ///
     /// Will panic if `radius` is negative.
     ///
@@ -140,9 +140,7 @@ impl AntialiasedArc {
         let radius = radius.into();
         let center = Pt::new(center.x().into(), center.y().into());
 
-        if radius < 0.0 {
-            panic!("Cannot specify a negative radius");
-        }
+        assert!(radius >= 0.0);
 
         let start = crate::angle::normalize(start.radians());
         let mut end = crate::angle::normalize(end.radians());

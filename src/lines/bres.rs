@@ -1,7 +1,7 @@
 use crate::pt::{Point, Pt};
 
 #[derive(Clone, Debug)]
-/// An iterator between two points on a line.
+/// An iterator between two points on a line.  Uses Bresenham's algorithm.
 ///
 /// ```
 /// use freehand::lines::BresIter;
@@ -11,7 +11,7 @@ use crate::pt::{Point, Pt};
 /// }
 /// ```
 // https://github.com/ssloy/tinyrenderer/wiki/Lesson-1:-Bresenham%E2%80%99s-Line-Drawing-Algorithm#timings-fifth-and-final-attempt
-pub struct BresIter {
+pub struct LineIter {
     /// Current position
     pt: Pt<i32>,
     /// Where to end
@@ -27,7 +27,7 @@ pub struct BresIter {
     steep: bool,
 }
 
-impl BresIter {
+impl LineIter {
     /// Creates an iterator between two points on a line.
     ///
     ///
@@ -126,7 +126,7 @@ impl BresIter {
     }
 }
 
-impl Iterator for BresIter {
+impl Iterator for LineIter {
     type Item = Pt<i32>;
 
     fn next(&mut self) -> Option<Self::Item> {

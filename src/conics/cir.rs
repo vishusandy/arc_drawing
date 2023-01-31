@@ -24,10 +24,9 @@ where
         if octant.stop() {
             if octant.end() {
                 break;
-            } else {
-                octant.restart();
-                continue;
             }
+            octant.restart();
+            continue;
         }
 
         // draw the pixel in all 8 octants

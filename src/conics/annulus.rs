@@ -101,9 +101,10 @@ pub fn thick_arc<A, C, I>(
     let otr = thickness - inr;
 
     let outer_radius = radius + otr;
-    let inner_radius = match (radius - inr).is_negative() {
-        true => 1,
-        false => radius - inr,
+    let inner_radius = if (radius - inr).is_negative() {
+        1
+    } else {
+        radius - inr
     };
 
     Annulus::new(
@@ -166,9 +167,10 @@ where
     let otr = thickness - inr;
 
     let outer_radius = radius + otr;
-    let inner_radius = match (radius - inr).is_negative() {
-        true => 1,
-        false => radius - inr,
+    let inner_radius = if (radius - inr).is_negative() {
+        1
+    } else {
+        radius - inr
     };
 
     let mut octant = Annulus::new(
@@ -298,9 +300,10 @@ impl Annulus {
         let end = Edge::blank(end_angle);
 
         let mut cur_start = Edge::blank(start_angle);
-        let ea = match start_oct == end_oct {
-            true => end_angle,
-            false => angle::octant_end_angle(start_oct),
+        let ea = if start_oct == end_oct {
+            end_angle
+        } else {
+            angle::octant_end_angle(start_oct)
         };
         let mut cur_end = Edge::blank(ea);
 
@@ -323,30 +326,32 @@ impl Annulus {
     }
 
     /// Returns the inner end coordinate
+    #[must_use]
     pub fn inner_end(&self) -> Pt<i32> {
         Pt::new(self.inr.ex, self.inr.ey)
     }
 
     /// Returns the outer end coordinate
+    #[must_use]
     pub fn outer_end(&self) -> Pt<i32> {
         Pt::new(self.otr.ex, self.otr.ey)
     }
 
     /// Returns the inner start coordinate
+    #[must_use]
     pub fn inner_start(&self) -> Pt<i32> {
         Pt::new(self.inr.x, self.inr.y)
     }
 
     /// Returns the outer start coordinate
+    #[must_use]
     pub fn outer_start(&self) -> Pt<i32> {
         Pt::new(self.otr.x, self.otr.y)
     }
 
     /// Verify radii are not negative and swap if `inner < outer`.
     fn validate_radii(inner: &mut i32, outer: &mut i32) {
-        if inner.is_negative() | outer.is_negative() {
-            panic!("Invalid radius: cannot be negative");
-        }
+        assert!(!(inner.is_negative() | outer.is_negative()));
         if inner > outer {
             std::mem::swap(inner, outer);
         }
@@ -357,9 +362,10 @@ impl Annulus {
     }
 
     fn is_end(&self) -> bool {
-        match self.oct == self.end.oct {
-            true => self.cur_start.angle <= self.end.angle,
-            false => false,
+        if self.oct == self.end.oct {
+            self.cur_start.angle <= self.end.angle
+        } else {
+            false
         }
     }
 
@@ -383,9 +389,10 @@ impl Annulus {
 
     /// Checks to see if the end has been reached
     fn end(&self) -> bool {
-        match self.oct == self.end.oct && self.x > self.inr.ex && self.x > self.otr.ex {
-            true => self.cur_start.angle <= self.end.angle,
-            false => false,
+        if self.oct == self.end.oct && self.x > self.inr.ex && self.x > self.otr.ex {
+            self.cur_start.angle <= self.end.angle
+        } else {
+            false
         }
     }
 
@@ -411,19 +418,20 @@ impl Annulus {
                 edges::calc_line(self.cur_end.slope(), self.cur_end.int(), x),
             ),
             (inr, otr) => {
-                let (slope, int) = match x <= self.inr.ex && x <= self.otr.ex {
-                    true => self.cur_start.line(),
-                    false => self.cur_end.line(),
+                let (slope, intercept) = if x <= self.inr.ex && x <= self.otr.ex {
+                    self.cur_start.line()
+                } else {
+                    self.cur_end.line()
                 };
 
                 let inr = inr.unwrap_or_else(|| {
                     self.otr.inc();
-                    edges::calc_line(slope, int, x)
+                    edges::calc_line(slope, intercept, x)
                 });
 
                 let otr = otr.unwrap_or_else(|| {
                     self.inr.inc();
-                    edges::calc_line(slope, int, x)
+                    edges::calc_line(slope, intercept, x)
                 });
 
                 (x, inr, otr)
@@ -452,10 +460,9 @@ impl Annulus {
             if self.stop() {
                 if self.is_end() {
                     return;
-                } else {
-                    self.switch_octant();
-                    continue;
                 }
+                self.switch_octant();
+                continue;
             }
 
             let (x, y1, y2) = self.step();
@@ -489,7 +496,7 @@ impl Annulus {
         for y in min..=max {
             let Pt { x, y } = translate::iter_to_real(x, y, oct, self.c).u32();
             if x < width && y < height {
-                image.put_pixel(x, y, color)
+                image.put_pixel(x, y, color);
             }
         }
     }

@@ -155,7 +155,7 @@ pub fn vertical_dashed_line_alpha<P>(
         let (r, g, b) = (color[0], color[1], color[2]);
         // This is safe due to the min calls above
         unsafe {
-            blend_at_unchecked(image, x, y, opacity as f32, Rgba([r, g, b, 255]));
+            blend_at_unchecked(image, x, y, opacity, Rgba([r, g, b, 255]));
         }
         y = if i == width - 1 { y + width + 1 } else { y + 1 };
         i = if i == width - 1 { 0 } else { i + 1 };
