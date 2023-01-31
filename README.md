@@ -20,7 +20,7 @@ It provides the following for drawing:
 
 The [`image`](https://docs.rs/image/latest/image/) crate should already be a dependency, as this crate operates on its image types.
 
-1. Add freehand to your `cargo.toml`'s dependencies:
+1. Add freehand to your `Cargo.toml`'s dependencies:
 
     ```toml
     [dependencies]
