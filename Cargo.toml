@@ -11,7 +11,7 @@ readme = "README.md"
 license = "MIT OR Apache-2.0"
 keywords = ["graphics", "gamedev", "image"]
 categories = ["graphics", "game-development"]
-exclude = [".cargo/config.toml", "testcov.sh"]
+exclude = [".cargo/config.toml", "testcov.sh", ".vscode/"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [lib]
