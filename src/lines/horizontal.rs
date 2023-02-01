@@ -84,6 +84,9 @@ where
 ///
 /// Opacity should be in the range `0..=1`.
 ///
+/// # Panics
+/// 
+/// Panics if opacity is not in the range `0.0..=1.0`
 /// ```
 /// use image::{RgbaImage, Rgba};
 /// use freehand::lines::horizontal_line_alpha;
@@ -104,7 +107,10 @@ pub fn horizontal_line_alpha<P>(
 ) where
     P: Point<u32>,
 {
-    debug_assert!((0.0..=1.0).contains(&opacity));
+    assert!(
+        (0.0..=1.0).contains(&opacity),
+        "Opacity must be between 0.00 and 1.0.  opacity={opacity}"
+    );
 
     if pt.y() < image.height() {
         (pt.x().min(image.width() - 1)..=x2.min(image.width() - 1))
@@ -119,6 +125,9 @@ pub fn horizontal_line_alpha<P>(
 ///
 /// A `width` of 0 will draw a solid horizontal line.
 ///
+/// # Panics
+/// 
+/// Panics if opacity is not in the range `0.0..=1.0`
 /// ```
 /// use image::{RgbaImage, Rgba};
 /// use freehand::lines::horizontal_dashed_line_alpha;
@@ -140,7 +149,10 @@ pub fn horizontal_dashed_line_alpha<P>(
 ) where
     P: Point<u32>,
 {
-    debug_assert!((0.0..=1.0).contains(&opacity));
+    assert!(
+        (0.0..=1.0).contains(&opacity),
+        "Opacity must be between 0.00 and 1.0.  opacity={opacity}"
+    );
 
     if width == 0 {
         horizontal_line_alpha(image, pt, x2, opacity, color);

@@ -75,7 +75,9 @@ where
 /// Ignores points that are outside of the image bounds.
 ///
 ///
+/// # Panics
 ///
+/// Panics if opacity is not in the range `0.0..=1.0`
 /// ```
 /// # use image::{RgbaImage, Rgba};
 /// use freehand::lines::line_alpha;
@@ -89,7 +91,10 @@ where
 {
     use crate::ops::blend_at_unchecked;
 
-    debug_assert!((0.0..=1.0).contains(&opacity));
+    assert!(
+        (0.0..=1.0).contains(&opacity),
+        "Opacity must be between 0.00 and 1.0.  opacity={opacity}"
+    );
 
     let width = image.width().min((std::i32::MAX) as u32) as i32;
     let height = image.height().min((std::i32::MAX) as u32) as i32;
@@ -110,8 +115,9 @@ where
 ///
 /// If the width is 0 then a solid line is drawn between the two points.
 ///
+/// # Panics
 ///
-///
+/// Panics if opacity is not in the range `0.0..=1.0`
 /// ```
 /// # use image::{RgbaImage, Rgba};
 /// use freehand::lines::dashed_line_alpha;
@@ -134,7 +140,10 @@ pub fn dashed_line_alpha<P, W>(
 {
     use crate::ops::blend_at_unchecked;
 
-    debug_assert!((0.0..=1.0).contains(&opacity));
+    assert!(
+        (0.0..=1.0).contains(&opacity),
+        "Opacity must be between 0.00 and 1.0.  opacity={opacity}"
+    );
 
     let dash_width = dash_width.into() as usize;
     let w = dash_width * 2;

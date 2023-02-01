@@ -51,6 +51,10 @@ pub unsafe fn blend_at_unchecked(
 /// value and use `opacity` to blend the colors together.  The specified
 /// color's alpha value will only be used for the final alpha channel value.
 ///
+/// # Panics
+///
+/// Panics if opacity is not between 0.0 and 1.0
+///
 /// ```
 /// use freehand::ops::blend_at;
 /// # use image::{RgbaImage, Rgba};
@@ -64,7 +68,12 @@ pub fn blend_at(
     opacity: f32,
     color: image::Rgba<u8>,
 ) {
-    if x < image.width() && y < image.height() && (0.0..=1.0).contains(&opacity) {
+    assert!(
+        (0.0..=1.0).contains(&opacity),
+        "Invalid opacity - must be between 0.0 and 1.0.  opacity={opacity}."
+    );
+
+    if x < image.width() && y < image.height() {
         // this is safe because of the bounds checks
         unsafe {
             blend_at_unchecked(image, x, y, opacity, color);

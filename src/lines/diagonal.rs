@@ -118,6 +118,10 @@ where
 ///
 /// Only points within the image are drawn.
 ///
+/// # Panics
+///
+/// Panics if opacity is not in the range `0.0..=1.0`
+///
 /// ```
 /// use freehand::lines::diagonal_line_alpha;
 /// # use image::{RgbaImage, Rgba};
@@ -137,7 +141,10 @@ pub fn diagonal_line_alpha<P>(
 ) where
     P: Point<u32>,
 {
-    debug_assert!((0.0..=1.0).contains(&opacity));
+    assert!(
+        (0.0..=1.0).contains(&opacity),
+        "Opacity must be between 0.00 and 1.0.  opacity={opacity}"
+    );
 
     if a.x() > b.x() {
         std::mem::swap(&mut a, &mut b);
@@ -173,6 +180,9 @@ pub fn diagonal_line_alpha<P>(
 ///
 /// Only points within the image are drawn.
 ///
+/// # Panics
+///
+/// Panics if opacity is not in the range `0.0..=1.0`
 /// ```
 /// use freehand::lines::diagonal_dashed_line_alpha;
 /// # use image::{RgbaImage, Rgba};
@@ -193,7 +203,10 @@ pub fn diagonal_dashed_line_alpha<P>(
 ) where
     P: Point<u32>,
 {
-    debug_assert!((0.0..=1.0).contains(&opacity));
+    assert!(
+        (0.0..=1.0).contains(&opacity),
+        "Opacity must be between 0.00 and 1.0.  opacity={opacity}"
+    );
 
     if width == 0 {
         diagonal_line_alpha(image, a, b, opacity, color);

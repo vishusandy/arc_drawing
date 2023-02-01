@@ -84,6 +84,9 @@ where
 ///
 /// Opacity should be in the range `0..=1`.
 ///
+/// # Panics
+///
+/// Panics if opacity is not in the range `0.0..=1.0`
 /// ```
 /// use image::{RgbaImage, Rgba};
 /// use freehand::lines::vertical_line_alpha;
@@ -99,7 +102,10 @@ pub fn vertical_line_alpha<P>(image: &mut RgbaImage, pt: P, y2: u32, opacity: f3
 where
     P: Point<u32>,
 {
-    debug_assert!((0.0..=1.0).contains(&opacity));
+    assert!(
+        (0.0..=1.0).contains(&opacity),
+        "Opacity must be between 0.00 and 1.0.  opacity={opacity}"
+    );
 
     if pt.x() < image.width() {
         (pt.y().min(image.height() - 1)..=y2.min(image.height() - 1))
@@ -114,6 +120,9 @@ where
 ///
 /// A `width` of 0 will draw a solid vertical line.
 ///
+/// # Panics
+///
+/// Panics if opacity is not in the range `0.0..=1.0`
 /// ```
 /// use image::{RgbaImage, Rgba};
 /// use freehand::lines::vertical_dashed_line_alpha;
@@ -135,7 +144,10 @@ pub fn vertical_dashed_line_alpha<P>(
 ) where
     P: Point<u32>,
 {
-    debug_assert!((0.0..=1.0).contains(&opacity));
+    assert!(
+        (0.0..=1.0).contains(&opacity),
+        "Opacity must be between 0.00 and 1.0.  opacity={opacity}"
+    );
 
     if width == 0 {
         vertical_line_alpha(image, pt, y2, opacity, color);

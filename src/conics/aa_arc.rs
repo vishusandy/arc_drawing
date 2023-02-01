@@ -140,7 +140,10 @@ impl AntialiasedArc {
         let radius = radius.into();
         let center = Pt::new(center.x().into(), center.y().into());
 
-        assert!(radius >= 0.0);
+        assert!(
+            radius > 0.0,
+            "Radius must be larger than 0.  radius={radius:.1}"
+        );
 
         let start = crate::angle::normalize(start.radians());
         let mut end = crate::angle::normalize(end.radians());

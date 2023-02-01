@@ -351,7 +351,11 @@ impl Annulus {
 
     /// Verify radii are not negative and swap if `inner < outer`.
     fn validate_radii(inner: &mut i32, outer: &mut i32) {
-        assert!(!(inner.is_negative() | outer.is_negative()));
+        assert!(
+            !(inner.is_negative() | outer.is_negative()),
+            "Radii must be non-negative.  inner={inner} outer={outer}"
+        );
+
         if inner > outer {
             std::mem::swap(inner, outer);
         }

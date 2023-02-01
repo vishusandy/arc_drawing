@@ -152,7 +152,7 @@ impl Arc {
         let c = Pt::new(c.x().into(), c.y().into());
         let r = r.into();
 
-        assert!(r > 0);
+        assert!(r > 0, "Radius must be larger than 0.  radius={r}");
 
         let start_oct = crate::angle::angle_to_octant(start_angle);
         let end_oct = crate::angle::angle_to_octant(end_angle);
