@@ -18,7 +18,8 @@ exclude = [".cargo/config.toml", "testcov.sh"]
 bench = false
 
 [dependencies]
-image = { version = "0.24", default-features = false, features = ["png"] }
+# image = { version = "0.24", default-features = false, features = ["png"] }
+image = { version = "0.24" }
 
 [dev-dependencies]
 imageproc = "0.23"
