@@ -64,4 +64,6 @@ Currently antialiasing and alpha blending are only supported when using an [`Rgb
 
 ## License
 
-`SPDX-License-Identifier: Apache-2.0 OR MIT`
+[Apache-2.0 OR MIT](https://spdx.dev/ids/)
+
+<!-- SPDX-License-Identifier: Apache-2.0 OR MIT -->
