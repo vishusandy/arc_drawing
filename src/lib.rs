@@ -21,6 +21,13 @@
 //!
 //! # Usage
 //!
+//! First add freehand to your `Cargo.toml`'s dependencies:
+//!
+//! ```toml
+//! [dependencies]
+//! freehand = "0.1.0"
+//! ```
+//!
 //! Using the [`Draw`] struct is preferred over calling the functions directly
 //! as it is slightly more ergonomic to work with.  The `Draw` struct can be
 //! created using the [`new()`] function or [`Draw::new()`].  Note: not all
@@ -44,11 +51,8 @@
 //!
 //! Angles are treated differently based on their type.  Floating-point types
 //! will be in radians, while integer types will be treated as degrees (and
-//! silently converted to radians).
-//!
-//! The [`to_radians()`] function
-//! can be used to convert floating-point degrees into a floating-point radian
-//! value.
+//! silently converted to radians).  The [`to_radians()`] function can be used
+//! to convert a floating-point in degrees to a floating-point in radians.
 //!
 //! The rationale is that it is more common to calculate precise angles using
 //! radians (where floating-points would be needed) rather than degrees, which
