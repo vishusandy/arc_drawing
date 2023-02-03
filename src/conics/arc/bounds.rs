@@ -27,8 +27,12 @@ impl Bounds {
         }
     }
 
-    #[allow(clippy::self_named_constructors)]
-    pub(super) fn bounds(oct: u8, start_edge: &Edge, end_edge: &Edge, revisit: bool) -> Self {
+    pub(super) fn bounds_from_edges(
+        oct: u8,
+        start_edge: &Edge,
+        end_edge: &Edge,
+        revisit: bool,
+    ) -> Self {
         if oct != end_edge.oct {
             return Bounds::default();
         }

@@ -4,6 +4,10 @@ use image::GenericImage;
 
 /// Draws a straight line between two points.  Ignores points that are outside of the image bounds.
 ///
+/// Panics
+///
+/// Panics if the image's height or width is larger than 2,147,483,647
+///
 /// ```
 /// # use image::{RgbaImage, Rgba};
 /// use freehand::lines::line;
@@ -16,8 +20,12 @@ where
     I: GenericImage,
     P: Point<i32>,
 {
-    let width = image.width().min((std::i32::MAX) as u32) as i32;
-    let height = image.height().min((std::i32::MAX) as u32) as i32;
+    crate::check_img_i32!(image);
+
+    #[allow(clippy::cast_possible_wrap)]
+    let width = image.width() as i32;
+    #[allow(clippy::cast_possible_wrap)]
+    let height = image.height() as i32;
 
     for Pt { x, y } in LineIter::new(a, b) {
         if (0..width).contains(&x) && (0..height).contains(&y) {
@@ -35,7 +43,9 @@ where
 ///
 /// If the width is 0 then a solid line is drawn between the two points.
 ///
+/// Panics
 ///
+/// Panics if the image's height or width is larger than 2,147,483,647
 ///
 /// ```
 /// # use image::{RgbaImage, Rgba};
@@ -49,6 +59,8 @@ where
     I: GenericImage,
     P: Point<i32>,
 {
+    crate::check_img_i32!(image);
+
     let dash_width = dash_width as usize;
     let w = dash_width * 2;
 
@@ -57,8 +69,11 @@ where
         return;
     }
 
-    let width = image.width().min((std::i32::MAX) as u32) as i32;
-    let height = image.height().min((std::i32::MAX) as u32) as i32;
+    // safe because of earlier check on image bounds (check_img_i32)
+    #[allow(clippy::cast_possible_wrap)]
+    let height = image.height() as i32;
+    #[allow(clippy::cast_possible_wrap)]
+    let width = image.width() as i32;
 
     for (i, Pt { x, y }) in LineIter::new(a, b).enumerate() {
         if (0..width).contains(&x) && (0..height).contains(&y) && i % w < dash_width {
@@ -91,13 +106,13 @@ where
 {
     use crate::ops::blend_at_unchecked;
 
-    assert!(
-        (0.0..=1.0).contains(&opacity),
-        "Opacity must be between 0.00 and 1.0.  opacity={opacity}"
-    );
+    crate::check_img_i32!(image);
+    crate::check_opacity!(opacity);
 
-    let width = image.width().min((std::i32::MAX) as u32) as i32;
-    let height = image.height().min((std::i32::MAX) as u32) as i32;
+    #[allow(clippy::cast_possible_wrap)]
+    let width = image.width() as i32;
+    #[allow(clippy::cast_possible_wrap)]
+    let height = image.height() as i32;
 
     for Pt { x, y } in LineIter::new(a, b) {
         if (0..width).contains(&x) && (0..height).contains(&y) {
@@ -140,10 +155,8 @@ pub fn dashed_line_alpha<P, W>(
 {
     use crate::ops::blend_at_unchecked;
 
-    assert!(
-        (0.0..=1.0).contains(&opacity),
-        "Opacity must be between 0.00 and 1.0.  opacity={opacity}"
-    );
+    crate::check_img_i32!(image);
+    crate::check_opacity!(opacity);
 
     let dash_width = dash_width.into() as usize;
     let w = dash_width * 2;
@@ -153,8 +166,10 @@ pub fn dashed_line_alpha<P, W>(
         return;
     }
 
-    let width = image.width().min((std::i32::MAX) as u32) as i32;
-    let height = image.height().min((std::i32::MAX) as u32) as i32;
+    #[allow(clippy::cast_possible_wrap)]
+    let width = image.width() as i32;
+    #[allow(clippy::cast_possible_wrap)]
+    let height = image.height() as i32;
 
     for (i, Pt { x, y }) in LineIter::new(a, b).enumerate() {
         if (0..width).contains(&x) && (0..height).contains(&y) && i % w < dash_width {

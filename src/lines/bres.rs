@@ -57,6 +57,7 @@ impl LineIter {
 
         let d = 0;
 
+        // match seems more succinct than if/elseif/else
         #[allow(clippy::match_bool)]
         let y_step = match a.y() > b.y() {
             true => -1,

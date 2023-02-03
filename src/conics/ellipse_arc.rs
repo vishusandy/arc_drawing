@@ -1,9 +1,11 @@
 #![allow(dead_code)]
 use crate::Pt;
 
+// TODO - WIP
+
 /*
 
-Ughhh.
+Aargh..
 
 https://www.includehelp.com/computer-graphics/mid-point-ellipse-algorithm.aspx
 https://www.javatpoint.com/computer-graphics-midpoint-ellipse-algorithm

@@ -2,9 +2,9 @@
 #![warn(clippy::pedantic)]
 #![allow(clippy::cast_possible_truncation)]
 #![allow(clippy::cast_lossless)]
-#![allow(clippy::cast_possible_wrap)]
 #![allow(clippy::cast_sign_loss)]
 #![allow(clippy::cast_precision_loss)]
+// #![allow(clippy::cast_possible_wrap)]
 
 //! # Overview
 //!
@@ -101,7 +101,7 @@ pub use pt::{Point, Pt};
 mod test;
 
 #[cfg(test)]
-#[allow(unused_imports)]
+#[allow(unused_imports)] // allow because it's for testing only
 pub(crate) use test::img::{circle_guides, guidelines, GREEN, PURPLE, YELLOW};
 
 #[cfg(test)]
@@ -153,7 +153,33 @@ fn calc_slope(x1: i32, y1: i32, x2: i32, y2: i32) -> f64 {
 }
 
 /// Calculate the y intercept (y value for x=0)
+// allow dead_code because this may be useful for future and
+// also complements the calc_slope() function
 #[allow(dead_code)]
 fn calc_intercept(x: i32, y: i32, slope: f64) -> f64 {
     slope * (-x as f64) + y as f64
+}
+
+#[macro_export]
+/// Ensures the image dimensions fit into an i32
+macro_rules! check_img_i32 {
+    ( $img:ident ) => {
+        assert!(
+            $img.height() <= (std::i32::MAX as u32) && $img.width() <= (std::i32::MAX as u32),
+            "Image is too large, max size is {0}x{0}",
+            std::i32::MAX
+        );
+    };
+}
+
+#[macro_export]
+/// Ensures the opacity is between 0.0 and 1.0
+macro_rules! check_opacity {
+    ( $opacity:ident ) => {
+        assert!(
+            (0.0..=1.0).contains(&$opacity),
+            "Opacity must be between 0.00 and 1.0.  opacity={}",
+            $opacity
+        );
+    };
 }

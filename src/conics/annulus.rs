@@ -290,6 +290,7 @@ impl Annulus {
         a
     }
 
+    // this is not a public function so it's fine
     #[allow(clippy::self_named_constructors)]
     /// An internal function used to create a new [`Annulus`].  The `new()` function
     /// should be used externally, which will also normalize angles and check the radii.

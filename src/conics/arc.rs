@@ -205,7 +205,7 @@ impl Arc {
 
     pub(super) fn restart(&mut self) {
         let oct = self.pos.oct % 8 + 1;
-        let bounds = Bounds::bounds(oct, &self.start, &self.end, self.revisit);
+        let bounds = Bounds::bounds_from_edges(oct, &self.start, &self.end, self.revisit);
         self.pos = Pos::new(oct, bounds, self.r, self.c);
         self.revisit = false;
     }

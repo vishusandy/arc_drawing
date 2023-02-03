@@ -399,9 +399,16 @@ impl Pt<i32> {
 }
 
 impl Pt<u32> {
-    /// Cast to a `Pt<i32>`
     #[must_use]
+    // safe because of the assert!()
+    #[allow(clippy::cast_possible_wrap)]
+    /// Cast to a `Pt<i32>`
+    ///
+    /// # Panics
+    ///
+    /// Panics if the values cannot fit into an i32
     pub const fn i32(&self) -> Pt<i32> {
+        assert!(self.x <= std::i32::MAX as u32 && self.y <= std::i32::MAX as u32);
         Pt {
             x: self.x as i32,
             y: self.y as i32,
@@ -448,14 +455,32 @@ impl From<Pt<i32>> for Pt<f64> {
     }
 }
 
-impl From<Pt<u32>> for Pt<i32> {
-    fn from(pt: Pt<u32>) -> Self {
-        Self {
-            x: pt.x as i32,
-            y: pt.y as i32,
+impl TryFrom<Pt<u32>> for Pt<i32> {
+    type Error = &'static str;
+
+    fn try_from(pt: Pt<u32>) -> Result<Self, Self::Error> {
+        if pt.x <= std::i32::MAX as u32 && pt.y <= std::i32::MAX as u32 {
+            // safe because of the if check
+            #[allow(clippy::cast_possible_wrap)]
+            Ok(Self {
+                x: pt.x as i32,
+                y: pt.y as i32,
+            })
+        } else {
+            Err("bounds exceeds i32::MAX")
         }
     }
 }
+
+// impl From<Pt<u32>> for Pt<i32> {
+//     #[allow(clippy::cast_possible_wrap)]
+//     fn from(pt: Pt<u32>) -> Self {
+//         Self {
+//             x: pt.x as i32,
+//             y: pt.y as i32,
+//         }
+//     }
+// }
 
 impl From<Pt<u32>> for Pt<f32> {
     fn from(pt: Pt<u32>) -> Self {

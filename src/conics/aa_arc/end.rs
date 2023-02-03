@@ -17,15 +17,6 @@ impl End {
         }
     }
 
-    /// Check if the end point has been reached
-    #[allow(dead_code)]
-    pub(super) fn r#match(&self, p: Pt<f64>) -> bool {
-        match self {
-            Self::X(x) => *x <= p.x,
-            Self::Y(y) => *y >= p.y,
-        }
-    }
-
     /// Check if an X end point has been reached
     pub(super) fn match_x(&self, p: f64) -> bool {
         match self {

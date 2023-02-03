@@ -56,7 +56,6 @@ impl Slope {
         (self.slope * x as f64 + self.int).round() as i32
     }
 
-    #[allow(dead_code)]
     pub(super) fn x(&self, y: i32) -> i32 {
         ((y as f64 - self.int) / self.slope).round() as i32
     }

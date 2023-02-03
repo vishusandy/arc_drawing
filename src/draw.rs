@@ -3,7 +3,10 @@
 //! This is a simple wrapper around a mutable image reference for convenience.
 //!
 
+// Draw's methods mutate the image and return self for convenience,
+// so ignoring a return value is just fine
 #![allow(clippy::return_self_not_must_use)]
+// same reasoning as above
 #![allow(clippy::must_use_candidate)]
 
 use crate::conics;
