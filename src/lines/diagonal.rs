@@ -141,10 +141,7 @@ pub fn diagonal_line_alpha<P>(
 ) where
     P: Point<u32>,
 {
-    assert!(
-        (0.0..=1.0).contains(&opacity),
-        "Opacity must be between 0.00 and 1.0.  opacity={opacity}"
-    );
+    crate::check_opacity!(opacity);
 
     if a.x() > b.x() {
         std::mem::swap(&mut a, &mut b);
@@ -203,10 +200,7 @@ pub fn diagonal_dashed_line_alpha<P>(
 ) where
     P: Point<u32>,
 {
-    assert!(
-        (0.0..=1.0).contains(&opacity),
-        "Opacity must be between 0.00 and 1.0.  opacity={opacity}"
-    );
+    crate::check_opacity!(opacity);
 
     if width == 0 {
         diagonal_line_alpha(image, a, b, opacity, color);

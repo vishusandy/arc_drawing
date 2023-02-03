@@ -68,10 +68,7 @@ pub fn blend_at(
     opacity: f32,
     color: image::Rgba<u8>,
 ) {
-    assert!(
-        (0.0..=1.0).contains(&opacity),
-        "Invalid opacity - must be between 0.0 and 1.0.  opacity={opacity}."
-    );
+    crate::check_opacity!(opacity);
 
     if x < image.width() && y < image.height() {
         // this is safe because of the bounds checks

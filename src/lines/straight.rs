@@ -92,7 +92,8 @@ where
 ///
 /// # Panics
 ///
-/// Panics if opacity is not in the range `0.0..=1.0`
+/// - Panics if opacity is not in the range `0.0..=1.0`.
+/// - Panics if the image's height or width is larger than 2,147,483,647
 /// ```
 /// # use image::{RgbaImage, Rgba};
 /// use freehand::lines::line_alpha;
@@ -132,7 +133,8 @@ where
 ///
 /// # Panics
 ///
-/// Panics if opacity is not in the range `0.0..=1.0`
+/// - Panics if opacity is not in the range `0.0..=1.0`
+/// - Panics if the image's height or width is larger than 2,147,483,647
 /// ```
 /// # use image::{RgbaImage, Rgba};
 /// use freehand::lines::dashed_line_alpha;

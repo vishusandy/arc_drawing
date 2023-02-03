@@ -154,7 +154,7 @@ fn calc_slope(x1: i32, y1: i32, x2: i32, y2: i32) -> f64 {
 
 /// Calculate the y intercept (y value for x=0)
 // allow dead_code because this may be useful for future and
-// also complements the calc_slope() function
+// also because it complements the calc_slope() function nicely
 #[allow(dead_code)]
 fn calc_intercept(x: i32, y: i32, slope: f64) -> f64 {
     slope * (-x as f64) + y as f64
@@ -166,7 +166,7 @@ macro_rules! check_img_i32 {
     ( $img:ident ) => {
         assert!(
             $img.height() <= (std::i32::MAX as u32) && $img.width() <= (std::i32::MAX as u32),
-            "Image is too large, max size is {0}x{0}",
+            "Image is too large, max size for height/width is {0}",
             std::i32::MAX
         );
     };

@@ -102,10 +102,7 @@ pub fn vertical_line_alpha<P>(image: &mut RgbaImage, pt: P, y2: u32, opacity: f3
 where
     P: Point<u32>,
 {
-    assert!(
-        (0.0..=1.0).contains(&opacity),
-        "Opacity must be between 0.00 and 1.0.  opacity={opacity}"
-    );
+    crate::check_opacity!(opacity);
 
     if pt.x() < image.width() {
         (pt.y().min(image.height() - 1)..=y2.min(image.height() - 1))
@@ -144,10 +141,7 @@ pub fn vertical_dashed_line_alpha<P>(
 ) where
     P: Point<u32>,
 {
-    assert!(
-        (0.0..=1.0).contains(&opacity),
-        "Opacity must be between 0.00 and 1.0.  opacity={opacity}"
-    );
+    crate::check_opacity!(opacity);
 
     if width == 0 {
         vertical_line_alpha(image, pt, y2, opacity, color);
