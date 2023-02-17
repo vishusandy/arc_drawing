@@ -2,6 +2,7 @@ use crate::Pt;
 
 /// Represents an end point in the fast direction.
 #[derive(Copy, Clone, Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub(super) enum End {
     X(f64),
     Y(f64),

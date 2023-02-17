@@ -1,6 +1,7 @@
 use super::Bounds;
 use crate::Pt;
 
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Clone, Debug)]
 pub(super) struct Pos {
     pub(super) x: i32,

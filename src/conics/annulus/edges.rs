@@ -1,3 +1,4 @@
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Copy, Clone, Debug, PartialEq, PartialOrd)]
 pub(super) struct Edge {
     pub(super) angle: f64,

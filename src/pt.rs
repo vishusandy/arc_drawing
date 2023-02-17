@@ -115,6 +115,7 @@ where
 ///
 /// This is mostly intended for use within the crate, however it is provided as
 /// public in order for convenience when working with this crate.
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct Pt<T> {
     /// The x coordinate

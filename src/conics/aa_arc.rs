@@ -78,6 +78,7 @@ pub fn antialiased_arc<A, C, T>(
 ///
 /// arc.draw(&mut image, color);
 /// ```
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Clone, Debug)]
 pub struct AntialiasedArc {
     /// Current local x coordinate (not the same as the final pixel coordinates)

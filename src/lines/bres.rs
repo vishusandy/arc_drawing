@@ -1,5 +1,6 @@
 use crate::pt::{Point, Pt};
 
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Clone, Debug)]
 /// An iterator between two points on a line.  Uses Bresenham's algorithm.
 ///

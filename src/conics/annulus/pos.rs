@@ -1,5 +1,6 @@
 use crate::{calc_error, Pt};
 
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Copy, Clone, Debug)]
 pub(super) struct Pos {
     pub(super) x: i32,

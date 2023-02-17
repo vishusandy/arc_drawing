@@ -3,8 +3,14 @@ use crate::ops::blend_at_unchecked;
 use crate::Pt;
 
 /// An antialiased point.  Contains two coordinates and their corresponding opacities.
-#[derive(Clone, Debug)]
-pub struct AAPt<T> {
+// allow because no unsafe methods are used when deserializing
+#[allow(clippy::unsafe_derive_deserialize)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Copy, Clone, Debug)]
+pub struct AAPt<T>
+where
+    T: PartialOrd,
+{
     /// First point
     pub a: Pt<T>,
     /// Second point
@@ -15,7 +21,10 @@ pub struct AAPt<T> {
     pub oa: f64,
 }
 
-impl<T> AAPt<T> {
+impl<T> AAPt<T>
+where
+    T: PartialOrd,
+{
     /// Create a new antialiased point.
     pub(crate) fn new(a: Pt<T>, b: Pt<T>, ob: f64) -> Self {
         Self {

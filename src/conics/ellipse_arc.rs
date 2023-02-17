@@ -21,7 +21,8 @@ https://en.wikipedia.org/wiki/Ellipse
 
 */
 
-#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Copy, Clone, Debug)]
 struct Ellipse {
     x: f64,
     y: f64,

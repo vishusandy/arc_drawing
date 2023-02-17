@@ -1,5 +1,6 @@
 use super::Edge;
 
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Copy, Clone, Debug, Default)]
 pub(super) struct Bounds {
     pub(super) start: Option<f64>,

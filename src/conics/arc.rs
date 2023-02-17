@@ -88,6 +88,7 @@ pub fn arc<A, C, I, T>(
 /// /// Draw the struct
 /// arc.draw(&mut image, color);
 /// ```
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Clone, Debug)]
 pub struct Arc {
     /// Current iteration position.

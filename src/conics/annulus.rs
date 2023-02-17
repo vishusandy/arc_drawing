@@ -216,7 +216,8 @@ where
 /// let annulus = Annulus::new(start, end, inner_radius, outer_radius, center);
 /// annulus.draw(&mut image, color);
 /// ```
-#[derive(Copy, Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Clone, Debug)]
 pub struct Annulus {
     end: Edge,
     cur_start: Edge,
