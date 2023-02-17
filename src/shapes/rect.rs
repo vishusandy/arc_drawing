@@ -124,10 +124,8 @@ pub fn rectangle_filled_alpha<P>(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{test_no_color, test_only_color, test_pixel_colors, test_pixels_changed};
 
     mod rectangle {
-        use super::*;
 
         test_pixels_changed!(
             rectangle_solid,
@@ -151,7 +149,6 @@ mod tests {
     }
 
     mod rectangle_alpha {
-        use super::*;
 
         test_pixel_colors!(
             rectangle_alpha,
@@ -177,7 +174,6 @@ mod tests {
     }
 
     mod rectangle_filled {
-        use super::*;
 
         test_no_color!(
             rectangle_filled_full,
@@ -196,7 +192,6 @@ mod tests {
     }
 
     mod rectangle_filled_alpha {
-        use super::*;
 
         test_only_color!(
             rectangle_filled_alpha_full,

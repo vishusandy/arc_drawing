@@ -20,7 +20,7 @@ where
     I: GenericImage,
     P: Point<i32>,
 {
-    crate::check_img_i32!(image);
+    check_img_i32!(image);
 
     #[allow(clippy::cast_possible_wrap)]
     let width = image.width() as i32;
@@ -59,7 +59,7 @@ where
     I: GenericImage,
     P: Point<i32>,
 {
-    crate::check_img_i32!(image);
+    check_img_i32!(image);
 
     let dash_width = dash_width as usize;
     let w = dash_width * 2;
@@ -107,8 +107,8 @@ where
 {
     use crate::ops::blend_at_unchecked;
 
-    crate::check_img_i32!(image);
-    crate::check_opacity!(opacity);
+    check_img_i32!(image);
+    check_opacity!(opacity);
 
     #[allow(clippy::cast_possible_wrap)]
     let width = image.width() as i32;
@@ -157,8 +157,8 @@ pub fn dashed_line_alpha<P, W>(
 {
     use crate::ops::blend_at_unchecked;
 
-    crate::check_img_i32!(image);
-    crate::check_opacity!(opacity);
+    check_img_i32!(image);
+    check_opacity!(opacity);
 
     let dash_width = dash_width.into() as usize;
     let w = dash_width * 2;
@@ -217,10 +217,8 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::test_pixels_changed;
 
     mod line {
-        use super::*;
 
         test_pixels_changed!(line_bounds_neg_x, line((-100, 1), (-10, 1)), 4, &*vec![]);
 
@@ -274,7 +272,6 @@ mod tests {
     }
 
     mod dashed_line {
-        use super::*;
 
         test_pixels_changed!(
             dashed_line_steep_down_0px,

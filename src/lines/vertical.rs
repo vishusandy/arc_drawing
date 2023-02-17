@@ -102,7 +102,7 @@ pub fn vertical_line_alpha<P>(image: &mut RgbaImage, pt: P, y2: u32, opacity: f3
 where
     P: Point<u32>,
 {
-    crate::check_opacity!(opacity);
+    check_opacity!(opacity);
 
     if pt.x() < image.width() {
         (pt.y().min(image.height() - 1)..=y2.min(image.height() - 1))
@@ -141,7 +141,7 @@ pub fn vertical_dashed_line_alpha<P>(
 ) where
     P: Point<u32>,
 {
-    crate::check_opacity!(opacity);
+    check_opacity!(opacity);
 
     if width == 0 {
         vertical_line_alpha(image, pt, y2, opacity, color);
@@ -175,10 +175,8 @@ pub fn vertical_dashed_line_alpha<P>(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{test_pixel_colors, test_pixels_changed};
 
     mod vertical_line {
-        use super::*;
 
         test_pixels_changed!(
             vertical_line,
@@ -196,7 +194,6 @@ mod tests {
     }
 
     mod vertical_dashed_line {
-        use super::*;
 
         test_pixels_changed!(
             vertical_dashed_line_0px_width,
@@ -231,7 +228,6 @@ mod tests {
     }
 
     mod vertical_line_alpha {
-        use super::*;
 
         test_pixel_colors!(
             vertical_line_alpha,
@@ -262,7 +258,6 @@ mod tests {
     }
 
     mod vertical_dashed_line_alpha {
-        use super::*;
 
         test_pixel_colors!(
             vertical_dashed_line_alpha_0px,

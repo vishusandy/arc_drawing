@@ -107,7 +107,7 @@ pub fn horizontal_line_alpha<P>(
 ) where
     P: Point<u32>,
 {
-    crate::check_opacity!(opacity);
+    check_opacity!(opacity);
 
     if pt.y() < image.height() {
         (pt.x().min(image.width() - 1)..=x2.min(image.width() - 1))
@@ -146,7 +146,7 @@ pub fn horizontal_dashed_line_alpha<P>(
 ) where
     P: Point<u32>,
 {
-    crate::check_opacity!(opacity);
+    check_opacity!(opacity);
 
     if width == 0 {
         horizontal_line_alpha(image, pt, x2, opacity, color);
@@ -181,9 +181,7 @@ pub fn horizontal_dashed_line_alpha<P>(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{test_pixel_colors, test_pixels_changed};
     mod horizontal_line {
-        use super::*;
 
         test_pixels_changed!(
             horizontal_line,
@@ -201,7 +199,6 @@ mod tests {
     }
 
     mod horizontal_dashed_line {
-        use super::*;
 
         test_pixels_changed!(
             horizontal_dashed_line_0px,
@@ -236,7 +233,6 @@ mod tests {
     }
 
     mod horizontal_line_alpha {
-        use super::*;
 
         test_pixel_colors!(
             horizontal_line_alpha,
@@ -256,7 +252,6 @@ mod tests {
         );
     }
     mod horizontal_dashed_line_alpha {
-        use super::*;
 
         test_pixel_colors!(
             horizontal_dashed_line_alpha_0px,

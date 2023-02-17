@@ -141,7 +141,7 @@ pub fn diagonal_line_alpha<P>(
 ) where
     P: Point<u32>,
 {
-    crate::check_opacity!(opacity);
+    check_opacity!(opacity);
 
     if a.x() > b.x() {
         std::mem::swap(&mut a, &mut b);
@@ -200,7 +200,7 @@ pub fn diagonal_dashed_line_alpha<P>(
 ) where
     P: Point<u32>,
 {
-    crate::check_opacity!(opacity);
+    check_opacity!(opacity);
 
     if width == 0 {
         diagonal_line_alpha(image, a, b, opacity, color);
@@ -249,10 +249,8 @@ pub fn diagonal_dashed_line_alpha<P>(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{test_pixel_colors, test_pixels_changed};
 
     mod diagonal_line {
-        use super::*;
 
         test_pixels_changed!(
             diagonal_line,
@@ -269,7 +267,6 @@ mod tests {
     }
 
     mod diagonal_dashed_line {
-        use super::*;
 
         test_pixels_changed!(
             diagonal_dashed_line_0px_width,
@@ -304,7 +301,6 @@ mod tests {
     }
 
     mod diagonal_line_alpha {
-        use super::*;
 
         test_pixel_colors!(
             diagonal_line_alpha,
@@ -344,7 +340,6 @@ mod tests {
     }
 
     mod diagonal_dashed_line_alpha {
-        use super::*;
 
         test_pixel_colors!(
             diagonal_dashed_line_alpha_0px,

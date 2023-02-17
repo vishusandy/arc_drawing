@@ -1,5 +1,6 @@
 // We don't really care about function names for testing purposes
 #![allow(clippy::module_name_repetitions)]
+#![macro_use]
 
 //! Code for testing/benchmarking purposes
 
@@ -48,7 +49,7 @@ where
 }
 
 #[cfg(test)]
-#[macro_export]
+// #[macro_export]
 macro_rules! test_pixels_changed {
     ( $test_name:ident, $f:ident( $($a:expr),+ ), $size:literal, $m:expr ) => {
         #[test]
@@ -110,7 +111,7 @@ macro_rules! test_pixels_changed {
 }
 
 #[cfg(test)]
-#[macro_export]
+// #[macro_export]
 macro_rules! test_pixel_colors {
     ( $test_name:ident, $f:ident( $($a:expr),+ ), $size:literal, $color:expr, $pixels:expr, $colors:expr ) => {
         #[test]
@@ -176,7 +177,7 @@ macro_rules! test_pixel_colors {
 }
 
 #[cfg(test)]
-#[macro_export]
+// #[macro_export]
 macro_rules! test_no_color {
     ( $test_name:ident, $f:ident( $($a:expr),+ ), $size:literal, $color:expr, $no_color:expr ) => {
         #[test]
@@ -214,7 +215,7 @@ macro_rules! test_no_color {
 }
 
 #[cfg(test)]
-#[macro_export]
+// #[macro_export]
 macro_rules! test_only_color {
     ( $test_name:ident, $f:ident( $($a:expr),+ ), $size:literal, $color:expr, $only_color:expr ) => {
         #[test]

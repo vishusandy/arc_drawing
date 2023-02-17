@@ -4,6 +4,7 @@
 #![allow(clippy::cast_lossless)]
 #![allow(clippy::cast_sign_loss)]
 #![allow(clippy::cast_precision_loss)]
+#![macro_use]
 // #![allow(clippy::cast_possible_wrap)]
 
 //! # Overview
@@ -43,7 +44,7 @@
 //! draw.line((0, 0), (399,399), Rgba([255, 0, 0, 255]))
 //!     .dashed_line((0, 399), (399, 0), 2, Rgba([255, 0, 0, 255]))
 //!     .rectangle((150, 150), 100, 100, Rgba([0, 255, 0, 255]))
-//!     .thick_line((200, 50), (350, 200), 3.5, Rgba([255, 0, 0, 255]))
+//!     .antialiased_line((200, 50), (350, 200), 3.5, Rgba([255, 0, 0, 255]))
 //!     .arc(20, 160, 100, (200, 200), Rgba([0, 0, 255, 255]));
 //! ```
 //!
@@ -81,6 +82,32 @@
 //![`image`]: https://docs.rs/image/latest/image/
 //!
 
+/// Ensures the image dimensions fit into an i32
+macro_rules! check_img_i32 {
+    ( $img:ident ) => {
+        assert!(
+            $img.height() <= (std::i32::MAX as u32) && $img.width() <= (std::i32::MAX as u32),
+            "Image is too large, max size for height/width is {}.  size={:?}",
+            std::i32::MAX,
+            $img.dimensions()
+        );
+    };
+}
+
+/// Ensures the opacity is between 0.0 and 1.0
+macro_rules! check_opacity {
+    ( $opacity:ident ) => {
+        assert!(
+            (0.0..=1.0).contains(&$opacity),
+            "Opacity must be between 0.00 and 1.0.  opacity={}",
+            $opacity
+        );
+    };
+}
+
+#[cfg(test)]
+mod test;
+
 mod angle;
 mod antialias;
 mod pt;
@@ -96,9 +123,6 @@ pub mod shapes;
 pub use angle::Angle;
 pub use draw::{new, Draw};
 pub use pt::{Point, Pt};
-
-#[cfg(test)]
-mod test;
 
 #[cfg(test)]
 #[allow(unused_imports)] // allow because it's for testing only
@@ -158,28 +182,4 @@ fn calc_slope(x1: i32, y1: i32, x2: i32, y2: i32) -> f64 {
 #[allow(dead_code)]
 fn calc_intercept(x: i32, y: i32, slope: f64) -> f64 {
     slope * (-x as f64) + y as f64
-}
-
-#[macro_export]
-/// Ensures the image dimensions fit into an i32
-macro_rules! check_img_i32 {
-    ( $img:ident ) => {
-        assert!(
-            $img.height() <= (std::i32::MAX as u32) && $img.width() <= (std::i32::MAX as u32),
-            "Image is too large, max size for height/width is {0}",
-            std::i32::MAX
-        );
-    };
-}
-
-#[macro_export]
-/// Ensures the opacity is between 0.0 and 1.0
-macro_rules! check_opacity {
-    ( $opacity:ident ) => {
-        assert!(
-            (0.0..=1.0).contains(&$opacity),
-            "Opacity must be between 0.00 and 1.0.  opacity={}",
-            $opacity
-        );
-    };
 }

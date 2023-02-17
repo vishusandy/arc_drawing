@@ -6,15 +6,20 @@ use crate::{Point, Pt};
 
 /// ```
 /// # use image::{RgbaImage, Rgba};
-/// use freehand::lines::thick_line;
+/// use freehand::lines::antialiased_line;
 /// # let mut image = RgbaImage::from_pixel(400, 400, Rgba([255, 255, 255, 255]));
 ///
-/// thick_line(&mut image, (0, 0), (399, 399), 4.5, Rgba([255, 0, 0, 255]));
+/// antialiased_line(&mut image, (0, 0), (399, 399), 4.5, Rgba([255, 0, 0, 255]));
 /// ```
 // http://members.chello.at/~easyfilter/bresenham.html
 // http://members.chello.at/~easyfilter/canvas.html
-pub fn thick_line<P, T>(image: &mut image::RgbaImage, a: P, b: P, wd: f32, color: image::Rgba<u8>)
-where
+pub fn antialiased_line<P, T>(
+    image: &mut image::RgbaImage,
+    a: P,
+    b: P,
+    wd: f32,
+    color: image::Rgba<u8>,
+) where
     P: Point<T>,
     T: Into<i32> + Copy,
 {
@@ -89,7 +94,7 @@ mod tests {
     #[test]
     fn thick_aa_line() -> Result<(), image::ImageError> {
         let mut image = image::RgbaImage::from_pixel(400, 400, image::Rgba([255, 255, 255, 255]));
-        super::thick_line(
+        super::antialiased_line(
             &mut image,
             (10, 10),
             (50, 50),

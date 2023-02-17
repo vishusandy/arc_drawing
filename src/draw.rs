@@ -423,7 +423,7 @@ impl<'i> Draw<'i, RgbaImage> {
 
     /// Draws a thick anti-aliased line.
     ///
-    /// See: [`lines::thick_line`]
+    /// See: [`lines::antialiased_line`]
     ///
     /// ```
     /// # use image::{RgbaImage, Rgba};
@@ -431,14 +431,14 @@ impl<'i> Draw<'i, RgbaImage> {
     ///
     /// let draw = freehand::new(&mut image);
     /// // Draws a red anti-aliased line with a width of 1.5
-    /// draw.thick_line((0, 10), (200, 200), 1.5, Rgba([255, 0, 0, 255]));
+    /// draw.antialiased_line((0, 10), (200, 200), 1.5, Rgba([255, 0, 0, 255]));
     /// ```
-    pub fn thick_line<P, T>(self, a: P, b: P, width: f32, color: Rgba<u8>) -> Self
+    pub fn antialiased_line<P, T>(self, a: P, b: P, width: f32, color: Rgba<u8>) -> Self
     where
         P: Point<T>,
         T: Into<i32> + Copy,
     {
-        lines::thick_line(self.image, a, b, width, color);
+        lines::antialiased_line(self.image, a, b, width, color);
         self
     }
 
