@@ -16,6 +16,13 @@
 
 /// Represents x, y coordinates for a type.  Allows functions to be generic over
 /// types that represent x, y coordinates.
+///
+/// The two ways a Point can be represented are:
+/// - tuples: `(12, 34)`
+/// - [`Pt`s](crate::Pt): `Pt::new(12, 34)`
+///
+/// See also: [Pt](crate::Pt)
+///
 pub trait Point<T>
 where
     T: Copy,
