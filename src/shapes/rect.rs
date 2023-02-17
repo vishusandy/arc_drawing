@@ -13,6 +13,9 @@ use image::GenericImage;
 ///
 /// rectangle(&mut image, (10, 10), 380, 380, color);
 /// ```
+///
+/// See also: [`Draw::rectangle`](crate::Draw::rectangle)
+///
 pub fn rectangle<I, P>(image: &mut I, pt: P, height: u32, width: u32, color: I::Pixel)
 where
     I: GenericImage,
@@ -46,6 +49,9 @@ where
 ///
 /// rectangle_alpha(&mut image, (10, 10), 380, 380, 0.5, color);
 /// ```
+///
+/// See also: [`Draw::rectangle_alpha`](crate::Draw::rectangle_alpha)
+///
 pub fn rectangle_alpha<P>(
     image: &mut image::RgbaImage,
     pt: P,
@@ -86,6 +92,9 @@ pub fn rectangle_alpha<P>(
 /// /// A 10px white border will be left around the image borders.
 /// rectangle_filled(&mut image, (10, 10), 380, 380, color);
 /// ```
+///
+/// See also: [`Draw::rectangle_filled`](crate::Draw::rectangle_filled)
+///
 pub fn rectangle_filled<I, P>(image: &mut I, pt: P, height: u32, width: u32, color: I::Pixel)
 where
     I: GenericImage,
@@ -112,6 +121,9 @@ where
 /// /// A 10px white border will be left around the image borders.
 /// rectangle_filled_alpha(&mut image, (10, 10), 380, 380, 0.5, color);
 /// ```
+///
+/// See also: [`Draw::rectangle_filled_alpha`](crate::Draw::rectangle_filled_alpha)
+///
 pub fn rectangle_filled_alpha<P>(
     image: &mut image::RgbaImage,
     pt: P,

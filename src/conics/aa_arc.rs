@@ -10,6 +10,8 @@ use end::End;
 /// If the angles are floating-point numbers they are interpreted as radians.
 /// Otherwise the angles are interpreted as degrees.
 ///
+/// See also: [`Draw::antialiased_arc`](crate::Draw::antialiased_arc)
+///
 /// ```
 /// use image::{RgbaImage, Rgba};
 /// use freehand::conics::antialiased_arc;

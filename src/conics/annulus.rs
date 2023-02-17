@@ -51,6 +51,9 @@ use crate::{angle, Point, Pt};
 /// let end = std::f64::consts::PI; // 180°
 /// annulus(&mut image, start, end, inner_radius, outer_radius, center, color);
 /// ```
+///
+/// See also: [`Draw::annulus`](crate::Draw::annulus)
+///
 pub fn annulus<A, C, I>(
     image: &mut I,
     start_angle: A,
@@ -77,6 +80,9 @@ pub fn annulus<A, C, I>(
 /// Draws an arc with a specified thickness.
 ///
 /// This is just a wrapper around [`Annulus`] for convenience.
+///
+/// See also: [`Draw::thick_arc`](crate::Draw::thick_arc)
+/// 
 pub fn thick_arc<A, C, I>(
     image: &mut I,
     start_angle: A,
@@ -122,6 +128,9 @@ pub fn thick_arc<A, C, I>(
 /// Pie slice is drawn from the circle center to a given radius.
 ///
 /// This is just a wrapper around [`Annulus`] for convenience.
+///
+/// See also: [`Draw::pie_slice_filled`](crate::Draw::pie_slice_filled)
+/// 
 pub fn pie_slice_filled<A, C, I>(
     image: &mut I,
     start_angle: A,
@@ -151,6 +160,9 @@ pub fn pie_slice_filled<A, C, I>(
 ///
 /// Internally this uses [`Annulus`] to calculate points in a single octet and
 /// draw them in all octants.
+///
+/// See also: [`Draw::thick_circle`](crate::Draw::thick_circle)
+/// 
 pub fn thick_circle<C, I>(image: &mut I, radius: i32, thickness: i16, center: C, color: I::Pixel)
 where
     C: Point<i32>,

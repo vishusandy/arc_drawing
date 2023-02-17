@@ -18,6 +18,9 @@ use image::GenericImage;
 ///
 /// line(&mut image, (0, 0), (399, 399), Rgba([255, 0, 0, 255]));
 /// ```
+///
+/// See also: [`Draw::line`](crate::Draw::line)
+/// 
 pub fn line<I, P>(image: &mut I, a: P, b: P, color: I::Pixel)
 where
     I: GenericImage,
@@ -59,6 +62,9 @@ where
 ///
 /// dashed_line(&mut image, (0, 0), (399, 399), 2, Rgba([255, 0, 0, 255]));
 /// ```
+///
+/// See also: [`Draw::dashed_line`](crate::Draw::dashed_line)
+/// 
 pub fn dashed_line<I, P>(image: &mut I, a: P, b: P, dash_width: u16, color: I::Pixel)
 where
     I: GenericImage,
@@ -109,6 +115,9 @@ where
 ///
 /// line_alpha(&mut image, (0, 0), (399, 399), 0.5, Rgba([255, 0, 0, 255]));
 /// ```
+///
+/// See also: [`Draw::line_alpha`](crate::Draw::line_alpha)
+///
 pub fn line_alpha<P>(image: &mut image::RgbaImage, a: P, b: P, opacity: f32, color: image::Rgba<u8>)
 where
     P: Point<i32>,
@@ -155,6 +164,9 @@ where
 /// let opacity: f32 = 0.5;
 /// dashed_line_alpha(&mut image, (0, 0), (399, 399), dash, opacity, Rgba([255, 0, 0, 255]));
 /// ```
+///
+/// See also: [`Draw::dashed_line_alpha`](crate::Draw::dashed_line_alpha)
+///
 pub fn dashed_line_alpha<P, W>(
     image: &mut image::RgbaImage,
     a: P,
@@ -208,6 +220,8 @@ pub fn dashed_line_alpha<P, W>(
 /// let lines = [(0, 0), (399, 0), (399, 399), (0, 399)];
 /// path(&mut image, lines, Rgba([255, 0, 0, 255]));
 /// ```
+///
+/// See also: [`Draw::path`](crate::Draw::path)
 pub fn path<I, P, It>(image: &mut I, points: It, color: I::Pixel)
 where
     I: GenericImage,

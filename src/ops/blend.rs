@@ -25,6 +25,9 @@
 ///     blend_at_unchecked(&mut image, 0, 0, 0.5, Rgba([255, 255, 255, 255]));
 /// }
 /// ```
+///
+/// See also: [`crate::Draw::blend_at_unchecked`](crate::Draw::blend_at_unchecked)
+///
 pub unsafe fn blend_at_unchecked(
     image: &mut image::RgbaImage,
     x: u32,
@@ -65,6 +68,9 @@ pub unsafe fn blend_at_unchecked(
 /// # let mut image = RgbaImage::from_pixel(10, 10, Rgba([255, 255, 255, 255]));
 /// blend_at(&mut image, 0, 0, 0.5, Rgba([255, 255, 255, 255]));
 /// ```
+///
+/// See also: [`crate::Draw::blend_at`](crate::Draw::blend_at)
+///
 pub fn blend_at(
     image: &mut image::RgbaImage,
     x: u32,

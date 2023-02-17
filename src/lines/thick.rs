@@ -15,6 +15,9 @@ use crate::{Point, Pt};
 ///
 /// antialiased_line(&mut image, (0, 0), (399, 399), 4.5, Rgba([255, 0, 0, 255]));
 /// ```
+///
+/// See also: [`Draw::antialiased_line`](crate::Draw::antialiased_line)
+///
 // http://members.chello.at/~easyfilter/bresenham.html
 // http://members.chello.at/~easyfilter/canvas.html
 pub fn antialiased_line<P, T>(

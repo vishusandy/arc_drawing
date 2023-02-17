@@ -12,6 +12,9 @@ use crate::conics;
 ///
 /// Uses [`conics::Arc`] to calculate a single octant and draw those pixels
 /// in all octants.
+///
+/// See also: [`Draw::circle`](crate::Draw::circle)
+///
 pub fn circle<C, I, T>(image: &mut I, radius: T, center: C, color: I::Pixel)
 where
     C: crate::pt::Point<T>,

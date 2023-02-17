@@ -41,7 +41,9 @@ where
     image: &'i mut I,
 }
 
-/// Methods for working with [`GenericImage`]s
+/// Methods for working with [`image::GenericImage`]s
+///
+/// [`image::GenericImage`]: https://docs.rs/image/latest/image/trait.GenericImage.html
 impl<'i, I> Draw<'i, I>
 where
     I: GenericImage,
@@ -64,8 +66,6 @@ where
 
     /// Draws a straight line.
     ///
-    /// See: [`lines::line`]
-    ///
     /// # Example
     ///
     /// ```
@@ -76,6 +76,9 @@ where
     /// // Draws a line between the two points
     /// draw.line((10, 10), (120, 180), Rgba([255, 0, 0, 255]));
     /// ```
+    ///
+    /// See [`lines::line`]
+    ///
     pub fn line<P, T>(self, a: P, b: P, color: I::Pixel) -> Self
     where
         P: Point<T>,
@@ -90,8 +93,6 @@ where
 
     /// Draws a dashed line between two points.
     ///
-    /// See [`lines::dashed_line`]
-    ///
     /// # Example
     ///
     /// ```
@@ -102,6 +103,9 @@ where
     /// // Draws a 3px dashed line between the two points
     /// draw.dashed_line((10, 10), (120, 180), 3, Rgba([255, 0, 0, 255]));
     /// ```
+    ///
+    /// See [`lines::dashed_line`]
+    ///
     pub fn dashed_line<P, T>(self, a: P, b: P, dash_width: u16, color: I::Pixel) -> Self
     where
         P: Point<T>,
@@ -118,8 +122,6 @@ where
     ///
     /// Does not connect the start and end points.
     ///
-    /// See [`lines::path`]
-    ///
     /// # Example
     ///
     /// ```
@@ -131,6 +133,9 @@ where
     /// let points = [(10, 10), (120, 180)];
     /// draw.path(points, Rgba([255, 0, 0, 255]));
     /// ```
+    ///
+    /// See [`lines::path`]
+    ///
     pub fn path<P, It>(self, points: It, color: I::Pixel) -> Self
     where
         P: Point<i32>,
@@ -142,8 +147,6 @@ where
 
     /// Draws a rectangle.
     ///
-    /// See [`shapes::rectangle`]
-    ///
     /// # Example
     ///
     /// ```
@@ -153,6 +156,9 @@ where
     /// let draw = freehand::new(&mut image);
     /// draw.rectangle((10, 10), 50, 50, Rgba([255, 0, 0, 255]));
     /// ```
+    ///
+    /// See [`shapes::rectangle`]
+    ///
     pub fn rectangle<P>(self, pt: P, height: u32, width: u32, color: I::Pixel) -> Self
     where
         P: Point<u32>,
@@ -163,8 +169,6 @@ where
 
     /// Draws a filled rectangle
     ///
-    /// See [`shapes::rectangle_filled`]
-    ///
     /// # Example
     ///
     /// ```
@@ -174,6 +178,9 @@ where
     /// let draw = freehand::new(&mut image);
     /// draw.rectangle_filled((10, 10), 50, 50, Rgba([255, 0, 0, 255]));
     /// ```
+    ///
+    /// See [`shapes::rectangle_filled`]
+    ///
     pub fn rectangle_filled<P>(self, pt: P, height: u32, width: u32, color: I::Pixel) -> Self
     where
         P: Point<u32>,
@@ -183,8 +190,6 @@ where
     }
 
     /// Draws a circular arc.
-    ///
-    /// See [`conics::arc`]
     ///
     /// # Example
     ///
@@ -196,6 +201,9 @@ where
     /// // Draws a red arc from 0° to 55°, with a radius of 180 pixels from the image center.
     /// draw.arc(0, 55, 180, (200, 200), Rgba([255, 0, 0, 255]));
     /// ```
+    ///
+    /// See [`conics::arc`]
+    ///
     pub fn arc<A, C, T>(
         self,
         start_angle: A,
@@ -215,8 +223,6 @@ where
 
     /// Draws a circle.
     ///
-    /// See [`conics::circle`]
-    ///
     /// # Example
     ///
     /// ```
@@ -227,6 +233,9 @@ where
     /// // Draws a red circle with a radius of 180 pixels from the image center.
     /// draw.circle(180, (200, 200), Rgba([255, 0, 0, 255]));
     /// ```
+    ///
+    /// See [`conics::circle`]
+    ///
     pub fn circle<C, T>(self, radius: T, center: C, color: I::Pixel) -> Self
     where
         C: Point<T>,
@@ -238,8 +247,6 @@ where
 
     /// Draws a filled pie slice.
     ///
-    /// See [`conics::pie_slice_filled`]
-    ///
     /// # Example
     ///
     /// ```
@@ -250,6 +257,9 @@ where
     /// // Draws a pie slice from 0° to 55°, with a radius of 180 pixels from the image center.
     /// draw.pie_slice_filled(0, 55, 180, (200, 200), Rgba([255, 0, 0, 255]));
     /// ```
+    ///
+    /// See [`conics::pie_slice_filled`]
+    ///
     pub fn pie_slice_filled<A, C>(
         self,
         start_angle: A,
@@ -269,8 +279,6 @@ where
 
     /// Draws a thick arc.
     ///
-    /// See [`conics::thick_arc`]
-    ///
     /// # Example
     ///
     /// ```
@@ -281,6 +289,9 @@ where
     /// // Draws an arc, with a thickness of 3, from 0° to 55°, with a radius of 180 pixels from the image center.
     /// draw.thick_arc(0, 55, 180, 3, (200, 200), Rgba([255, 0, 0, 255]));
     /// ```
+    ///
+    /// See [`conics::thick_arc`]
+    ///
     pub fn thick_arc<A, C>(
         self,
         start_angle: A,
@@ -308,8 +319,6 @@ where
 
     /// Draws a thick circle.
     ///
-    /// See [`conics::thick_circle`]
-    ///
     /// # Example
     ///
     /// ```
@@ -320,6 +329,9 @@ where
     /// // Draws a circle with a thickness of 3 and a radius of 180 pixels from the image center.
     /// draw.thick_circle(180, 3, (200, 200), Rgba([255, 0, 0, 255]));
     /// ```
+    ///
+    /// See [`conics::thick_circle`]
+    ///
     pub fn thick_circle<C>(self, radius: i32, thickness: i16, center: C, color: I::Pixel) -> Self
     where
         C: Point<i32>,
@@ -329,8 +341,6 @@ where
     }
 
     /// Draws an annulus (a filled donut)
-    ///
-    /// See: [`conics::annulus`]
     ///
     /// # Example
     ///
@@ -342,6 +352,9 @@ where
     /// // Draws an annulus from 0° to 55°, with an inner radius of 120 and outer radius of 180 pixels from the image center.
     /// draw.annulus(0, 55, 120, 180, (200, 200), Rgba([255, 0, 0, 255]));
     /// ```
+    ///
+    /// See [`conics::annulus`]
+    ///
     pub fn annulus<A, C>(
         self,
         start_angle: A,
@@ -368,11 +381,11 @@ where
     }
 }
 
-/// Methods for working with [`RgbaImage`]s.
+/// Methods for working with [`image::RgbaImage`]s.
+///
+/// [`image::RgbaImage`]: https://docs.rs/image/latest/image/type.RgbaImage.html
 impl<'i> Draw<'i, RgbaImage> {
     /// Draws an antialiased arc.
-    ///
-    /// See [`conics::antialiased_arc`]
     ///
     /// # Example
     ///
@@ -384,6 +397,9 @@ impl<'i> Draw<'i, RgbaImage> {
     /// // draws an anti-aliased arc from 0° to 55° with a radius of 180 pixels from the image center.
     /// draw.antialiased_arc(0, 55, 180, (200, 200), Rgba([255, 0, 0, 255]));
     /// ```
+    ///
+    /// See [`conics::antialiased_arc`]
+    ///
     pub fn antialiased_arc<A, C, T>(
         self,
         start_angle: A,
@@ -403,8 +419,6 @@ impl<'i> Draw<'i, RgbaImage> {
 
     /// Draws a dashed line with a specified opacity.
     ///
-    /// See [`lines::dashed_line_alpha`]
-    ///
     /// # Example
     ///
     /// ```
@@ -415,6 +429,8 @@ impl<'i> Draw<'i, RgbaImage> {
     /// // Draws a red line with a 3px dash and 50% opacity.
     /// draw.dashed_line_alpha((0, 10), (200, 200), 5u8, 0.5, Rgba([255, 0, 0, 255]));
     /// ```
+    ///
+    /// See [`lines::dashed_line_alpha`]
     pub fn dashed_line_alpha<P, W>(
         self,
         a: P,
@@ -433,8 +449,6 @@ impl<'i> Draw<'i, RgbaImage> {
 
     /// Draws a line with a specified opacity.
     ///
-    /// See [`lines::line_alpha`]
-    ///
     /// # Example
     ///
     /// ```
@@ -445,6 +459,9 @@ impl<'i> Draw<'i, RgbaImage> {
     /// // Draws a red line with 50% opacity.
     /// draw.line_alpha((0, 10), (200, 200), 0.5, Rgba([255, 0, 0, 255]));
     /// ```
+    ///
+    /// See [`lines::line_alpha`]
+    ///
     pub fn line_alpha<P>(self, a: P, b: P, opacity: f32, color: Rgba<u8>) -> Self
     where
         P: Point<i32>,
@@ -454,8 +471,6 @@ impl<'i> Draw<'i, RgbaImage> {
     }
 
     /// Draws a thick anti-aliased line.
-    ///
-    /// See: [`lines::antialiased_line`]
     ///
     /// # Example
     ///
@@ -467,6 +482,9 @@ impl<'i> Draw<'i, RgbaImage> {
     /// // Draws a red anti-aliased line with a width of 1.5
     /// draw.antialiased_line((0, 10), (200, 200), 1.5, Rgba([255, 0, 0, 255]));
     /// ```
+    ///
+    /// See [`lines::antialiased_line`]
+    ///
     pub fn antialiased_line<P, T>(self, a: P, b: P, width: f32, color: Rgba<u8>) -> Self
     where
         P: Point<T>,
@@ -478,8 +496,6 @@ impl<'i> Draw<'i, RgbaImage> {
 
     /// Draws a rectangle with the specified opacity.
     ///
-    /// See [`shapes::rectangle_alpha`]
-    ///
     /// # Example
     ///
     /// ```
@@ -490,6 +506,9 @@ impl<'i> Draw<'i, RgbaImage> {
     /// // Draws a red rectangle with 50% opacity.
     /// draw.rectangle_alpha((0, 10), 50, 50, 0.5, Rgba([255, 0, 0, 255]));
     /// ```
+    ///
+    /// See [`shapes::rectangle_alpha`]
+    ///
     pub fn rectangle_alpha<P>(
         self,
         pt: P,
@@ -507,8 +526,6 @@ impl<'i> Draw<'i, RgbaImage> {
 
     /// Draws a filled rectangle with the specified opacity.
     ///
-    /// See [`shapes::rectangle_filled_alpha`]
-    ///
     /// # Example
     ///
     /// ```
@@ -519,6 +536,9 @@ impl<'i> Draw<'i, RgbaImage> {
     /// // Draws a filled red rectangle with 50% opacity.
     /// draw.rectangle_filled_alpha((0, 10), 50, 50, 0.5, Rgba([255, 0, 0, 255]));
     /// ```
+    ///
+    /// See [`shapes::rectangle_filled_alpha`]
+    ///
     pub fn rectangle_filled_alpha<P>(
         self,
         pt: P,
@@ -540,8 +560,6 @@ impl<'i> Draw<'i, RgbaImage> {
     /// value and use `opacity` to blend the colors together.  The specified
     /// color's alpha value will only be used for the final alpha channel value.
     ///
-    /// See [`ops::blend_at`]
-    ///
     /// # Example
     ///
     /// ```
@@ -551,6 +569,10 @@ impl<'i> Draw<'i, RgbaImage> {
     /// let draw = freehand::new(&mut image);
     /// // Blends a red pixel into the image at (0, 10) with 50% opacity
     /// draw.blend_at(0, 10, 0.5, Rgba([255, 0, 0, 255]));
+    /// ```
+    ///
+    /// See [`ops::blend_at`]
+    ///
     pub fn blend_at(self, x: u32, y: u32, opacity: f32, color: Rgba<u8>) -> Self {
         ops::blend_at(self.image, x, y, opacity, color);
         self
@@ -580,6 +602,9 @@ impl<'i> Draw<'i, RgbaImage> {
     /// // Blends a red pixel into the image at (0, 10) with 50% opacity
     /// draw.blend_at(0, 10, 0.5, Rgba([255, 0, 0, 255]));
     /// ```
+    ///
+    /// See [`ops::blend_at_unchecked`]
+    ///
     pub unsafe fn blend_at_unchecked(self, x: u32, y: u32, opacity: f32, color: Rgba<u8>) -> Self {
         ops::blend_at_unchecked(self.image, x, y, opacity, color);
         self

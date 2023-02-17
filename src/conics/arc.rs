@@ -47,6 +47,9 @@ use pos::Pos;
 /// let end = std::f64::consts::PI;
 /// arc(&mut image, start, end, radius, center, color);
 /// ```
+///
+/// See also: [`Draw::arc`](crate::Draw::arc)
+///
 pub fn arc<A, C, I, T>(
     image: &mut I,
     start_angle: A,

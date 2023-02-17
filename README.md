@@ -27,7 +27,7 @@ The [`image`](https://docs.rs/image/latest/image/) crate should already be a dep
     freehand = "0.1.0"
     ```
 
-2. Choose to either use the `Draw` struct, for convenience methods, or the regular funcitons (the `Draw` struct methods are recommended).
+2. Choose to either use the `Draw` struct, for convenience methods, or the regular funcitons (the `Draw` struct methods are recommended, but do not include methods for the more specific diagonal, vertical, or horizontal line functions).
 
     ```rust
     // no `use` statements required here
