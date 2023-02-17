@@ -20,7 +20,7 @@
 //! - [circles, circular arcs, and annuli (filled donut shapes)](conics)
 //! - [shapes (currently only rectangles)][shapes]
 //!
-//! # Usage
+//! # Cargo.toml
 //!
 //! First add freehand to your `Cargo.toml`'s dependencies:
 //!
@@ -29,11 +29,13 @@
 //! freehand = "0.1.0"
 //! ```
 //!
-//! Using the [`Draw`] struct is preferred over calling the functions directly
-//! as it is slightly more ergonomic to work with.  The `Draw` struct can be
-//! created using the [`new()`] function or [`Draw::new()`].  Note: not all
-//! drawing functions have `Draw` methods; some of the less common functions
-//! must be called directly.
+//! # Usage
+//!
+//! This crate provides a [`Draw`] struct that wraps around a mutable image to
+//! provide methods for convenience and free floating functions that take a
+//! mutable image as an argument.
+//!
+//! #### Example using `Draw`
 //!
 //! ```
 //! use image::{RgbaImage, Rgba};
@@ -48,7 +50,18 @@
 //!     .arc(20, 160, 100, (200, 200), Rgba([0, 0, 255, 255]));
 //! ```
 //!
-//! # Note on angles
+//!
+//! Using the [`Draw`] struct is preferred over calling the functions directly
+//! as it is slightly more ergonomic to work with.  The `Draw` struct can be
+//! created using the [`new()`] function or [`Draw::new()`].
+//!
+//! Note: not all
+//! drawing functions have `Draw` methods; some of the less common functions
+//! must be called from the funcitons.
+//!
+//! # Notes
+//!
+//! #### Note on angles
 //!
 //! Angles are treated differently based on their type.  Floating-point types
 //! will be in radians, while integer types will be treated as degrees (and
@@ -62,7 +75,7 @@
 //!
 //! [`to_radians()`]: https://doc.rust-lang.org/std/primitive.f64.html#method.to_radians
 //!
-//! # Note on opacity
+//! #### Note on opacity
 //!
 //! Drawing functions that take a specified opacity currently only work
 //! with [`image::RgbaImage`].
