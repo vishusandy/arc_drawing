@@ -129,18 +129,24 @@ mod tests {
         image.put_pixel(0, 0, image::Rgba([0, 0, 0, 255]));
         blend_at(&mut image, 0, 0, 0.0, color);
         assert_eq!(*image.get_pixel(0, 0), image::Rgba([0, 0, 0, 255]));
-
-        // invalid opacities
-        image.put_pixel(0, 0, image::Rgba([255, 255, 255, 255]));
-        blend_at(&mut image, 0, 0, 1.1, color);
-        assert_eq!(*image.get_pixel(0, 0), image::Rgba([255, 255, 255, 255]));
-        blend_at(&mut image, 0, 0, -1.1, color);
-        assert_eq!(*image.get_pixel(0, 0), image::Rgba([255, 255, 255, 255]));
-
         // Boundary tests - ensure these don't cause panics
         blend_at(&mut image, 1, 0, 0.5, color);
         blend_at(&mut image, 2, 0, 0.5, color);
         blend_at(&mut image, 0, 2, 0.5, color);
         blend_at(&mut image, 2, 2, 0.5, color);
+    }
+
+    #[test]
+    #[should_panic]
+    fn safe_blend_invalids() {
+        let color = image::Rgba([255, 0, 0, 255]);
+        let mut image = image::RgbaImage::from_pixel(1, 1, image::Rgba([255, 255, 255, 255]));
+
+        // // invalid opacities
+        image.put_pixel(0, 0, image::Rgba([255, 255, 255, 255]));
+        blend_at(&mut image, 0, 0, 1.1, color);
+        assert_eq!(*image.get_pixel(0, 0), image::Rgba([255, 255, 255, 255]));
+        blend_at(&mut image, 0, 0, -1.1, color);
+        assert_eq!(*image.get_pixel(0, 0), image::Rgba([255, 255, 255, 255]));
     }
 }
