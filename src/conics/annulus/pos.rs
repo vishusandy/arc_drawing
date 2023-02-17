@@ -1,6 +1,6 @@
 use crate::{calc_error, Pt};
 
-#[derive(Clone, Debug)]
+#[derive(Copy, Clone, Debug)]
 pub(super) struct Pos {
     pub(super) x: i32,
     pub(super) y: i32,

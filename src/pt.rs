@@ -434,6 +434,15 @@ impl Pt<u32> {
     }
 }
 
+impl<T> std::fmt::Display for Pt<T>
+where
+    T: std::fmt::Display,
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "({}, {})", self.x, self.y)
+    }
+}
+
 impl<T> From<(T, T)> for Pt<T> {
     fn from(tuple: (T, T)) -> Self {
         Self::new(tuple.0, tuple.1)

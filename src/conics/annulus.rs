@@ -216,7 +216,7 @@ where
 /// let annulus = Annulus::new(start, end, inner_radius, outer_radius, center);
 /// annulus.draw(&mut image, color);
 /// ```
-#[derive(Clone, Debug)]
+#[derive(Copy, Clone, Debug)]
 pub struct Annulus {
     end: Edge,
     cur_start: Edge,

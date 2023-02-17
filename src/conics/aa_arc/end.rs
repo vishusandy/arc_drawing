@@ -1,11 +1,12 @@
 use crate::Pt;
 
 /// Represents an end point in the fast direction.
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub(super) enum End {
     X(f64),
     Y(f64),
 }
+
 impl End {
     /// Create a new end point from a point.  If `x <= y` then it will use the x coordinate,
     /// otherwise it will use the y coordinate.

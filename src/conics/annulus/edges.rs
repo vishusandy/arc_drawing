@@ -1,4 +1,4 @@
-#[derive(Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, PartialOrd)]
 pub(super) struct Edge {
     pub(super) angle: f64,
     pub(super) oct: u8,
