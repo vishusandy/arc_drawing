@@ -8,6 +8,9 @@ use image::{GenericImage, Rgba, RgbaImage};
 /// A straight diagonal line.
 ///
 /// Only points within the image are drawn.
+///
+/// # Example
+///
 /// ```
 /// use freehand::lines::diagonal_line;
 /// # use image::{RgbaImage, Rgba};
@@ -52,6 +55,8 @@ where
 /// A `width` of 0 will draw a solid diagonal line.
 ///
 /// Only points within the image are drawn.
+///
+/// # Example
 ///
 /// ```
 /// use freehand::lines::diagonal_dashed_line;
@@ -122,6 +127,8 @@ where
 ///
 /// Panics if opacity is not in the range `0.0..=1.0`
 ///
+/// # Example
+///
 /// ```
 /// use freehand::lines::diagonal_line_alpha;
 /// # use image::{RgbaImage, Rgba};
@@ -180,6 +187,9 @@ pub fn diagonal_line_alpha<P>(
 /// # Panics
 ///
 /// Panics if opacity is not in the range `0.0..=1.0`
+///
+/// # Example
+///
 /// ```
 /// use freehand::lines::diagonal_dashed_line_alpha;
 /// # use image::{RgbaImage, Rgba};

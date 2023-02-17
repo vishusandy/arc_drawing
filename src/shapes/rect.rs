@@ -2,6 +2,8 @@ use image::GenericImage;
 
 /// Draws a basic rectangle.
 ///
+/// # Example
+///
 /// ```
 /// use image::{RgbaImage, Rgba};
 /// use freehand::shapes::rectangle;
@@ -32,6 +34,8 @@ where
 }
 
 /// Draws a basic rectangle with the specified opacity.
+///
+/// # Example
 ///
 /// ```
 /// use image::{RgbaImage, Rgba};
@@ -70,6 +74,8 @@ pub fn rectangle_alpha<P>(
 /// Draws a filled rectangle.  The specified point represents the upper left cordner
 /// of the rectangle, and will be drawn using the given `height` and `width`.
 ///
+/// # Example
+///
 /// ```
 /// use image::{RgbaImage, Rgba};
 /// use freehand::shapes::rectangle_filled;
@@ -93,6 +99,8 @@ where
 }
 
 /// Draws a filled rectangle with a specified opacity.
+///
+/// # Example
 ///
 /// ```
 /// use image::{RgbaImage, Rgba};

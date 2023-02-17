@@ -8,6 +8,9 @@ use image::GenericImage;
 ///
 /// Panics if the image's height or width is larger than 2,147,483,647
 ///
+/// # Example
+///
+///
 /// ```
 /// # use image::{RgbaImage, Rgba};
 /// use freehand::lines::line;
@@ -43,9 +46,11 @@ where
 ///
 /// If the width is 0 then a solid line is drawn between the two points.
 ///
-/// Panics
+/// # Panics
 ///
 /// Panics if the image's height or width is larger than 2,147,483,647
+///
+/// # Example
 ///
 /// ```
 /// # use image::{RgbaImage, Rgba};
@@ -94,6 +99,9 @@ where
 ///
 /// - Panics if opacity is not in the range `0.0..=1.0`.
 /// - Panics if the image's height or width is larger than 2,147,483,647
+///
+/// # Example
+///
 /// ```
 /// # use image::{RgbaImage, Rgba};
 /// use freehand::lines::line_alpha;
@@ -135,6 +143,9 @@ where
 ///
 /// - Panics if opacity is not in the range `0.0..=1.0`
 /// - Panics if the image's height or width is larger than 2,147,483,647
+///
+/// # Example
+///
 /// ```
 /// # use image::{RgbaImage, Rgba};
 /// use freehand::lines::dashed_line_alpha;
@@ -186,6 +197,8 @@ pub fn dashed_line_alpha<P, W>(
 
 /// Draws a path using straight solid lines from one point to the next.
 /// The start and end points are not connected.
+///
+/// # Example
 ///
 /// ```
 /// # use image::{RgbaImage, Rgba};

@@ -4,6 +4,10 @@
 use crate::ops::blend_at;
 use crate::{Point, Pt};
 
+/// Draws an antialiased line of the specified thickness
+///
+/// # Example
+///
 /// ```
 /// # use image::{RgbaImage, Rgba};
 /// use freehand::lines::antialiased_line;

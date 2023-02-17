@@ -8,6 +8,8 @@ use image::{GenericImage, Rgba, RgbaImage};
 
 /// Draws a straight horizontal line.
 ///
+/// # Example
+///
 /// ```
 /// use image::{RgbaImage, Rgba};
 /// use freehand::lines::horizontal_line;
@@ -34,6 +36,9 @@ where
 /// Draws a dashed horizontal line.
 ///
 /// A `width` of 0 will draw a solid horizontal line.
+///
+/// # Example
+///
 ///
 /// ```
 /// use image::{RgbaImage, Rgba};
@@ -87,6 +92,9 @@ where
 /// # Panics
 ///
 /// Panics if opacity is not in the range `0.0..=1.0`
+///
+/// # Example
+///
 /// ```
 /// use image::{RgbaImage, Rgba};
 /// use freehand::lines::horizontal_line_alpha;
@@ -125,6 +133,9 @@ pub fn horizontal_line_alpha<P>(
 /// # Panics
 ///
 /// Panics if opacity is not in the range `0.0..=1.0`
+///
+/// # Example
+///
 /// ```
 /// use image::{RgbaImage, Rgba};
 /// use freehand::lines::horizontal_dashed_line_alpha;

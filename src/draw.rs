@@ -20,6 +20,8 @@ use image::{GenericImage, Rgba, RgbaImage};
 ///
 /// This is a simple wrapper around a mutable image reference.
 ///
+/// # Example
+///
 /// ```
 /// # use image::{Rgba, RgbaImage};
 /// let mut image = RgbaImage::new(400, 400);
@@ -48,6 +50,8 @@ where
     ///
     /// This allows drawing functions to be called using method chaining.
     ///
+    /// # Example
+    ///
     /// ```
     /// # use image::{Rgba, RgbaImage};
     /// let mut image = RgbaImage::new(400, 400);
@@ -61,6 +65,8 @@ where
     /// Draws a straight line.
     ///
     /// See: [`lines::line`]
+    ///
+    /// # Example
     ///
     /// ```
     /// # use image::{RgbaImage, Rgba};
@@ -85,6 +91,8 @@ where
     /// Draws a dashed line between two points.
     ///
     /// See [`lines::dashed_line`]
+    ///
+    /// # Example
     ///
     /// ```
     /// # use image::{RgbaImage, Rgba};
@@ -112,6 +120,8 @@ where
     ///
     /// See [`lines::path`]
     ///
+    /// # Example
+    ///
     /// ```
     /// # use image::{RgbaImage, Rgba};
     /// # let mut image = RgbaImage::new(400, 400);
@@ -134,6 +144,8 @@ where
     ///
     /// See [`shapes::rectangle`]
     ///
+    /// # Example
+    ///
     /// ```
     /// # use image::{RgbaImage, Rgba};
     /// # let mut image = RgbaImage::new(400, 400);
@@ -153,6 +165,8 @@ where
     ///
     /// See [`shapes::rectangle_filled`]
     ///
+    /// # Example
+    ///
     /// ```
     /// # use image::{RgbaImage, Rgba};
     /// # let mut image = RgbaImage::new(400, 400);
@@ -171,6 +185,8 @@ where
     /// Draws a circular arc.
     ///
     /// See [`conics::arc`]
+    ///
+    /// # Example
     ///
     /// ```
     /// # use image::{RgbaImage, Rgba};
@@ -201,6 +217,8 @@ where
     ///
     /// See [`conics::circle`]
     ///
+    /// # Example
+    ///
     /// ```
     /// # use image::{RgbaImage, Rgba};
     /// # let mut image = RgbaImage::new(400, 400);
@@ -221,6 +239,8 @@ where
     /// Draws a filled pie slice.
     ///
     /// See [`conics::pie_slice_filled`]
+    ///
+    /// # Example
     ///
     /// ```
     /// # use image::{RgbaImage, Rgba};
@@ -250,6 +270,8 @@ where
     /// Draws a thick arc.
     ///
     /// See [`conics::thick_arc`]
+    ///
+    /// # Example
     ///
     /// ```
     /// # use image::{RgbaImage, Rgba};
@@ -288,6 +310,8 @@ where
     ///
     /// See [`conics::thick_circle`]
     ///
+    /// # Example
+    ///
     /// ```
     /// # use image::{RgbaImage, Rgba};
     /// # let mut image = RgbaImage::new(400, 400);
@@ -307,6 +331,8 @@ where
     /// Draws an annulus (a filled donut)
     ///
     /// See: [`conics::annulus`]
+    ///
+    /// # Example
     ///
     /// ```
     /// # use image::{RgbaImage, Rgba};
@@ -348,6 +374,8 @@ impl<'i> Draw<'i, RgbaImage> {
     ///
     /// See [`conics::antialiased_arc`]
     ///
+    /// # Example
+    ///
     /// ```
     /// # use image::{RgbaImage, Rgba};
     /// # let mut image = RgbaImage::new(400, 400);
@@ -377,6 +405,8 @@ impl<'i> Draw<'i, RgbaImage> {
     ///
     /// See [`lines::dashed_line_alpha`]
     ///
+    /// # Example
+    ///
     /// ```
     /// # use image::{RgbaImage, Rgba};
     /// # let mut image = RgbaImage::new(400, 400);
@@ -405,6 +435,8 @@ impl<'i> Draw<'i, RgbaImage> {
     ///
     /// See [`lines::line_alpha`]
     ///
+    /// # Example
+    ///
     /// ```
     /// # use image::{RgbaImage, Rgba};
     /// # let mut image = RgbaImage::new(400, 400);
@@ -424,6 +456,8 @@ impl<'i> Draw<'i, RgbaImage> {
     /// Draws a thick anti-aliased line.
     ///
     /// See: [`lines::antialiased_line`]
+    ///
+    /// # Example
     ///
     /// ```
     /// # use image::{RgbaImage, Rgba};
@@ -445,6 +479,8 @@ impl<'i> Draw<'i, RgbaImage> {
     /// Draws a rectangle with the specified opacity.
     ///
     /// See [`shapes::rectangle_alpha`]
+    ///
+    /// # Example
     ///
     /// ```
     /// # use image::{RgbaImage, Rgba};
@@ -472,6 +508,8 @@ impl<'i> Draw<'i, RgbaImage> {
     /// Draws a filled rectangle with the specified opacity.
     ///
     /// See [`shapes::rectangle_filled_alpha`]
+    ///
+    /// # Example
     ///
     /// ```
     /// # use image::{RgbaImage, Rgba};
@@ -504,6 +542,8 @@ impl<'i> Draw<'i, RgbaImage> {
     ///
     /// See [`ops::blend_at`]
     ///
+    /// # Example
+    ///
     /// ```
     /// # use image::{RgbaImage, Rgba};
     /// # let mut image = RgbaImage::new(400, 400);
@@ -530,6 +570,8 @@ impl<'i> Draw<'i, RgbaImage> {
     ///
     /// Also, `opacity` should be in the range `(0..=1.0)`.
     ///
+    /// # Example
+    ///
     /// ```
     /// # use image::{RgbaImage, Rgba};
     /// # let mut image = RgbaImage::new(400, 400);
@@ -547,6 +589,8 @@ impl<'i> Draw<'i, RgbaImage> {
 /// Creates a new [`Draw`] struct for a mutable image.
 ///
 /// This allows drawing functions to be called using method chaining.
+///
+/// # Example
 ///
 /// ```
 /// # use image::{Rgba, RgbaImage};

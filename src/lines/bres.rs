@@ -3,6 +3,8 @@ use crate::pt::{Point, Pt};
 #[derive(Clone, Debug)]
 /// An iterator between two points on a line.  Uses Bresenham's algorithm.
 ///
+/// # Example
+///
 /// ```
 /// use freehand::lines::LineIter;
 ///

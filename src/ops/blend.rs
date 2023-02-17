@@ -15,6 +15,8 @@
 ///
 /// Also, `opacity` should be in the range `(0..=1.0)`.
 ///
+/// # Example
+///
 /// ```
 /// use freehand::ops::blend_at_unchecked;
 /// # use image::{RgbaImage, Rgba};
@@ -54,6 +56,8 @@ pub unsafe fn blend_at_unchecked(
 /// # Panics
 ///
 /// Panics if opacity is not between 0.0 and 1.0
+///
+/// # Example
 ///
 /// ```
 /// use freehand::ops::blend_at;
