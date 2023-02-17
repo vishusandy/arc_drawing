@@ -29,7 +29,7 @@ env_logger = "0.10.0"
 log = "0.4"
 
 [features]
-default = ["serde"]
+default = []
 serde = ["dep:serde"]
 
 [profile.release]
