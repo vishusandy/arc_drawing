@@ -32,6 +32,7 @@ The [`image`](https://docs.rs/image/latest/image/) crate should already be a dep
     ```rust
     // no `use` statements required here
     // just pass in the image you wish to work on
+    # let mut image = image::RgbaImage::new(400, 400);
     let draw = freehand::new(&mut image);
     
     let red = image::Rgba([255, 0, 0, 255]);
@@ -51,6 +52,15 @@ Angles are treated differently based on their type. Floating-point types will be
 Anti-aliasing and alpha blending functions currently only work with [`RgbaImage`](https://docs.rs/image/latest/image/type.RgbaImage.html)s.
 
 Also note functions that have an explicit `opacity` parameter will not take an [`Rgba`](https://docs.rs/image/latest/image/struct.Rgba.html) value's alpha channel into account when blending (unless stated otherwise).
+
+## Serde
+
+If you wish to serialize/deserialize the available structs specify the serde feature in your `Cargo.toml`:
+
+```toml
+[dependencies]
+freehand = { version = "0.1.0", features = ["serde"]}
+```
 
 ## Limitations
 

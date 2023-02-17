@@ -16,9 +16,9 @@
 //! on [`image`].
 //!
 //! Current features:
-//! - line drawing functions
-//! - circles, circular arcs, and annuli (filled donut shapes)
-//! - rectangles
+//! - [line drawing functions](lines)
+//! - [circles, circular arcs, and annuli (filled donut shapes)](conics)
+//! - [shapes (currently only rectangles)][shapes]
 //!
 //! # Usage
 //!
@@ -80,6 +80,7 @@
 //! together when the alpha channel values will primarily be the same.
 //!
 //![`image`]: https://docs.rs/image/latest/image/
+//![`image::RgbaImage`]: https://docs.rs/image/latest/image/type.RgbaImage.html
 //!
 
 /// Ensures the image dimensions fit into an i32
@@ -104,6 +105,10 @@ macro_rules! check_opacity {
         );
     };
 }
+
+#[doc = include_str!("../README.md")]
+#[cfg(doctest)]
+struct ReadmeDocTest;
 
 #[cfg(test)]
 mod test;
