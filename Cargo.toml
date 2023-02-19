@@ -3,6 +3,7 @@ name = "freehand"
 version = "0.1.0"
 edition = "2021"
 # 1.61 needed to mark const functions
+# 1.60 needed to use the "dep:" syntax
 rust-version = "1.61.0"
 authors = ["Andrew Prindle"]
 repository = "https://github.com/vishusandy/freehand"

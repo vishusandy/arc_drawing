@@ -5,7 +5,6 @@
 #![allow(clippy::cast_sign_loss)]
 #![allow(clippy::cast_precision_loss)]
 #![macro_use]
-// #![allow(clippy::cast_possible_wrap)]
 
 //! # Overview
 //!
@@ -57,7 +56,19 @@
 //!
 //! Note: not all
 //! drawing functions have `Draw` methods; some of the less common functions
-//! must be called from the funcitons.
+//! must be called from the funcitons (the horizontal, vertical, and diagonal
+//! line variants which are more restricted).
+//!
+//! ## Serde
+//!
+//! If you wish to serialize/deserialize structs with [`Serde`] specify the serde feature in your `Cargo.toml`:
+//!
+//! ```toml
+//! [dependencies]
+//! freehand = { version = "0.1.0", features = ["serde"] }
+//! ```
+//!
+//! [`Serde`]: https://docs.rs/serde/latest/serde/index.html
 //!
 //! # Notes
 //!
