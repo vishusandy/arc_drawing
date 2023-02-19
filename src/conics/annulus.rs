@@ -82,7 +82,7 @@ pub fn annulus<A, C, I>(
 /// This is just a wrapper around [`Annulus`] for convenience.
 ///
 /// See also: [`Draw::thick_arc`](crate::Draw::thick_arc)
-/// 
+///
 pub fn thick_arc<A, C, I>(
     image: &mut I,
     start_angle: A,
@@ -130,7 +130,7 @@ pub fn thick_arc<A, C, I>(
 /// This is just a wrapper around [`Annulus`] for convenience.
 ///
 /// See also: [`Draw::pie_slice_filled`](crate::Draw::pie_slice_filled)
-/// 
+///
 pub fn pie_slice_filled<A, C, I>(
     image: &mut I,
     start_angle: A,
@@ -162,7 +162,7 @@ pub fn pie_slice_filled<A, C, I>(
 /// draw them in all octants.
 ///
 /// See also: [`Draw::thick_circle`](crate::Draw::thick_circle)
-/// 
+///
 pub fn thick_circle<C, I>(image: &mut I, radius: i32, thickness: i16, center: C, color: I::Pixel)
 where
     C: Point<i32>,

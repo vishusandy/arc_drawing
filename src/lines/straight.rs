@@ -20,7 +20,7 @@ use image::GenericImage;
 /// ```
 ///
 /// See also: [`Draw::line`](crate::Draw::line)
-/// 
+///
 pub fn line<I, P>(image: &mut I, a: P, b: P, color: I::Pixel)
 where
     I: GenericImage,
@@ -64,7 +64,7 @@ where
 /// ```
 ///
 /// See also: [`Draw::dashed_line`](crate::Draw::dashed_line)
-/// 
+///
 pub fn dashed_line<I, P>(image: &mut I, a: P, b: P, dash_width: u16, color: I::Pixel)
 where
     I: GenericImage,
